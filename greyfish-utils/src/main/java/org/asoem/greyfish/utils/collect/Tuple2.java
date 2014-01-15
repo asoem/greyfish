@@ -5,9 +5,7 @@ import com.google.common.base.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * User: christoph
- * Date: 05.06.12
- * Time: 15:55
+ * Tuple2 is an immutable implementation of {@code Product2} which does not allow {@code null} values.
  */
 public class Tuple2<E1, E2> implements Product2<E1, E2> {
 
@@ -22,12 +20,12 @@ public class Tuple2<E1, E2> implements Product2<E1, E2> {
     }
 
     @Override
-    public E1 _1() {
+    public E1 first() {
         return e1;
     }
 
     @Override
-    public E2 _2() {
+    public E2 second() {
         return e2;
     }
 
@@ -63,14 +61,19 @@ public class Tuple2<E1, E2> implements Product2<E1, E2> {
     public static <E1, E2> Tuple2<E1, E2> of(final E1 e1, final E2 e2) {
         checkNotNull(e1);
         checkNotNull(e2);
-        return new Tuple2<E1, E2>(e1, e2);
+        return new Tuple2<>(e1, e2);
     }
 
-    public static <E1, E2> Tuple2<E1, E2> copyOf(final Product2<E1, E2> product2) {
-        if (product2 instanceof Tuple2)
+    @SuppressWarnings("unchecked") // safe cast
+    public static <E1, E2> Tuple2<E1, E2> copyOf(final Product2<? extends E1, ? extends E2> product2) {
+        if (product2 instanceof Tuple2) {
             return (Tuple2<E1, E2>) product2;
-        else
-            return of(product2._1(), product2._2());
+        } else {
+            return of(product2.first(), product2.second());
+        }
     }
 
+    public static <E1, E2> Tuple2<E2, E1> swapped(final Product2<? extends E1, ? extends E2> product2) {
+        return of(product2.second(), product2.first());
+    }
 }

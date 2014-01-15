@@ -50,22 +50,22 @@ public class ThreadLocalRandomGeneratorAT {
                 measure(nThreads, generatorSupplier, nMeasurements, taskFactory);
 
         // then
-        assertThat(results._2().getMean(), is(lessThan(results._1().getMean())));
+        assertThat(results.second().getMean(), is(lessThan(results.first().getMean())));
 
         assertThat("The mean elapsed time of the thread local generator" +
                 "is not less than the mean elapsed time of the synchronized generator",
-                results._2().getMean(), is(lessThan(results._1().getMean())));
+                results.second().getMean(), is(lessThan(results.first().getMean())));
 
         // Is it also significantly faster? Make a t-test.
         // Test assumptions for t-test: normality
-        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(results._2().getValues()).p(), is(lessThan(SIGNIFICANT.getAlpha())));
-        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(results._1().getValues()).p(), is(lessThan(SIGNIFICANT.getAlpha())));
+        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(results.second().getValues()).p(), is(lessThan(SIGNIFICANT.getAlpha())));
+        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(results.first().getValues()).p(), is(lessThan(SIGNIFICANT.getAlpha())));
 
         // Perform the t-test
-        final double t = new TTest().t(results._2(), results._1());
-        final double p = new TTest().tTest(results._2(), results._1());
+        final double t = new TTest().t(results.second(), results.first());
+        final double p = new TTest().tTest(results.second(), results.first());
         LOGGER.info("t-test: t={}, p={}", t, p);
-        double qt = new TDistribution(results._2().getN() - 1 + results._1().getN() - 1).inverseCumulativeProbability(1 - SIGNIFICANT.getAlpha() / 2);
+        double qt = new TDistribution(results.second().getN() - 1 + results.first().getN() - 1).inverseCumulativeProbability(1 - SIGNIFICANT.getAlpha() / 2);
         assertThat("The means are not significantly different", Math.abs(t), is(greaterThan(qt)));
     }
 
@@ -79,9 +79,9 @@ public class ThreadLocalRandomGeneratorAT {
                 measure(nThreads, generatorSupplier, nMeasurements, taskFactory);
 
         // then
-        assertThat(results._2().getMean(), is(lessThan(results._1().getMean())));
+        assertThat(results.second().getMean(), is(lessThan(results.first().getMean())));
 
-        double p = new TTest().tTest(results._1(), results._2());
+        double p = new TTest().tTest(results.first(), results.second());
         System.out.println("t-Test: p=" + p);
         assertThat(p, is(lessThanOrEqualTo(HIGHLY_SIGNIFICANT.getAlpha())));
     }

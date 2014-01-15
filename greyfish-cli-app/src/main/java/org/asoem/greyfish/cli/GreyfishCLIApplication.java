@@ -358,12 +358,12 @@ public final class GreyfishCLIApplication {
         }
 
         @Override
-        public String _1() {
+        public String first() {
             return key;
         }
 
         @Override
-        public String _2() {
+        public String second() {
             return value;
         }
     }

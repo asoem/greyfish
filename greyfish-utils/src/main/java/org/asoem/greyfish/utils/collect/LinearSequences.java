@@ -14,23 +14,23 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * User: christoph
- * Date: 31.01.13
- * Time: 11:37
+ * User: christoph Date: 31.01.13 Time: 11:37
  */
 public class LinearSequences {
-    private LinearSequences() {}
+    private LinearSequences() {
+    }
 
     /**
-     * Create a crossover product between two {@code Iterables} with crossovers at given {@code indices}.
-     * This means that both {@code Iterable}s in the returned product are a combination of the input iterables in such a way,
-     * that the constructed iterable switches the input iterable at each given position.
-     * Both input {@code Iterable}s will be zipped with {@link Products#zip(Iterable, Iterable)}.
-     * Therefore the returned {@code Iterable}s will have the same size equal to the size of the input iterable with the fewest elements.
-     * @param x The first Iterable
-     * @param y The second Iterable
+     * Create a crossover product between two {@code Iterables} with crossovers at given {@code indices}. This means
+     * that both {@code Iterable}s in the returned product are a combination of the input iterables in such a way, that
+     * the constructed iterable switches the input iterable at each given position. Both input {@code Iterable}s will be
+     * zipped with {@link Products#zip(Iterable, Iterable)}. Therefore the returned {@code Iterable}s will have the same
+     * size equal to the size of the input iterable with the fewest elements.
+     *
+     * @param x       The first Iterable
+     * @param y       The second Iterable
      * @param indices the indices at which to do the crossovers
-     * @param <E> the type of the elements in {@code Iterable}s
+     * @param <E>     the type of the elements in {@code Iterable}s
      * @return a product of Iterables with crossovers at the given indices
      */
     public static <E> Product2<Iterable<E>, Iterable<E>> crossover(final Iterable<E> x, final Iterable<E> y, final Set<Integer> indices) {
@@ -62,9 +62,9 @@ public class LinearSequences {
                         @Override
                         public boolean apply(@Nullable final Range<Integer> range) {
                             assert range != null;
-                            return range.contains(input._2());
+                            return range.contains(input.second());
                         }
-                    }) ? Products.swap(input._1()) : input._1();
+                    }) ? Products.swap(input.first()) : input.first();
                 }
             }));
         }
@@ -75,7 +75,7 @@ public class LinearSequences {
         final Iterable<Product2<E, E>> zipped = Products.zip(a, b);
         int sum = 0;
         for (final Product2<E, E> el : zipped) {
-            if (!el._1().equals(el._2()))
+            if (!el.first().equals(el.second()))
                 ++sum;
         }
         return sum;

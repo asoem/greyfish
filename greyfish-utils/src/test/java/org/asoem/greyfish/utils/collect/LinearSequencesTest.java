@@ -13,9 +13,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 
 /**
- * User: christoph
- * Date: 31.01.13
- * Time: 11:52
+ * User: christoph Date: 31.01.13 Time: 11:52
  */
 public class LinearSequencesTest {
 
@@ -30,8 +28,8 @@ public class LinearSequencesTest {
                 LinearSequences.crossover(l1, l2, Sets.newHashSet(1, 3));
 
         // then
-        assertThat(crossover._1(), contains("x", "y", "y", "y"));
-        assertThat(crossover._2(), contains("y", "x", "x", "x"));
+        assertThat(crossover.first(), contains("x", "y", "y", "y"));
+        assertThat(crossover.second(), contains("y", "x", "x", "x"));
     }
 
     @Test
@@ -45,7 +43,7 @@ public class LinearSequencesTest {
         l2.set(3, "y");
 
         // then
-        assertThat(crossover._2(), contains(l2.toArray(new String[l2.size()])));
+        assertThat(crossover.second(), contains(l2.toArray(new String[l2.size()])));
     }
 
     @Test
@@ -58,8 +56,8 @@ public class LinearSequencesTest {
         final Product2<Iterable<Character>, Iterable<Character>> crossover = LinearSequences.crossover(l1, l2, ImmutableSet.<Integer>of());
 
         // then
-        assertThat(crossover._1(), contains(Lists.charactersOf("xxxx").toArray(new Character[4])));
-        assertThat(crossover._2(), contains(Lists.charactersOf("yyyy").toArray(new Character[4])));
+        assertThat(crossover.first(), contains(Lists.charactersOf("xxxx").toArray(new Character[4])));
+        assertThat(crossover.second(), contains(Lists.charactersOf("yyyy").toArray(new Character[4])));
     }
 
     @Test

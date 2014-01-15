@@ -25,6 +25,7 @@ import static scala.collection.JavaConversions.iterableAsScalaIterable;
 
 /**
  * This implementation delegates to an instance of a {@link KDTree}.
+ *
  * @param <T> the type of the value stored with each node
  */
 public class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
@@ -59,7 +60,7 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
                     public Product2<HyperPoint, T> apply(final T t) {
                         final org.asoem.greyfish.utils.collect.Product2<Double, Double> b = mappingFunction.apply(t);
                         assert b != null;
-                        return new Tuple2<HyperPoint, T>(new HyperPoint2(b._1(), b._2()), t);
+                        return new Tuple2<HyperPoint, T>(new HyperPoint2(b.first(), b.second()), t);
                     }
                 });
         this.tree = KDTree.apply(DIMENSIONS, iterableAsScalaIterable(transform).toList());
