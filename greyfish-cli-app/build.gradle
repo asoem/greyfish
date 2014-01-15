@@ -1,18 +1,6 @@
-group = "org.asoem.greyfish"
-version = "1.0.0-SNAPSHOT"
-
-apply plugin: 'java'
-
-apply plugin: 'maven-publish'
-
 apply plugin: 'application'
 mainClassName = "org.asoem.greyfish.cli.GreyfishCLIApplication"
 startScripts.applicationName 'greyfish'
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
 
 dependencies {
     compile 'com.google.inject:guice:3.0',

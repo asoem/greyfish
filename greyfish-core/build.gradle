@@ -1,15 +1,3 @@
-group = "org.asoem.greyfish"
-version = "1.0.0-SNAPSHOT"
-
-apply plugin: 'java'
-
-apply plugin: 'maven-publish'
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 configurations {
     scalaKDTree
 }
