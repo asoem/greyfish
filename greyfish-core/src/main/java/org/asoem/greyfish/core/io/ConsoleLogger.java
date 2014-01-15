@@ -24,7 +24,7 @@ final class ConsoleLogger implements SimulationLogger {
 
     @Override
     public void logSimulation(final Simulation<?> simulation) {
-        printStream.println("Created getSimulation: " + simulation.getName() + " (" + simulation.hashCode() + ")");
+        printStream.println("Created simulation: " + simulation.getName() + " (" + simulation.hashCode() + ")");
     }
 
     @Override

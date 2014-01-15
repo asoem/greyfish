@@ -52,7 +52,7 @@ public final class GreyfishCLIApplication {
     /* private static final OptionSpecBuilder REPRODUCIBLE_MODE_OPTION_SPEC =
             OPTION_PARSER.accepts("R", "Reproducible mode. Sets the seed of the Pseudo Random Generator to 0"); */
     private static final ArgumentAcceptingOptionSpec<String> SIMULATION_NAME_OPTION_SPEC =
-            OPTION_PARSER.acceptsAll(asList("n", "name"), "Set getSimulation name")
+            OPTION_PARSER.acceptsAll(asList("n", "name"), "Set simulation name")
                     .withRequiredArg().ofType(String.class);
     private static final ArgumentAcceptingOptionSpec<Integer> PARALLELIZATION_THRESHOLD_OPTION_SPEC =
             OPTION_PARSER.accepts("pt", "Set parallelization threshold")
@@ -81,7 +81,7 @@ public final class GreyfishCLIApplication {
     private static final OptionSpecBuilder QUIET_OPTION_SPEC =
             OPTION_PARSER.accepts("q", "Be quiet. Don't print progress information");
     private static final ArgumentAcceptingOptionSpec<Integer> STEPS_OPTION_SPEC =
-            OPTION_PARSER.acceptsAll(asList("s", "steps"), "stop getSimulation after MAX steps")
+            OPTION_PARSER.acceptsAll(asList("s", "steps"), "stop simulation after MAX steps")
                     .withRequiredArg().ofType(Integer.class).required();
     private static final ArgumentAcceptingOptionSpec<Integer> COMMIT_THRESHOLD_SPEC =
             OPTION_PARSER.accepts("ct", "Commit threshold for JDBC batch operations")
@@ -291,9 +291,9 @@ public final class GreyfishCLIApplication {
         } catch (OptionException e) {
             exitWithErrorMessage("Failed parsing options: ", e, true);
         } catch (Throwable e) {
-            exitWithErrorMessage(String.format("Exception during getSimulation execution: %s.\n"
-                    + "Check log file for detailed information",
-                    e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
+            exitWithErrorMessage(String.format("Exception during simulation execution: %s\n"
+                    + "Check log file for a stack trace.",
+                    e.getCause() != null ? e.getCause().getMessage() : e.getMessage()), e);
         }
 
         System.exit(0);

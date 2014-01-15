@@ -131,7 +131,7 @@ public final class DefaultBasicSimulation
     public void enqueueRemoval(final BasicAgent agent, final Runnable listener, final Executor executor) {
         checkNotNull(agent);
         checkArgument(agent.isActive(), "Agent is not active");
-        checkArgument(this.equals(agent.getContext().get().getSimulation()), "Agent is active in another getSimulation");
+        checkArgument(this.equals(agent.getContext().get().getSimulation()), "Agent is active in another simulation");
         checkState(!Phase.UPDATE.equals(phase.get()));
         this.delayedModifications.add(new DelayedModification() {
             @Override
