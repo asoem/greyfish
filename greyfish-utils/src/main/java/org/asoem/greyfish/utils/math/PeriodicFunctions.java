@@ -5,7 +5,7 @@ import org.apache.commons.math3.util.FastMath;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class PeriodicFunctions {
+public final class PeriodicFunctions {
 
     private PeriodicFunctions() {
         throw new AssertionError("Not instantiable");
@@ -18,6 +18,7 @@ public class PeriodicFunctions {
         return new UnivariateFunction() {
             private final UnivariateFunction sawtoothWave =
                     sawtoothWave(period, phase < 0.75 ? phase + 0.25 : -0.75 + phase);
+
             @Override
             public double value(final double x) {
                 return 2 * FastMath.abs(sawtoothWave.value(x)) - 1;
@@ -33,8 +34,8 @@ public class PeriodicFunctions {
             return new UnivariateFunction() {
                 @Override
                 public double value(final double x) {
-                    final double x_p = x + phase;
-                    return 2 * (x_p - FastMath.floor(0.5 + x_p));
+                    final double xPlusPhase = x + phase;
+                    return 2 * (xPlusPhase - FastMath.floor(0.5 + xPlusPhase));
                 }
             };
         } else {
@@ -43,8 +44,8 @@ public class PeriodicFunctions {
 
                 @Override
                 public double value(final double x) {
-                    final double x_p = (x + absolutePhaseShift) / period;
-                    return 2 * (x_p - FastMath.floor(0.5 + x_p));
+                    final double xPlusPhase = (x + absolutePhaseShift) / period;
+                    return 2 * (xPlusPhase - FastMath.floor(0.5 + xPlusPhase));
                 }
             };
         }

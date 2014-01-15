@@ -2,6 +2,7 @@ package org.asoem.greyfish.utils.collect;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.hamcrest.CustomTypeSafeMatcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.collection.IsIterableWithSize;
 import org.junit.Assert;
@@ -11,12 +12,11 @@ import java.util.Collections;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 
 /**
- * User: christoph
- * Date: 10.02.13
- * Time: 14:20
+ * User: christoph Date: 10.02.13 Time: 14:20
  */
 public class ProductsTest {
     @Test
@@ -80,5 +80,23 @@ public class ProductsTest {
 
         // then
         Assert.assertThat(zipped, is(IsIterableWithSize.<Product3<String, Double, Date>>iterableWithSize(1)));
+    }
+
+    @Test
+    public void testZip3() throws Exception {
+        // given
+        final Tuple3<ImmutableList<String>, ImmutableList<String>, ImmutableList<String>> zipped =
+                Tuple3.of(ImmutableList.of("a"), ImmutableList.of("b"), ImmutableList.of("c"));
+
+        // when
+        final Iterable<Product3<String, String, String>> zip = Products.zip(zipped);
+
+        // then
+        assertThat(zip, contains(new CustomTypeSafeMatcher<Product3<String, String, String>>("") {
+            @Override
+            protected boolean matchesSafely(final Product3<String, String, String> item) {
+                return item.first().equals("a") && item.second().equals("b") && item.third().equals("c");
+            }
+        }));
     }
 }

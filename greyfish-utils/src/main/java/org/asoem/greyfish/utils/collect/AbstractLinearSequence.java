@@ -3,13 +3,13 @@ package org.asoem.greyfish.utils.collect;
 import java.util.AbstractList;
 
 /**
- * User: christoph
- * Date: 01.02.13
- * Time: 12:14
+ * This class provides a skeletal implementation of {@link org.asoem.greyfish.utils.collect.LinearSequence}.
+ *
+ * @param <T> the element type
  */
 public abstract class AbstractLinearSequence<T> extends AbstractList<T> implements LinearSequence<T> {
     @Override
-    public int size() {
+    public final int size() {
         return length();
     }
 }

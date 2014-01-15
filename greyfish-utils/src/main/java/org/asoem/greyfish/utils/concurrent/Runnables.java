@@ -1,6 +1,6 @@
 package org.asoem.greyfish.utils.concurrent;
 
-public class Runnables {
+public final class Runnables {
 
     private Runnables() {
         throw new UnsupportedOperationException();

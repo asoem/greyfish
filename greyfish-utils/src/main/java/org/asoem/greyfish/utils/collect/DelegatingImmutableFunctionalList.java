@@ -2,7 +2,7 @@ package org.asoem.greyfish.utils.collect;
 
 import java.util.List;
 
-public abstract class DelegatingImmutableFunctionalList<E> extends ImmutableFunctionalList<E> {
+abstract class DelegatingImmutableFunctionalList<E> extends ImmutableFunctionalList<E> {
 
     protected abstract List<E> delegate();
 

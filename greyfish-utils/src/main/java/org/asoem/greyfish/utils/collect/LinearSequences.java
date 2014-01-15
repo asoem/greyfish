@@ -40,9 +40,9 @@ public class LinearSequences {
 
         final Iterable<Product2<E, E>> zipped = Products.zip(x, y);
 
-        if (indices.isEmpty())
+        if (indices.isEmpty()) {
             return Products.unzip(zipped);
-        else {
+        } else {
             final FunctionalList<Range<Integer>> ranges = ImmutableFunctionalList.copyOf(Iterables.transform(Iterables.partition(
                     Ordering.natural().immutableSortedCopy(indices), 2), new Function<List<Integer>, Range<Integer>>() {
                 @Nullable
