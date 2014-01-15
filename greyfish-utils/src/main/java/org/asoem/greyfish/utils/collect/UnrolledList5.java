@@ -10,6 +10,12 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * This is a {@link org.asoem.greyfish.utils.collect.FunctionalList FunctionalList} implementation for lists of size 5.
+ * The predictable size allows some operations to unroll the list for performance optimizations.
+ *
+ * @param <E> the element type
+ */
 final class UnrolledList5<E> extends DelegatingImmutableFunctionalList<E> implements Serializable {
 
     private final List<E> delegate;

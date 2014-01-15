@@ -12,6 +12,12 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkElementIndex;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * This is a {@link org.asoem.greyfish.utils.collect.FunctionalList FunctionalList} implementation for lists of size 1.
+ * The predictable size allows some operations to unroll the list for performance optimizations.
+ *
+ * @param <E> the element type
+ */
 final class UnrolledList1<E> extends ImmutableFunctionalList<E> implements Serializable {
     private final E element;
 
