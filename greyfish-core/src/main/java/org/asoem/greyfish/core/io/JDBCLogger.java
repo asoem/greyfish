@@ -234,6 +234,10 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
 
     @Override
     public void logProperty(final String marker, final String key, final String value) {
+        checkNotNull(marker, "marker must not be null");
+        checkNotNull(key, "key must not be null");
+        checkNotNull(value, "value must not be null");
+
         final InsertPropertyQuery insertPropertyOperation = new InsertPropertyQuery(marker, key, value);
         addQuery(insertPropertyOperation);
     }
