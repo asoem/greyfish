@@ -2,6 +2,7 @@ package org.asoem.greyfish.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -24,19 +25,22 @@ public final class Resources {
         final String className = clazz.getSimpleName() + ".class";
         final URL resource = clazz.getResource(className);
         final String classPath = resource.toString();
-        if (!classPath.startsWith("jar")) {
+        if (!classPath.startsWith("jar:file:")) {
             // Class not from JAR
             throw new UnsupportedOperationException("class is not in a jar archive");
         }
-        final String jarUrlPath = classPath.substring(0, classPath.lastIndexOf("!"));
-        final URL url = new URL(jarUrlPath);
+        final String jarUrlPath = classPath.substring(4, classPath.indexOf("!"));
 
-        final URI uri;
+
         try {
-            uri = url.toURI();
+            final URL url = new URL(jarUrlPath);
+            final URI uri = url.toURI();
+            return new JarFile(new File(uri));
         } catch (URISyntaxException e) {
             throw new AssertionError(e);
+        } catch (MalformedURLException e) {
+            throw new AssertionError("Malformed URL: " + jarUrlPath, e);
         }
-        return new JarFile(new File(uri));
+
     }
 }
