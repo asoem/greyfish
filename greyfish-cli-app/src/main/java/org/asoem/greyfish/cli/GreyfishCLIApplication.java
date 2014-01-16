@@ -1,5 +1,6 @@
 package org.asoem.greyfish.cli;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
@@ -22,6 +23,7 @@ import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.model.Experiment;
 import org.asoem.greyfish.core.model.ModelParameterTypeListener;
+import org.asoem.greyfish.utils.Resources;
 import org.asoem.greyfish.utils.collect.Product2;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.slf4j.Logger;
@@ -29,17 +31,18 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.IOError;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import static java.util.Arrays.asList;
 
-/**
- * User: christoph Date: 30.05.12 Time: 10:36
- */
 public final class GreyfishCLIApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GreyfishCLIApplication.class);
@@ -176,6 +179,11 @@ public final class GreyfishCLIApplication {
     }
 
     public static void main(final String[] args) {
+
+        final Optional<String> commitHash = getCommitHash(GreyfishCLIApplication.class);
+        if (commitHash.isPresent()) {
+            LOGGER.debug("Git Commit Hash for current Jar: %s", commitHash.get());
+        }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -368,4 +376,16 @@ public final class GreyfishCLIApplication {
         }
     }
 
+    private static Optional<String> getCommitHash(final Class<?> clazz) {
+        try {
+            final JarFile jarFile = Resources.getJarFile(clazz);
+            final Manifest manifest = jarFile.getManifest();
+            final Attributes attr = manifest.getMainAttributes();
+            return Optional.of(attr.getValue("Git-Commit-Hash"));
+        } catch (IOException e) {
+            throw new IOError(e);
+        } catch (UnsupportedOperationException e) {
+            return Optional.absent();
+        }
+    }
 }
