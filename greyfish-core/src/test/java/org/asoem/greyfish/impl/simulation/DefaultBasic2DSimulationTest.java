@@ -5,9 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
-import org.apache.commons.pool.KeyedObjectPool;
-import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.core.traits.AgentTrait;
@@ -18,6 +15,8 @@ import org.asoem.greyfish.impl.agent.DefaultBasic2DAgent;
 import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
 import org.asoem.greyfish.impl.space.DefaultBasicTiled2DSpace;
 import org.asoem.greyfish.utils.collect.ImmutableFunctionalList;
+import org.asoem.greyfish.utils.collect.LoadingKeyedObjectPool;
+import org.asoem.greyfish.utils.collect.SynchronizedKeyedObjectPool;
 import org.asoem.greyfish.utils.persistence.Persister;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.asoem.greyfish.utils.space.Point2D;
@@ -28,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -63,12 +63,13 @@ public class DefaultBasic2DSimulationTest {
 
         // when
         final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, ImmutableSet.of(prototype))
-                .agentPool(new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
+                .agentPool(SynchronizedKeyedObjectPool.create(new LoadingKeyedObjectPool.PoolLoader<PrototypeGroup, Basic2DAgent>() {
                     @Override
-                    public Basic2DAgent makeObject(final PrototypeGroup o) throws Exception {
+                    public Basic2DAgent load(final PrototypeGroup input) {
                         return builder.build();
                     }
-                })).build();
+                }))
+                .build();
         simulation.addAgent(builder.build(), ImmutablePoint2D.at(0, 0));
         simulation.addAgent(builder.build(), ImmutablePoint2D.at(0, 0));
         simulation.nextStep();
@@ -94,7 +95,7 @@ public class DefaultBasic2DSimulationTest {
         // when
         final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation
                 .builder(space, ImmutableSet.of(prototype))
-                .agentPool(mock(StackKeyedObjectPool.class))
+                .agentPool(mock(LoadingKeyedObjectPool.class))
                 .build();
         for (Basic2DAgent agent : agents) {
             simulation.addAgent(agent, ImmutablePoint2D.at(0, 0));
@@ -133,10 +134,10 @@ public class DefaultBasic2DSimulationTest {
         given(agent.getProjection()).willReturn(ImmutablePoint2D.at(0, 0));
         given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<? super Basic2DAgentContext, ?>>of());
 
-        final KeyedObjectPool<PrototypeGroup, Basic2DAgent> pool =
-                new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
+        final LoadingKeyedObjectPool<PrototypeGroup, Basic2DAgent> pool =
+                SynchronizedKeyedObjectPool.create(new LoadingKeyedObjectPool.PoolLoader<PrototypeGroup, Basic2DAgent>() {
                     @Override
-                    public Basic2DAgent makeObject(final PrototypeGroup population) throws Exception {
+                    public Basic2DAgent load(@Nullable final PrototypeGroup input) {
                         return agent;
                     }
                 });
@@ -174,10 +175,10 @@ public class DefaultBasic2DSimulationTest {
         given(agent.getPrototypeGroup()).willReturn(testPrototypeGroup);
         given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<? super Basic2DAgentContext, ?>>of());
 
-        final KeyedObjectPool<PrototypeGroup, Basic2DAgent> pool =
-                new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
+        final LoadingKeyedObjectPool<PrototypeGroup, Basic2DAgent> pool =
+                SynchronizedKeyedObjectPool.create(new LoadingKeyedObjectPool.PoolLoader<PrototypeGroup, Basic2DAgent>() {
                     @Override
-                    public Basic2DAgent makeObject(final PrototypeGroup population) throws Exception {
+                    public Basic2DAgent load(@Nullable final PrototypeGroup input) {
                         return agent;
                     }
                 });
@@ -218,7 +219,7 @@ public class DefaultBasic2DSimulationTest {
         });
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(agent);
         final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
-                .agentPool(mock(StackKeyedObjectPool.class))
+                .agentPool(mock(LoadingKeyedObjectPool.class))
                 .build();
         //given(agent.getSimulation()).willReturn(getSimulation);
 
@@ -242,10 +243,10 @@ public class DefaultBasic2DSimulationTest {
         given(agent.getPrototypeGroup()).willReturn(testPrototypeGroup);
         given(agent.getTraits()).willReturn(ImmutableFunctionalList.<AgentTrait<? super Basic2DAgentContext, ?>>of());
         doThrow(new RuntimeException()).when(agent).run();
-        final KeyedObjectPool<PrototypeGroup, Basic2DAgent> pool =
-                new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
+        final LoadingKeyedObjectPool<PrototypeGroup, Basic2DAgent> pool =
+                SynchronizedKeyedObjectPool.create(new LoadingKeyedObjectPool.PoolLoader<PrototypeGroup, Basic2DAgent>() {
                     @Override
-                    public Basic2DAgent makeObject(final PrototypeGroup population) throws Exception {
+                    public Basic2DAgent load(final PrototypeGroup input) {
                         return agent;
                     }
                 });

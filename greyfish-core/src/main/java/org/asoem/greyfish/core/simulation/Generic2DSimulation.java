@@ -5,7 +5,6 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.*;
 import com.google.common.eventbus.EventBus;
-import org.apache.commons.pool.KeyedObjectPool;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
@@ -14,6 +13,7 @@ import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.impl.simulation.AgentAddedEvent;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
+import org.asoem.greyfish.utils.collect.LoadingKeyedObjectPool;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
     private final List<NewAgentEvent<P, A>> addAgentMessages;
     private final List<RemoveAgentMessage<A>> removeAgentMessages;
     private final List<DeliverAgentMessageMessage<A>> deliverAgentMessageMessages;
-    private final KeyedObjectPool<PrototypeGroup, A> agentPool;
+    private final LoadingKeyedObjectPool<PrototypeGroup, A> agentPool;
     private final ExecutorService executorService;
     private final ConcurrentMap<String, Object> snapshotValues;
     private final int parallelizationThreshold;
@@ -108,7 +108,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
 
     private void releaseAgent(final A agent) {
         try {
-            agentPool.returnObject(agent.getPrototypeGroup(), agent);
+            agentPool.release(agent.getPrototypeGroup(), agent);
         } catch (Exception e) {
             LOGGER.error("Error in prototype pool", e);
         }
@@ -122,7 +122,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
     private A createClone(final PrototypeGroup prototypeGroup) {
         checkNotNull(prototypeGroup);
         try {
-            final A agent = agentPool.borrowObject(prototypeGroup);
+            final A agent = agentPool.borrow(prototypeGroup);
             checkNotNull(agent, "borrowObject in agentPool returned null");
             agent.initialize();
             return agent;
@@ -443,7 +443,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
 
     protected abstract static class Basic2DSimulationBuilder<B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>, S extends Generic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, ?, P, ?>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
 
-        private KeyedObjectPool<PrototypeGroup, A> agentPool;
+        private LoadingKeyedObjectPool<PrototypeGroup, A> agentPool;
         private int parallelizationThreshold = 1000;
         private final Z space;
         private final Set<A> prototypes;
@@ -469,7 +469,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
          * @param pool the pool to use for recycling
          * @return this builder
          */
-        public final B agentPool(final KeyedObjectPool<PrototypeGroup, A> pool) {
+        public final B agentPool(final LoadingKeyedObjectPool<PrototypeGroup, A> pool) {
             this.agentPool = checkNotNull(pool);
             return self();
         }

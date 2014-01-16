@@ -1,23 +1,22 @@
 package org.asoem.greyfish.utils.collect;
 
-/**
- * An object pool
- *
- * @param <T> the type of the objects
- */
-public interface ObjectPool<T> {
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
+public interface ObjectPool<T> {
     /**
-     * Borrow an element from this pool
+     * Borrow an object from this pool. If the pool is empty a new object is created using the {@code valueLoader}.
      *
-     * @return an element
+     * @param valueLoader the factory for new objects
+     * @return an object borrowed from the pool, or a newly created one from {@code valueLoader}
+     * @throws ExecutionException
      */
-    T borrow();
+    T borrow(Callable<T> valueLoader) throws ExecutionException;
 
     /**
      * Release an element
      *
-     * @param object
+     * @param object the object to release
      */
-    void release(final T object);
+    void release(T object);
 }

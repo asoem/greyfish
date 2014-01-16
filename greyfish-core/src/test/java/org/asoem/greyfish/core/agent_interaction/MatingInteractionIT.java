@@ -3,8 +3,6 @@ package org.asoem.greyfish.core.agent_interaction;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
-import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
-import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.actions.FemaleLikeMating;
 import org.asoem.greyfish.core.actions.MaleLikeMating;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
@@ -17,6 +15,8 @@ import org.asoem.greyfish.impl.simulation.DefaultBasic2DSimulation;
 import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
 import org.asoem.greyfish.impl.space.DefaultBasicTiled2DSpace;
 import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.collect.LoadingKeyedObjectPool;
+import org.asoem.greyfish.utils.collect.SynchronizedKeyedObjectPool;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.asoem.greyfish.utils.space.SimpleTwoDimTreeFactory;
 import org.junit.Test;
@@ -83,9 +83,9 @@ public class MatingInteractionIT {
         final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, SimpleTwoDimTreeFactory.<Basic2DAgent>newInstance());
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(male, female);
         final Basic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
-                .agentPool(new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
+                .agentPool(SynchronizedKeyedObjectPool.<PrototypeGroup, Basic2DAgent>create(new LoadingKeyedObjectPool.PoolLoader<PrototypeGroup, Basic2DAgent>() {
                     @Override
-                    public Basic2DAgent makeObject(final PrototypeGroup prototypeGroup) throws Exception {
+                    public Basic2DAgent load(final PrototypeGroup prototypeGroup) {
                         if (receiverPrototypeGroup.equals(prototypeGroup)) {
                             return femaleFactory.get();
                         } else if (donorPrototypeGroup.equals(prototypeGroup)) {

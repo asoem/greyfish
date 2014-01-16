@@ -18,6 +18,7 @@ import org.asoem.greyfish.impl.agent.DefaultBasicAgent;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.collect.ConcurrentObjectPool;
+import org.asoem.greyfish.utils.collect.LoadingObjectPool;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.asoem.greyfish.utils.math.statistics.StatisticalTests;
 import org.junit.Test;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -89,7 +91,7 @@ public class AgentObjectPoolAT {
 
         // Is it also significantly faster? Make a t-test.
         // Test assumptions for t-test: normality
-                assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(statisticsWithObjectPool.getValues()).p(), is(lessThan(SIGNIFICANT.getAlpha())));
+        assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(statisticsWithObjectPool.getValues()).p(), is(lessThan(SIGNIFICANT.getAlpha())));
         assertThat("Is not normal distributed", StatisticalTests.shapiroWilk(statisticsWithoutObjectPool.getValues()).p(), is(lessThan(SIGNIFICANT.getAlpha())));
 
         // Perform the t-test
@@ -101,7 +103,12 @@ public class AgentObjectPoolAT {
     }
 
     private double measureAgentRecycling(final int objects, final Supplier<BasicAgent> agentSupplier) throws Exception {
-        org.asoem.greyfish.utils.collect.ObjectPool<BasicAgent> objectPool = new ConcurrentObjectPool<>(agentSupplier);
+        LoadingObjectPool<BasicAgent> objectPool = ConcurrentObjectPool.create(new Callable<BasicAgent>() {
+            @Override
+            public BasicAgent call() throws Exception {
+                return agentSupplier.get();
+            }
+        });
 
         final Stopwatch stopwatch = Stopwatch.createStarted();
         for (int j = 0; j < objects; j++) {
@@ -180,7 +187,7 @@ public class AgentObjectPoolAT {
 
     public static final class SimulationWithObjectPoolFactory {
 
-        private final org.asoem.greyfish.utils.collect.ObjectPool<BasicAgent> agentObjectPool;
+        private final LoadingObjectPool<BasicAgent> agentObjectPool;
         private final PrototypeGroup prototypeGroup = PrototypeGroup.named("test");
         private final int populationSize;
         private final ExecutorService executorService;
@@ -188,9 +195,9 @@ public class AgentObjectPoolAT {
         public SimulationWithObjectPoolFactory(final int populationSize, final ExecutorService executorService) {
             this.populationSize = populationSize;
             this.executorService = executorService;
-            this.agentObjectPool = new ConcurrentObjectPool<>(new Supplier<BasicAgent>() {
+            this.agentObjectPool = ConcurrentObjectPool.create(new Callable<BasicAgent>() {
                 @Override
-                public BasicAgent get() {
+                public BasicAgent call() throws Exception {
                     return createAgent();
                 }
             });

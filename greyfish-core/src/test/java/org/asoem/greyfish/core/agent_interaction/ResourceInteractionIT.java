@@ -2,8 +2,6 @@ package org.asoem.greyfish.core.agent_interaction;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.pool.BaseKeyedPoolableObjectFactory;
-import org.apache.commons.pool.impl.StackKeyedObjectPool;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
@@ -18,12 +16,15 @@ import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
 import org.asoem.greyfish.impl.space.DefaultBasicTiled2DSpace;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
+import org.asoem.greyfish.utils.collect.LoadingKeyedObjectPool;
+import org.asoem.greyfish.utils.collect.SynchronizedKeyedObjectPool;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.asoem.greyfish.utils.space.SimpleTwoDimTreeFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -109,9 +110,9 @@ public class ResourceInteractionIT {
         Basic2DAgent provider = providerFactory.get();
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(consumer, provider);
         final Basic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
-                .agentPool(new StackKeyedObjectPool<PrototypeGroup, Basic2DAgent>(new BaseKeyedPoolableObjectFactory<PrototypeGroup, Basic2DAgent>() {
+                .agentPool(SynchronizedKeyedObjectPool.create(new LoadingKeyedObjectPool.PoolLoader<PrototypeGroup, Basic2DAgent>() {
                     @Override
-                    public Basic2DAgent makeObject(final PrototypeGroup prototypeGroup) throws Exception {
+                    public Basic2DAgent load(@Nullable final PrototypeGroup prototypeGroup) {
                         if (consumerPrototypeGroup.equals(prototypeGroup)) {
                             return consumerFactory.get();
                         } else if (providerPrototypeGroup.equals(prototypeGroup)) {
