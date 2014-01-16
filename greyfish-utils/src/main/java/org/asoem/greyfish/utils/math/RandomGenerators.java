@@ -330,25 +330,22 @@ public final class RandomGenerators {
      */
     public static RandomGenerator threadLocalGenerator(final Supplier<RandomGenerator> generatorSupplier) {
         checkNotNull(generatorSupplier);
-        return new ThreadLocalRandomGenerator() {
-
-            @Override
-            protected RandomGenerator createGenerator() {
-                return generatorSupplier.get();
-            }
-        };
+        return new ThreadLocalRandomGenerator(generatorSupplier);
     }
 
-    private abstract static class ThreadLocalRandomGenerator extends ForwardingRandomGenerator {
+    private static class ThreadLocalRandomGenerator extends ForwardingRandomGenerator {
 
         private final ThreadLocal<RandomGenerator> localRandom = new ThreadLocal<RandomGenerator>() {
             @Override
             protected RandomGenerator initialValue() {
-                return createGenerator();
+                return generatorSupplier.get();
             }
         };
+        private final Supplier<RandomGenerator> generatorSupplier;
 
-        protected abstract RandomGenerator createGenerator();
+        public ThreadLocalRandomGenerator(final Supplier<RandomGenerator> generatorSupplier) {
+            this.generatorSupplier = generatorSupplier;
+        }
 
         @Override
         protected RandomGenerator delegate() {
