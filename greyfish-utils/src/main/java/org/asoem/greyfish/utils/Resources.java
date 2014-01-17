@@ -41,6 +41,5 @@ public final class Resources {
         } catch (MalformedURLException e) {
             throw new AssertionError("Malformed URL: " + jarUrlPath, e);
         }
-
     }
 }
