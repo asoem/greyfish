@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.*;
  * This {@code ConnectionManager} implementation manages a single connection to a H2 database.
  */
 final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GreyfishH2ConnectionManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(GreyfishH2ConnectionManager.class);
 
     static {
         try {
@@ -42,12 +42,12 @@ final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable 
                 final String fullURL = String.format(
                         "jdbc:h2:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE",
                         url);
-                LOGGER.info("Connecting to database at {}", fullURL);
+                logger.info("Connecting to database at {}", fullURL);
 
                 final Connection newConnection;
                 try {
                     newConnection = DriverManager.getConnection(fullURL, "sa", "");
-                    LOGGER.info("Connection opened to url {}", fullURL);
+                    logger.info("Connection opened to url {}", fullURL);
 
                 } catch (SQLException e) {
                     throw Throwables.propagate(e);

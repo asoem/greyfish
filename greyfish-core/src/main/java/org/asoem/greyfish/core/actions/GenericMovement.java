@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Tagged("actions")
 public class GenericMovement<A extends SpatialAgent<A, ?, ?, ?>> extends BaseAgentAction<A, AgentContext<A>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GenericMovement.class);
+    private static final Logger logger = LoggerFactory.getLogger(GenericMovement.class);
 
     private Callback<? super GenericMovement<A>, Double> stepSize;
     private Callback<? super GenericMovement<A>, Double> turningAngle;
@@ -47,7 +47,7 @@ public class GenericMovement<A extends SpatialAgent<A, ?, ?, ?>> extends BaseAge
         final Motion2D motion = ImmutableMotion2D.of(evaluatedTurningAngle, evaluatedStepSize);
         context.agent().setMotion(motion);
 
-        LOGGER.info("{}: Changing movement to {}", context.agent(), motion);
+        logger.info("{}: Changing movement to {}", context.agent(), motion);
         return ActionState.COMPLETED;
     }
 

@@ -47,7 +47,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContext<?, A>, ?, ?>>
         implements SimulationLogger {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JDBCLogger.class);
+    private static final Logger logger = LoggerFactory.getLogger(JDBCLogger.class);
     private static final int RING_BUFFER_SIZE = 1024;
 
     private final ConnectionManager connectionManager;
@@ -98,19 +98,19 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
         disruptor.handleExceptionsWith(new ExceptionHandler() { // Attention: Call this method before #handleEventsWith (See javadoc of #handleExceptionsWith)
             @Override
             public void handleEventException(final Throwable ex, final long sequence, final Object event) {
-                LOGGER.error("Failed to handle event", ex);
+                logger.error("Failed to handle event", ex);
                 consumerException = ex;
             }
 
             @Override
             public void handleOnStartException(final Throwable ex) {
-                LOGGER.error("Failed to start", ex);
+                logger.error("Failed to start", ex);
                 consumerException = ex;
             }
 
             @Override
             public void handleOnShutdownException(final Throwable ex) {
-                LOGGER.error("Failed to shutdown", ex);
+                logger.error("Failed to shutdown", ex);
                 consumerException = ex;
             }
         });

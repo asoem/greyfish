@@ -26,8 +26,9 @@ public final class ModelParameterTypeListener implements TypeListener {
     private final Map<String, String> overwriteMap;
 
     /**
-     * Create a new instance which maps {@link ModelParameter} annotated fields
-     * named like a key of the map to the value mapped to the key converted to the type of the field.
+     * Create a new instance which maps {@link ModelParameter} annotated fields named like a key of the map to the value
+     * mapped to the key converted to the type of the field.
+     *
      * @param overwriteMap the mapping of field keys to values
      */
     public ModelParameterTypeListener(final Map<String, String> overwriteMap) {
@@ -81,7 +82,7 @@ public final class ModelParameterTypeListener implements TypeListener {
     }
 
     private static class ModelParameterFieldInjector<T> implements MembersInjector<T> {
-        private static final Logger LOGGER = LoggerFactory.getLogger(ModelParameterTypeListener.class);
+        private static final Logger logger = LoggerFactory.getLogger(ModelParameterTypeListener.class);
         private final Field field;
         private final Object newFiledValue;
 
@@ -95,7 +96,7 @@ public final class ModelParameterTypeListener implements TypeListener {
         public void injectMembers(final T t) {
             try {
                 field.set(t, newFiledValue);
-                LOGGER.debug("Injected field {} with value {}", field, newFiledValue);
+                logger.debug("Injected field {} with value {}", field, newFiledValue);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }

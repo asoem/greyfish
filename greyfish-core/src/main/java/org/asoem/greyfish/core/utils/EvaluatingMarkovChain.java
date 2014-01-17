@@ -25,13 +25,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
 
 /**
- * User: christoph
- * Date: 22.02.12
- * Time: 12:16
+ * User: christoph Date: 22.02.12 Time: 12:16
  */
 public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ImmutableMarkovChain.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImmutableMarkovChain.class);
 
     private final Table<S, S, Expression> markovMatrix;
     private static final Pattern PATTERN = Pattern.compile("^\\s*([\\w\\s\\d_]+)\\s*->\\s*([\\w\\s\\d_]+)\\s*:\\s*(\\S+)\\s*$");
@@ -43,7 +41,7 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
     /**
      * Make a transition to the next state as defined by the markovMatrix
      *
-     * @param state the current state
+     * @param state    the current state
      * @param resolver the context for the transition probability evaluation
      * @return the next state
      */
@@ -52,10 +50,9 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
 
         if (!markovMatrix.containsRow(state)) {
             if (markovMatrix.containsColumn(state)) {
-                LOGGER.debug("State is (implicitly) just self referent: {}", state);
+                logger.debug("State is (implicitly) just self referent: {}", state);
                 return state;
-            }
-            else
+            } else
                 throw new IllegalArgumentException("State '" + state + "' does not match any of the defined states in set {" + Joiner.on(", ").join(getStates()) + "}");
         }
 
@@ -63,7 +60,7 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
         final Map<S, Expression> row = markovMatrix.row(state);
 
         if (row.isEmpty()) {
-            LOGGER.debug("No outgoing transition has been defined for state '{}'", state);
+            logger.debug("No outgoing transition has been defined for state '{}'", state);
             return state;
         }
 
@@ -77,11 +74,10 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
         }
 
         if (sum < 1) {
-            LOGGER.debug("The sum of transition probabilities for state {} are < 1: {}." +
+            logger.debug("The sum of transition probabilities for state {} are < 1: {}." +
                     "Reminding fraction will be used by the identity transition", state, sum);
-        }
-        else if (sum > 1) {
-            LOGGER.warn("The sum of transition probabilities for state {} are > 1: {}." +
+        } else if (sum > 1) {
+            logger.warn("The sum of transition probabilities for state {} are > 1: {}." +
                     "Some states might never be reached.", state, sum);
         }
 
@@ -95,14 +91,14 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
     public static EvaluatingMarkovChain<String> parse(final String rule, final ExpressionFactory factory) {
         checkNotNull(rule);
         checkNotNull(factory);
-        
+
         final ChainBuilder<String> builder = builder(factory);
 
         final Splitter splitter = Splitter.onPattern("\r?\n|;").trimResults();
         final Iterable<String> lines = splitter.split(rule);
 
         for (final String line : lines) {
-            if(line.isEmpty())
+            if (line.isEmpty())
                 continue;
             final Matcher matcher = PATTERN.matcher(line);
             if (matcher.matches()) {
@@ -111,8 +107,7 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
                 final String p = matcher.group(3).trim();
 
                 builder.put(state1, state2, p);
-            }
-            else throw new IllegalArgumentException("Rule has errors at " + line);
+            } else throw new IllegalArgumentException("Rule has errors at " + line);
         }
 
         return builder.build();

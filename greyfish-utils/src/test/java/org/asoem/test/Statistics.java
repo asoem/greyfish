@@ -12,7 +12,7 @@ import static org.hamcrest.Matchers.*;
 
 public class Statistics {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Statistics.class);
+    private static final Logger logger = LoggerFactory.getLogger(Statistics.class);
 
     private Statistics() {
     }
@@ -27,7 +27,7 @@ public class Statistics {
      */
     public static void assertSignificantDecrease(final DescriptiveStatistics control, final DescriptiveStatistics treatment, final double alpha) {
         // Is it faster?
-        LOGGER.info("Treatment vs. Control: {}, {}",
+        logger.info("Treatment vs. Control: {}, {}",
                 treatment, control);
 
         assertThat("The mean of the treatment " +
@@ -42,7 +42,7 @@ public class Statistics {
         // Perform the t-test
         final double t = new TTest().t(treatment, control);
         final double p = new TTest().tTest(treatment, control);
-        LOGGER.info("t-test: t={}, p={}", t, p);
+        logger.info("t-test: t={}, p={}", t, p);
         double qt = new TDistribution(treatment.getN() - 1 + control.getN() - 1).inverseCumulativeProbability(1 - alpha / 2);
         assertThat("The means are not significantly different", Math.abs(t), is(greaterThan(qt)));
     }

@@ -39,7 +39,7 @@ import static org.hamcrest.Matchers.*;
  */
 public class AgentObjectPoolAT {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultBasicSimulationTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultBasicSimulationTest.class);
 
     @Test
     public void testSignificantPerformanceBenefit() throws Exception {
@@ -81,7 +81,7 @@ public class AgentObjectPoolAT {
         }
 
         // then
-        LOGGER.info("Simulation with object pool vs. without object pool: {}, {}",
+        logger.info("Simulation with object pool vs. without object pool: {}, {}",
                 statisticsWithObjectPool, statisticsWithoutObjectPool);
 
         // Is it faster?
@@ -97,7 +97,7 @@ public class AgentObjectPoolAT {
         // Perform the t-test
         final double t = new TTest().t(statisticsWithObjectPool, statisticsWithoutObjectPool);
         final double p = new TTest().tTest(statisticsWithObjectPool, statisticsWithoutObjectPool);
-        LOGGER.info("t-test: t={}, p={}", t, p);
+        logger.info("t-test: t={}, p={}", t, p);
         double qt = new TDistribution(statisticsWithObjectPool.getN() - 1 + statisticsWithoutObjectPool.getN() - 1).inverseCumulativeProbability(1 - SIGNIFICANT.getAlpha() / 2);
         assertThat("The means are not significantly different", Math.abs(t), is(greaterThan(qt)));
     }
@@ -158,7 +158,7 @@ public class AgentObjectPoolAT {
         }
 
         // then
-        LOGGER.info("Simulation with object pool vs. without object pool: {}, {}",
+        logger.info("Simulation with object pool vs. without object pool: {}, {}",
                 statisticsWithObjectPool, statisticsWithoutObjectPool);
 
         assertThat("The mean elapsed time of the version with an object pool " +
@@ -172,7 +172,7 @@ public class AgentObjectPoolAT {
 
         final double t = TestUtils.t(statisticsWithObjectPool, statisticsWithoutObjectPool);
         final double p = TestUtils.tTest(statisticsWithObjectPool, statisticsWithoutObjectPool);
-        LOGGER.info("t-test: t={}, p={}", t, p);
+        logger.info("t-test: t={}, p={}", t, p);
         double qt = new TDistribution(statisticsWithObjectPool.getN() - 1 + statisticsWithoutObjectPool.getN() - 1).inverseCumulativeProbability(0.975);
         assertThat("The means are not significantly different", Math.abs(t), is(greaterThan(qt)));
     }

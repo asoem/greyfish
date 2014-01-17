@@ -45,7 +45,7 @@ import static java.util.Arrays.asList;
 
 public final class GreyfishCLIApplication {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GreyfishCLIApplication.class);
+    private static final Logger logger = LoggerFactory.getLogger(GreyfishCLIApplication.class);
     private static final OptionParser OPTION_PARSER = new OptionParser();
     private static final OptionSpecBuilder HELP_OPTION_SPEC =
             OPTION_PARSER.acceptsAll(asList("h", "?"), "Print this help");
@@ -133,7 +133,7 @@ public final class GreyfishCLIApplication {
                     }
                     bind(Experiment.class).to((Class<Experiment>) modelClass);
                 } catch (ClassNotFoundException e) {
-                    LOGGER.error("Unable to load class {}", modelClassName, e);
+                    logger.error("Unable to load class {}", modelClassName, e);
                     exitWithErrorMessage("Could not find class " + modelClassName);
                 }
 
@@ -141,7 +141,7 @@ public final class GreyfishCLIApplication {
                     final Map<String, String> properties = Maps.newHashMap();
                     for (final ModelParameterOptionValue modelParameterOption : optionSet.valuesOf(MODEL_PARAMETER_OPTION_SPEC)) {
                         if (properties.containsKey(modelParameterOption.key)) {
-                            LOGGER.warn("Model parameter {} was defined twice. Overwriting value {} with {}",
+                            logger.warn("Model parameter {} was defined twice. Overwriting value {} with {}",
                                     modelParameterOption.key, properties.get(modelParameterOption.key), modelParameterOption.value);
                         }
                         properties.put(modelParameterOption.key, modelParameterOption.value);
@@ -182,7 +182,7 @@ public final class GreyfishCLIApplication {
 
         final Optional<String> commitHash = getCommitHash(GreyfishCLIApplication.class);
         if (commitHash.isPresent()) {
-            LOGGER.debug("Git Commit Hash for current Jar: %s", commitHash.get());
+            logger.debug("Git Commit Hash for current Jar: %s", commitHash.get());
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -191,7 +191,7 @@ public final class GreyfishCLIApplication {
                 try {
                     CLOSER.close();
                 } catch (IOException e) {
-                    LOGGER.warn("Exception while closing resources", e);
+                    logger.warn("Exception while closing resources", e);
                 }
             }
         });
@@ -248,7 +248,7 @@ public final class GreyfishCLIApplication {
 
                     @Override
                     public void failed(final Service.State from, final Throwable failure) {
-                        LOGGER.error("Monitor service failed", failure);
+                        logger.error("Monitor service failed", failure);
                     }
                 }, MoreExecutors.sameThreadExecutor());
 
@@ -322,7 +322,7 @@ public final class GreyfishCLIApplication {
     private static void exitWithErrorMessage(final String message, @Nullable final Throwable throwable, final boolean printHelp) {
         assert message != null;
 
-        LOGGER.error(message, throwable);
+        logger.error(message, throwable);
 
         final StringBuilder messageBuilder = new StringBuilder();
         messageBuilder
@@ -348,7 +348,7 @@ public final class GreyfishCLIApplication {
         try {
             optionParser.printHelpOn(System.out);
         } catch (IOException e) {
-            LOGGER.error("Error while writing to System.out", e);
+            logger.error("Error while writing to System.out", e);
         }
     }
 

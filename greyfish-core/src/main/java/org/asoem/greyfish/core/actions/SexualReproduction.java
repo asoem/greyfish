@@ -23,7 +23,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
 @Tagged("actions")
 public abstract class SexualReproduction<A extends Agent<?>> extends BaseAgentAction<A, AgentContext<A>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SexualReproduction.class);
+    private static final Logger logger = LoggerFactory.getLogger(SexualReproduction.class);
 
     private Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermSupplier;
     private Callback<? super SexualReproduction<A>, Integer> clutchSize;
@@ -52,7 +52,7 @@ public abstract class SexualReproduction<A extends Agent<?>> extends BaseAgentAc
         }
 
         final int eggCount = call(clutchSize, this);
-        LOGGER.info("{}: Producing {} offspring ", context.agent(), eggCount);
+        logger.info("{}: Producing {} offspring ", context.agent(), eggCount);
 
         for (final Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
 

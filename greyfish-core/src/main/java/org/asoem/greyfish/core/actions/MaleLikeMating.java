@@ -26,7 +26,7 @@ import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
 @Tagged("actions")
 public class MaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends ContractNetParticipantAction<A> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MaleLikeMating.class);
+    private static final Logger logger = LoggerFactory.getLogger(MaleLikeMating.class);
 
     private String ontology;
     private Callback<? super MaleLikeMating<A>, Double> matingProbability;
@@ -77,10 +77,10 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends Contract
 
             proposalSent = true;
 
-            LOGGER.debug("Accepted mating with p={}", probability);
+            logger.debug("Accepted mating with p={}", probability);
         } else {
             reply.performative(ACLPerformative.REFUSE);
-            LOGGER.debug("Refused mating with p={}", probability);
+            logger.debug("Refused mating with p={}", probability);
         }
 
         return reply;

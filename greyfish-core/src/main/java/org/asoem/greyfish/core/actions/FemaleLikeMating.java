@@ -31,7 +31,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
  */
 public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends ContractNetInitiatorAction<A> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FemaleLikeMating.class);
+    private static final Logger logger = LoggerFactory.getLogger(FemaleLikeMating.class);
 
     private String ontology;
 
@@ -58,7 +58,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends 
     private void receiveSperm(final Chromosome chromosome, final A sender, final AgentContext<A> context) {
         receivedSperm.add(chromosome);
         //agent().get().logEvent(this, "spermReceived", String.valueOf(sender.getId()));
-        LOGGER.debug(context.agent() + " received sperm: " + chromosome);
+        logger.debug(context.agent() + " received sperm: " + chromosome);
     }
 
     @Override
@@ -90,10 +90,10 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends 
         if (RandomGenerators.nextBoolean(RandomGenerators.rng(), probability)) {
             receiveSperm(chromosome, message.getSender(), context);
             builder.performative(ACLPerformative.ACCEPT_PROPOSAL);
-            LOGGER.debug("Accepted mating with p={}", probability);
+            logger.debug("Accepted mating with p={}", probability);
         } else {
             builder.performative(ACLPerformative.REJECT_PROPOSAL);
-            LOGGER.debug("Refused mating with p={}", probability);
+            logger.debug("Refused mating with p={}", probability);
         }
 
         return builder;
@@ -185,7 +185,7 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends 
         protected final void checkBuilder() {
             super.checkBuilder();
             if (Strings.isNullOrEmpty(ontology))
-                LOGGER.warn(FemaleLikeMating.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
+                logger.warn(FemaleLikeMating.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
         }
     }
 }

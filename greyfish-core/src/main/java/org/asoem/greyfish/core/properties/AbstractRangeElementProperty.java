@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 public abstract class AbstractRangeElementProperty<E extends Number & Comparable<E>, A extends Agent<?>, C> extends AbstractAgentProperty<C, E> implements RangeElementProperty<A, E, C> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRangeElementProperty.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractRangeElementProperty.class);
 
     protected E upperBound;
 
@@ -51,7 +51,7 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
             this.value = amount;
         } else {
             this.value = lowerBound;
-            LOGGER.debug("{} #checkAndSet({}): Out of range [{},{}]", this.getClass().getSimpleName(), amount, lowerBound, upperBound);
+            logger.debug("{} #checkAndSet({}): Out of range [{},{}]", this.getClass().getSimpleName(), amount, lowerBound, upperBound);
         }
     }
 

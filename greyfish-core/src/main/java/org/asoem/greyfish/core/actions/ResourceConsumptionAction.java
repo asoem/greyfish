@@ -22,7 +22,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.call;
 @Tagged("actions")
 public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?, ?>> extends ContractNetInitiatorAction<A> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceConsumptionAction.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResourceConsumptionAction.class);
 
     private String ontology;
 
@@ -79,7 +79,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?, ?>> exten
         }
 
         final Double offer = (Double) messageContent;
-        LOGGER.info("{}: Consuming {} {}", context.agent(), offer, ontology);
+        logger.info("{}: Consuming {} {}", context.agent(), offer, ontology);
         uptakeUtilization.apply(this, ImmutableMap.of("offer", offer));
     }
 

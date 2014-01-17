@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkState;
 @Tagged("actions")
 public class ResourceProvisionAction<A extends Agent<?>> extends ContractNetParticipantAction<A> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResourceProvisionAction.class);
+    private static final Logger logger = LoggerFactory.getLogger(ResourceProvisionAction.class);
 
     private String ontology;
 
@@ -61,10 +61,10 @@ public class ResourceProvisionAction<A extends Agent<?>> extends ContractNetPart
         if (offeredAmount > 0) {
             reply.performative(ACLPerformative.PROPOSE).content(offeredAmount);
             proposalSent = true;
-            LOGGER.trace("{}: Offering {}", context.agent(), offeredAmount);
+            logger.trace("{}: Offering {}", context.agent(), offeredAmount);
         } else {
             reply.performative(ACLPerformative.REFUSE).content("Nothing to offeredAmount");
-            LOGGER.trace("{}: Nothing to offeredAmount", context.agent());
+            logger.trace("{}: Nothing to offeredAmount", context.agent());
         }
 
         return reply;
@@ -79,7 +79,7 @@ public class ResourceProvisionAction<A extends Agent<?>> extends ContractNetPart
 
         final Double offer = (Double) messageContent;
 
-        LOGGER.info("{}: Provided {}", context.agent(), offer);
+        logger.info("{}: Provided {}", context.agent(), offer);
 
         this.providedAmount += offer;
 

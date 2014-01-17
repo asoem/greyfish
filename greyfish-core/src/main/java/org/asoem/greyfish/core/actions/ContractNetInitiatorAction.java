@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class ContractNetInitiatorAction<A extends Agent<?>> extends FiniteStateAction<A> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetInitiatorAction.class);
+    private static final Logger logger = LoggerFactory.getLogger(ContractNetInitiatorAction.class);
     private static final int PROPOSAL_TIMEOUT_STEPS = 1;
     private static final int INFORM_TIMEOUT_STEPS = 1;
 
@@ -51,7 +51,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<?>> extends Fin
                 final ImmutableACLMessage<A> cfpMessage = createCFP(context)
                         .sender(context.agent())
                         .performative(ACLPerformative.CFP).build();
-                LOGGER.debug("{}: Calling for proposals", this, cfpMessage);
+                logger.debug("{}: Calling for proposals", this, cfpMessage);
                 context.sendMessage(cfpMessage);
 
                 nProposalsMax = cfpMessage.getRecipients().size();
@@ -74,31 +74,31 @@ public abstract class ContractNetInitiatorAction<A extends Agent<?>> extends Fin
                             proposeReply = checkNotNull(handlePropose(receivedMessage, context)).build();
                             proposeReplies.add(proposeReply);
                             ++nProposalsReceived;
-                            LOGGER.debug("{}: Received proposal", this, receivedMessage);
+                            logger.debug("{}: Received proposal", this, receivedMessage);
                         } catch (NotUnderstoodException e) {
                             proposeReply = ImmutableACLMessage.createReply(receivedMessage, context.agent())
                                     .performative(ACLPerformative.NOT_UNDERSTOOD)
                                     .content(e.getMessage()).build();
-                            LOGGER.warn("Message not understood {}", receivedMessage, e);
+                            logger.warn("Message not understood {}", receivedMessage, e);
                         }
                         checkProposeReply(proposeReply);
-                        LOGGER.debug("{}: Replying to proposal", this, proposeReply);
+                        logger.debug("{}: Replying to proposal", this, proposeReply);
                         context.sendMessage(proposeReply);
                         break;
 
                     case REFUSE:
-                        LOGGER.debug("{}: CFP was refused: ", this, receivedMessage);
+                        logger.debug("{}: CFP was refused: ", this, receivedMessage);
                         handleRefuse(receivedMessage, context);
                         --nProposalsMax;
                         break;
 
                     case NOT_UNDERSTOOD:
-                        LOGGER.debug("{}: Communication Error: NOT_UNDERSTOOD received", this);
+                        logger.debug("{}: Communication Error: NOT_UNDERSTOOD received", this);
                         --nProposalsMax;
                         break;
 
                     default:
-                        LOGGER.debug("{}: Protocol Error:"
+                        logger.debug("{}: Protocol Error:"
                                 + "Expected performative PROPOSE, REFUSE or NOT_UNDERSTOOD, received {}.",
                                 this, receivedMessage.getPerformative());
                         --nProposalsMax;
@@ -111,7 +111,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<?>> extends Fin
             assert nProposalsMax >= 0;
 
             if (nProposalsMax == 0) {
-                LOGGER.debug("{}: received 0 proposals for {} CFP messages", this, nProposalsMax);
+                logger.debug("{}: received 0 proposals for {} CFP messages", this, nProposalsMax);
                 endTransition(State.END);
             } else if (nProposalsReceived == nProposalsMax) {
                 template = createAcceptReplyTemplate(proposeReplies);
@@ -119,7 +119,7 @@ public abstract class ContractNetInitiatorAction<A extends Agent<?>> extends Fin
                 timeoutCounter = 0;
                 transition(State.WAIT_FOR_INFORM);
             } else if (timeoutCounter > PROPOSAL_TIMEOUT_STEPS) {
-                LOGGER.trace("{}: entered ACCEPT_TIMEOUT for accepting proposals. Received {} proposals",
+                logger.trace("{}: entered ACCEPT_TIMEOUT for accepting proposals. Received {} proposals",
                         this, nProposalsReceived);
 
                 timeoutCounter = 0;
@@ -140,16 +140,16 @@ public abstract class ContractNetInitiatorAction<A extends Agent<?>> extends Fin
                         break;
 
                     case FAILURE:
-                        LOGGER.debug("{}: Received FAILURE: {}", this, receivedMessage);
+                        logger.debug("{}: Received FAILURE: {}", this, receivedMessage);
                         handleFailure(receivedMessage, context);
                         break;
 
                     case NOT_UNDERSTOOD:
-                        LOGGER.debug("{}: Received NOT_UNDERSTOOD: {}", this, receivedMessage);
+                        logger.debug("{}: Received NOT_UNDERSTOOD: {}", this, receivedMessage);
                         break;
 
                     default:
-                        LOGGER.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}",
+                        logger.debug("{}: Expected none of INFORM, FAILURE or NOT_UNDERSTOOD: {}",
                                 ContractNetInitiatorAction.this, receivedMessage);
                         break;
                 }

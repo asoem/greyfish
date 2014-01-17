@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class ContractNetParticipantAction<A extends Agent<?>> extends FiniteStateAction<A> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContractNetParticipantAction.class);
+    private static final Logger logger = LoggerFactory.getLogger(ContractNetParticipantAction.class);
     private static final int TIMEOUT_ACCEPT_STEPS = 1;
     private int timeoutCounter;
     private int nExpectedProposeAnswers;
@@ -55,11 +55,11 @@ public abstract class ContractNetParticipantAction<A extends Agent<?>> extends F
                     cfpReply = ImmutableACLMessage.createReply(cfp, context.agent())
                             .performative(ACLPerformative.NOT_UNDERSTOOD)
                             .content(e.getMessage()).build();
-                    LOGGER.warn("Message not understood {}", cfp, e);
+                    logger.warn("Message not understood {}", cfp, e);
                 }
                 checkCFPReply(cfpReply);
                 cfpReplies.add(cfpReply);
-                LOGGER.debug("{}: Replying to CFP with {}", this, cfpReply);
+                logger.debug("{}: Replying to CFP with {}", this, cfpReply);
                 context.sendMessage(cfpReply);
 
                 if (cfpReply.matches(MessageTemplates.performative(ACLPerformative.PROPOSE)))
@@ -86,10 +86,10 @@ public abstract class ContractNetParticipantAction<A extends Agent<?>> extends F
                                     .performative(ACLPerformative.NOT_UNDERSTOOD)
                                     .content(e.getMessage()).build();
 
-                            LOGGER.warn("Message not understood {}", receivedMessage, e);
+                            logger.warn("Message not understood {}", receivedMessage, e);
                         }
                         checkAcceptReply(informMessage);
-                        LOGGER.debug("{}: Accepting proposal", this);
+                        logger.debug("{}: Accepting proposal", this);
                         context.sendMessage(informMessage);
                         break;
                     case REJECT_PROPOSAL:

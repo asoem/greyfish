@@ -23,7 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class ThreadLocalRandomGeneratorAT {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadLocalRandomGeneratorAT.class);
+    private static final Logger logger = LoggerFactory.getLogger(ThreadLocalRandomGeneratorAT.class);
 
     private final TaskFactory taskFactory = new TaskFactory() {
         @Override
@@ -64,7 +64,7 @@ public class ThreadLocalRandomGeneratorAT {
         // Perform the t-test
         final double t = new TTest().t(results.second(), results.first());
         final double p = new TTest().tTest(results.second(), results.first());
-        LOGGER.info("t-test: t={}, p={}", t, p);
+        logger.info("t-test: t={}, p={}", t, p);
         double qt = new TDistribution(results.second().getN() - 1 + results.first().getN() - 1).inverseCumulativeProbability(1 - SIGNIFICANT.getAlpha() / 2);
         assertThat("The means are not significantly different", Math.abs(t), is(greaterThan(qt)));
     }

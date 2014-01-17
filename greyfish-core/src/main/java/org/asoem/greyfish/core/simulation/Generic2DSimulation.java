@@ -34,7 +34,7 @@ import static com.google.common.base.Preconditions.*;
 public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S extends SpatialSimulation2D<A, Z>,
         Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DSimulation<A, Z> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Generic2DSimulation.class);
+    private static final Logger logger = LoggerFactory.getLogger(Generic2DSimulation.class);
 
     private final AgentSpace<Z, A, P> space;
     private final AtomicInteger currentStep = new AtomicInteger(0);
@@ -83,7 +83,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
         space.insertObject(agent, projection);
         activateAgent(agent);
 
-        LOGGER.debug("Agent activated: {}", agent);
+        logger.debug("Agent activated: {}", agent);
 
         eventBus.post(new AgentAddedEvent(agent, this));
     }
@@ -110,7 +110,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
         try {
             agentPool.release(agent.getPrototypeGroup(), agent);
         } catch (Exception e) {
-            LOGGER.error("Error in prototype pool", e);
+            logger.error("Error in prototype pool", e);
         }
     }
 
@@ -127,7 +127,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
             agent.initialize();
             return agent;
         } catch (Exception e) {
-            LOGGER.error("Couldn't borrow Agent from agentPool for prototypeGroup {}", prototypeGroup.getName(), e);
+            logger.error("Couldn't borrow Agent from agentPool for prototypeGroup {}", prototypeGroup.getName(), e);
             throw new AssertionError(e);
         }
     }
@@ -151,7 +151,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
     public final synchronized void nextStep() {
 
 
-        LOGGER.debug("{}: Executing step {} with {} active agents", this, getTime(), countAgents());
+        logger.debug("{}: Executing step {} with {} active agents", this, getTime(), countAgents());
 
         try {
             setState(SimulationState.PLANING_PHASE);
@@ -173,7 +173,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
 
         setState(SimulationState.IDLE);
 
-        LOGGER.debug("{}: Finished step {}", this, getTime());
+        logger.debug("{}: Finished step {}", this, getTime());
 
         currentStep.incrementAndGet();
     }
@@ -247,7 +247,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
      * #removeAgentMessages}
      */
     private void processRequestedAgentRemovals() {
-        LOGGER.debug("Removing {} agent(s)", removeAgentMessages.size());
+        logger.debug("Removing {} agent(s)", removeAgentMessages.size());
         if (removeAgentMessages.size() > 0) {
             passivateAgentsInternal(Lists.transform(removeAgentMessages, new Function<RemoveAgentMessage<A>, A>() {
                 @Override
@@ -287,7 +287,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
     }
 
     private void setState(final SimulationState state) {
-        LOGGER.debug("Switching state: {} -> {}", this.state, state);
+        logger.debug("Switching state: {} -> {}", this.state, state);
         this.state = state;
     }
 

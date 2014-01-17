@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 public abstract class FiniteStateAction<A extends Agent<?>> extends BaseAgentAction<A, AgentContext<A>> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FiniteStateAction.class);
+    private static final Logger logger = LoggerFactory.getLogger(FiniteStateAction.class);
 
     private int statefulExecutionCount;
     private Object nextStateKey = initialState();
@@ -45,29 +45,29 @@ public abstract class FiniteStateAction<A extends Agent<?>> extends BaseAgentAct
     protected abstract void executeState(Object state, final AgentContext<A> context);
 
     protected final void resetTransition() {
-        LOGGER.debug("{}: Reset state to {}", this, initialState());
+        logger.debug("{}: Reset state to {}", this, initialState());
         nextStateKey = initialState();
         endStateReached = false;
     }
 
     protected final <T> void transition(final T state) {
-        LOGGER.debug("{}: Transition to {}", this, state);
+        logger.debug("{}: Transition to {}", this, state);
         nextStateKey = state;
     }
 
     protected final void failure(final String message) {
         endStateReached = true;
-        LOGGER.debug("{}: End Transition to ERROR state: {}", this, message);
+        logger.debug("{}: End Transition to ERROR state: {}", this, message);
     }
 
     protected final <T> void endTransition(final T state) {
-        LOGGER.debug("{}: End transition to {}", this, state);
+        logger.debug("{}: End transition to {}", this, state);
         nextStateKey = state;
         endStateReached = true;
     }
 
     protected final AssertionError unknownState() {
-        LOGGER.error("{}: Unknown State: {}", this, nextStateKey);
+        logger.error("{}: Unknown State: {}", this, nextStateKey);
         return new AssertionError("The implementation of executeState() of " + this + " does not handle state '" + nextStateKey + "'");
     }
 
