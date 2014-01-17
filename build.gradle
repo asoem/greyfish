@@ -65,4 +65,10 @@ subprojects {
             attributes("Git-Commit-Hash": getGitCommitHash())
         }
     }
+
+    apply plugin: 'checkstyle'
+    checkstyle {
+        configFile = new File("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+        ignoreFailures = true
+    }
 }
