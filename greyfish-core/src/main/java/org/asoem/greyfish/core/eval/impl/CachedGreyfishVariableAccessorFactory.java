@@ -8,9 +8,7 @@ import org.asoem.greyfish.core.eval.VariableResolutionException;
 import java.util.Map;
 
 /**
- * User: christoph
- * Date: 16.09.11
- * Time: 15:24
+ * User: christoph Date: 16.09.11 Time: 15:24
  */
 public class CachedGreyfishVariableAccessorFactory implements GreyfishVariableAccessorFactory {
 
@@ -28,8 +26,7 @@ public class CachedGreyfishVariableAccessorFactory implements GreyfishVariableAc
         final ResolverCacheKey key = new ResolverCacheKey(varName, context);
         if (resolverMap.containsKey(key)) {
             return (Function<T, ?>) resolverMap.get(key);
-        }
-        else {
+        } else {
             final Function<T, ?> fun = delegate.get(varName, context);
             resolverMap.put(key, fun);
             return fun;
@@ -53,8 +50,12 @@ public class CachedGreyfishVariableAccessorFactory implements GreyfishVariableAc
 
         @Override
         public boolean equals(final Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             final ResolverCacheKey that = (ResolverCacheKey) o;
 

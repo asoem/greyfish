@@ -47,8 +47,9 @@ public abstract class BranchCondition<A extends Agent<?>> extends AbstractCondit
     @Override
     public void initialize() {
         super.initialize();
-        for (final ActionCondition<A> condition : getChildConditions())
+        for (final ActionCondition<A> condition : getChildConditions()) {
             condition.initialize();
+        }
     }
 
     public void addAll(final Iterable<? extends ActionCondition<A>> childConditions) {

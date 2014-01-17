@@ -50,8 +50,9 @@ public class ResourceProvisionAction<A extends Agent<?>> extends ContractNetPart
         }
 
         final Object messageContent = message.getContent();
-        if (!(messageContent instanceof ResourceRequestMessage))
+        if (!(messageContent instanceof ResourceRequestMessage)) {
             throw new NotUnderstoodException("Expected payload of type ResourceRequestMessage");
+        }
 
         final ResourceRequestMessage requestMessage = (ResourceRequestMessage) messageContent;
         final double requestAmount = requestMessage.getRequestAmount();

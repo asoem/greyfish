@@ -5,9 +5,7 @@ import com.google.common.base.Objects;
 import javax.annotation.Nullable;
 
 /**
- * User: christoph
- * Date: 26.10.11
- * Time: 13:05
+ * User: christoph Date: 26.10.11 Time: 13:05
  */
 public abstract class AbstractVariableResolver implements VariableResolver {
 
@@ -21,10 +19,11 @@ public abstract class AbstractVariableResolver implements VariableResolver {
 
     @Override
     public void append(@Nullable final VariableResolver next) {
-        if (nextVariableResolver == null)
+        if (nextVariableResolver == null) {
             this.nextVariableResolver = next;
-        else
+        } else {
             nextVariableResolver.append(next);
+        }
     }
 
     @Override
@@ -36,11 +35,13 @@ public abstract class AbstractVariableResolver implements VariableResolver {
 
     @Override
     public final Object resolve(final String varName) throws VariableResolutionException {
-        if (canResolveLocal(varName))
+        if (canResolveLocal(varName)) {
             return resolveLocal(varName);
+        }
 
-        if (nextVariableResolver != null)
+        if (nextVariableResolver != null) {
             return nextVariableResolver.resolve(varName);
+        }
 
         throw new VariableResolutionException("No match for variable " + varName);
     }
@@ -50,14 +51,21 @@ public abstract class AbstractVariableResolver implements VariableResolver {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final AbstractVariableResolver that = (AbstractVariableResolver) o;
 
-        if (!Objects.equal(bindings(), that.bindings())) return false;
-        if (nextVariableResolver != null ? !nextVariableResolver.equals(that.nextVariableResolver) : that.nextVariableResolver != null)
+        if (!Objects.equal(bindings(), that.bindings())) {
             return false;
+        }
+        if (nextVariableResolver != null ? !nextVariableResolver.equals(that.nextVariableResolver) : that.nextVariableResolver != null) {
+            return false;
+        }
 
         return true;
     }

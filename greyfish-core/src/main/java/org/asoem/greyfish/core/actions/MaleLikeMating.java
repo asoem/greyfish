@@ -67,7 +67,9 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends Contract
         final ImmutableACLMessage.Builder<A> reply = ImmutableACLMessage.createReply(message, context.agent());
 
         if (proposalSent) // TODO: CFP messages are not randomized. Problem?
+        {
             return reply.performative(ACLPerformative.REFUSE);
+        }
 
         final double probability = matingProbability.apply(this, ImmutableMap.of("mate", message.getSender()));
         if (nextBoolean(rng(), probability)) {

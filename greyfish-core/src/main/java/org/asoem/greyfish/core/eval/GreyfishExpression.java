@@ -12,9 +12,7 @@ import java.util.regex.Pattern;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * User: christoph
- * Date: 13.09.11
- * Time: 14:09
+ * User: christoph Date: 13.09.11 Time: 14:09
  */
 public class GreyfishExpression extends AbstractExpression implements Serializable {
 
@@ -24,8 +22,7 @@ public class GreyfishExpression extends AbstractExpression implements Serializab
     private final String expression;
 
     /**
-     *
-     * @param expression the expression to evaluate
+     * @param expression       the expression to evaluate
      * @param evaluatorFactory the evaluator for this expression
      * @throws IllegalArgumentException if expression is null or not valid
      */
@@ -84,8 +81,12 @@ public class GreyfishExpression extends AbstractExpression implements Serializab
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final GreyfishExpression that = (GreyfishExpression) o;
 

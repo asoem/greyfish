@@ -1,11 +1,10 @@
 package org.asoem.greyfish.core.eval;
 
 /**
- * User: christoph
- * Date: 22.02.12
- * Time: 14:22
- *
- * This {@code Expression} implementation will evaluate a given {@code Expression} without any modifications using a given {@code Evaluator}
+ * User: christoph Date: 22.02.12 Time: 14:22
+ * <p/>
+ * This {@code Expression} implementation will evaluate a given {@code Expression} without any modifications using a
+ * given {@code Evaluator}
  */
 public class VanillaExpression extends AbstractExpression {
 
@@ -29,8 +28,12 @@ public class VanillaExpression extends AbstractExpression {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof VanillaExpression)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof VanillaExpression)) {
+            return false;
+        }
 
         final VanillaExpression that = (VanillaExpression) o;
 

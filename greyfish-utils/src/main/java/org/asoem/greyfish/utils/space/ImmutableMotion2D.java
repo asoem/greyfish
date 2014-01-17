@@ -5,9 +5,7 @@ import com.google.common.base.Objects;
 import java.io.Serializable;
 
 /**
- * User: christoph
- * Date: 20.10.11
- * Time: 15:37
+ * User: christoph Date: 20.10.11 Time: 15:37
  */
 public class ImmutableMotion2D implements Motion2D, Serializable {
 
@@ -65,13 +63,21 @@ public class ImmutableMotion2D implements Motion2D, Serializable {
     @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final ImmutableMotion2D that = (ImmutableMotion2D) o;
 
-        if (Double.compare(that.rotation, rotation) != 0) return false;
-        if (Double.compare(that.translation, translation) != 0) return false;
+        if (Double.compare(that.rotation, rotation) != 0) {
+            return false;
+        }
+        if (Double.compare(that.translation, translation) != 0) {
+            return false;
+        }
 
         return true;
     }

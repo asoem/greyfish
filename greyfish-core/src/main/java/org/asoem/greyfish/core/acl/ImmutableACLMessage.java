@@ -192,24 +192,54 @@ public final class ImmutableACLMessage<T> implements ACLMessage<T>, Serializable
     @SuppressWarnings({"rawtypes", "RedundantIfStatement"})
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ImmutableACLMessage)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ImmutableACLMessage)) {
+            return false;
+        }
 
         final ImmutableACLMessage that = (ImmutableACLMessage) o;
 
-        if (conversationId != that.conversationId) return false;
-        if (content != null ? !content.equals(that.content) : that.content != null) return false;
-        if (encoding != null ? !encoding.equals(that.encoding) : that.encoding != null) return false;
-        if (inReplyTo != null ? !inReplyTo.equals(that.inReplyTo) : that.inReplyTo != null) return false;
-        if (language != null ? !language.equals(that.language) : that.language != null) return false;
-        if (ontology != null ? !ontology.equals(that.ontology) : that.ontology != null) return false;
-        if (performative != that.performative) return false;
-        if (protocol != null ? !protocol.equals(that.protocol) : that.protocol != null) return false;
-        if (!receivers.equals(that.receivers)) return false;
-        if (!replyTo.equals(that.replyTo)) return false;
-        if (replyWith != null ? !replyWith.equals(that.replyWith) : that.replyWith != null) return false;
-        if (sender != null ? !sender.equals(that.sender) : that.sender != null) return false;
-        if (!userDefinedParameter.equals(that.userDefinedParameter)) return false;
+        if (conversationId != that.conversationId) {
+            return false;
+        }
+        if (content != null ? !content.equals(that.content) : that.content != null) {
+            return false;
+        }
+        if (encoding != null ? !encoding.equals(that.encoding) : that.encoding != null) {
+            return false;
+        }
+        if (inReplyTo != null ? !inReplyTo.equals(that.inReplyTo) : that.inReplyTo != null) {
+            return false;
+        }
+        if (language != null ? !language.equals(that.language) : that.language != null) {
+            return false;
+        }
+        if (ontology != null ? !ontology.equals(that.ontology) : that.ontology != null) {
+            return false;
+        }
+        if (performative != that.performative) {
+            return false;
+        }
+        if (protocol != null ? !protocol.equals(that.protocol) : that.protocol != null) {
+            return false;
+        }
+        if (!receivers.equals(that.receivers)) {
+            return false;
+        }
+        if (!replyTo.equals(that.replyTo)) {
+            return false;
+        }
+        if (replyWith != null ? !replyWith.equals(that.replyWith) : that.replyWith != null) {
+            return false;
+        }
+        if (sender != null ? !sender.equals(that.sender) : that.sender != null) {
+            return false;
+        }
+        if (!userDefinedParameter.equals(that.userDefinedParameter)) {
+            return false;
+        }
 
         return true;
     }

@@ -1,9 +1,7 @@
 package org.asoem.greyfish.utils.space;
 
 /**
- * User: christoph
- * Date: 03.03.11
- * Time: 11:29
+ * User: christoph Date: 03.03.11 Time: 11:29
  */
 public class MutableObject2D implements Object2D {
 
@@ -46,12 +44,18 @@ public class MutableObject2D implements Object2D {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final MutableObject2D that = (MutableObject2D) o;
 
-        if (!anchorPoint.equals(that.anchorPoint)) return false;
+        if (!anchorPoint.equals(that.anchorPoint)) {
+            return false;
+        }
 
         return true;
     }

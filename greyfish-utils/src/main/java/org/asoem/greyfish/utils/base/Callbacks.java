@@ -13,13 +13,12 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * User: christoph
- * Date: 15.05.12
- * Time: 16:13
+ * User: christoph Date: 15.05.12 Time: 16:13
  */
 public final class Callbacks {
 
-    private Callbacks() {}
+    private Callbacks() {
+    }
 
     public static <T> Callback<Object, T> constant(final T returnValue) {
         return new ConstantCallback<T>(returnValue);
@@ -56,13 +55,14 @@ public final class Callbacks {
     }
 
     /**
-     * The created Callback iterates over the given values and returns them.
-     * If the last element is reached, its value returned for all consecutive calls.
+     * The created Callback iterates over the given values and returns them. If the last element is reached, its value
+     * returned for all consecutive calls.
+     *
      * @param values the values to iterate over
-     * @param <T> the type of the values
+     * @param <T>    the type of the values
      * @return the given values in order.
      */
-    public static <T> Callback<Object, T> iterate(final T ... values) {
+    public static <T> Callback<Object, T> iterate(final T... values) {
         return new IteratingCallback<T>(Iterators.forArray(values));
     }
 
@@ -113,12 +113,18 @@ public final class Callbacks {
         @SuppressWarnings({"rawtypes", "RedundantIfStatement"})
         @Override
         public boolean equals(final Object o) {
-            if (this == o) return true;
-            if (!(o instanceof ConstantCallback)) return false;
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof ConstantCallback)) {
+                return false;
+            }
 
             final ConstantCallback that = (ConstantCallback) o;
 
-            if (value != null ? !value.equals(that.value) : that.value != null) return false;
+            if (value != null ? !value.equals(that.value) : that.value != null) {
+                return false;
+            }
 
             return true;
         }
@@ -184,7 +190,7 @@ public final class Callbacks {
         private static final long serialVersionUID = 0;
     }
 
-    private static class IteratingCallback<T>  implements Callback<Object, T> {
+    private static class IteratingCallback<T> implements Callback<Object, T> {
         private final Iterator<T> values;
         private T current = null;
 
@@ -194,8 +200,9 @@ public final class Callbacks {
 
         @Override
         public T apply(final Object caller, final Map<String, ?> args) {
-            if (values.hasNext())
+            if (values.hasNext()) {
                 current = values.next();
+            }
             return current;
         }
     }
@@ -227,7 +234,7 @@ public final class Callbacks {
 
         @Override
         public Boolean apply(final Object caller, final Map<String, ?> args) {
-           return bool;
+            return bool;
         }
     }
 

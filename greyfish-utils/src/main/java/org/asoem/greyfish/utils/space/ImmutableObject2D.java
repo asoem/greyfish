@@ -1,9 +1,7 @@
 package org.asoem.greyfish.utils.space;
 
 /**
- * User: christoph
- * Date: 18.10.11
- * Time: 16:26
+ * User: christoph Date: 18.10.11 Time: 16:26
  */
 public class ImmutableObject2D implements Object2D {
 
@@ -25,12 +23,18 @@ public class ImmutableObject2D implements Object2D {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final ImmutableObject2D that = (ImmutableObject2D) o;
 
-        if (!anchorPoint.equals(that.anchorPoint)) return false;
+        if (!anchorPoint.equals(that.anchorPoint)) {
+            return false;
+        }
 
         return true;
     }

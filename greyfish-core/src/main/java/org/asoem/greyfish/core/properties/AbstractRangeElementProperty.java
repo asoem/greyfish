@@ -44,8 +44,9 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
     protected void checkAndSet(final E amount) {
         checkNotNull(amount);
 
-        if (Objects.equal(value, amount))
+        if (Objects.equal(value, amount)) {
             return;
+        }
 
         if (Ordering.<E>natural().isOrdered(ImmutableList.of(lowerBound, amount, upperBound))) {
             this.value = amount;

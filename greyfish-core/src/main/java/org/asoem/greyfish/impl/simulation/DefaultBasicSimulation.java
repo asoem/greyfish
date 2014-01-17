@@ -274,12 +274,18 @@ public final class DefaultBasicSimulation
 
         @Override
         public boolean equals(final Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             final AgentActivation that = (AgentActivation) o;
 
-            if (!agent.equals(that.agent)) return false;
+            if (!agent.equals(that.agent)) {
+                return false;
+            }
 
             return true;
         }

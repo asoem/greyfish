@@ -52,8 +52,9 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
             if (markovMatrix.containsColumn(state)) {
                 logger.debug("State is (implicitly) just self referent: {}", state);
                 return state;
-            } else
+            } else {
                 throw new IllegalArgumentException("State '" + state + "' does not match any of the defined states in set {" + Joiner.on(", ").join(getStates()) + "}");
+            }
         }
 
 
@@ -98,8 +99,9 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
         final Iterable<String> lines = splitter.split(rule);
 
         for (final String line : lines) {
-            if (line.isEmpty())
+            if (line.isEmpty()) {
                 continue;
+            }
             final Matcher matcher = PATTERN.matcher(line);
             if (matcher.matches()) {
                 final String state1 = matcher.group(1).trim();
@@ -107,7 +109,9 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
                 final String p = matcher.group(3).trim();
 
                 builder.put(state1, state2, p);
-            } else throw new IllegalArgumentException("Rule has errors at " + line);
+            } else {
+                throw new IllegalArgumentException("Rule has errors at " + line);
+            }
         }
 
         return builder.build();
@@ -170,8 +174,12 @@ public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof EvaluatingMarkovChain)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EvaluatingMarkovChain)) {
+            return false;
+        }
 
         final EvaluatingMarkovChain that = (EvaluatingMarkovChain) o;
 

@@ -46,14 +46,24 @@ public class Tuple3<E1, E2, E3> implements Product3<E1, E2, E3> {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Tuple3)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Tuple3)) {
+            return false;
+        }
 
         final Tuple3 tuple3 = (Tuple3) o;
 
-        if (!e1.equals(tuple3.e1)) return false;
-        if (!e2.equals(tuple3.e2)) return false;
-        if (!e3.equals(tuple3.e3)) return false;
+        if (!e1.equals(tuple3.e1)) {
+            return false;
+        }
+        if (!e2.equals(tuple3.e2)) {
+            return false;
+        }
+        if (!e3.equals(tuple3.e3)) {
+            return false;
+        }
 
         return true;
     }

@@ -12,9 +12,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * User: christoph
- * Date: 15.05.12
- * Time: 12:13
+ * User: christoph Date: 15.05.12 Time: 12:13
  */
 public class GreyfishExpressionCallback<C, T> implements Callback<C, T>, Serializable {
 
@@ -49,13 +47,21 @@ public class GreyfishExpressionCallback<C, T> implements Callback<C, T>, Seriali
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final GreyfishExpressionCallback that = (GreyfishExpressionCallback) o;
 
-        if (!conversionFunction.equals(that.conversionFunction)) return false;
-        if (!expression.equals(that.expression)) return false;
+        if (!conversionFunction.equals(that.conversionFunction)) {
+            return false;
+        }
+        if (!expression.equals(that.expression)) {
+            return false;
+        }
 
         return true;
     }
@@ -84,12 +90,18 @@ public class GreyfishExpressionCallback<C, T> implements Callback<C, T>, Seriali
 
         @Override
         public boolean equals(final Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             final CastingConversion that = (CastingConversion) o;
 
-            if (!clazz.equals(that.clazz)) return false;
+            if (!clazz.equals(that.clazz)) {
+                return false;
+            }
 
             return true;
         }

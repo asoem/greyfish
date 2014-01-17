@@ -40,13 +40,21 @@ public class Tuple2<E1, E2> implements Product2<E1, E2> {
     @SuppressWarnings({"rawtypes", "RedundantIfStatement"})
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final Tuple2 tuple2 = (Tuple2) o;
 
-        if (!e1.equals(tuple2.e1)) return false;
-        if (!e2.equals(tuple2.e2)) return false;
+        if (!e1.equals(tuple2.e1)) {
+            return false;
+        }
+        if (!e2.equals(tuple2.e2)) {
+            return false;
+        }
 
         return true;
     }

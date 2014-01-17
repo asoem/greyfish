@@ -42,12 +42,18 @@ public class PrototypeGroup implements Comparable<PrototypeGroup>, Serializable 
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final PrototypeGroup that = (PrototypeGroup) o;
 
-        if (!name.equals(that.name)) return false;
+        if (!name.equals(that.name)) {
+            return false;
+        }
 
         return true;
     }
@@ -60,8 +66,9 @@ public class PrototypeGroup implements Comparable<PrototypeGroup>, Serializable 
     private void readObject(final ObjectInputStream s)
             throws IOException, ClassNotFoundException {
         s.defaultReadObject();
-        if (name == null)
+        if (name == null) {
             throw new InvalidObjectException("Name must be null");
+        }
     }
 
     private static final long serialVersionUID = 0;

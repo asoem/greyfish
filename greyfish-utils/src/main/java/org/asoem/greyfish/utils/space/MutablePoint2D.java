@@ -1,9 +1,7 @@
 package org.asoem.greyfish.utils.space;
 
 /**
- * User: christoph
- * Date: 24.02.12
- * Time: 10:05
+ * User: christoph Date: 24.02.12 Time: 10:05
  */
 public class MutablePoint2D extends AbstractPoint2D {
 
@@ -25,7 +23,7 @@ public class MutablePoint2D extends AbstractPoint2D {
     }
 
     public void setX(final double x) {
-       this.x = x;
+        this.x = x;
     }
 
     @Override
@@ -39,13 +37,21 @@ public class MutablePoint2D extends AbstractPoint2D {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof MutablePoint2D)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof MutablePoint2D)) {
+            return false;
+        }
 
         final MutablePoint2D that = (MutablePoint2D) o;
 
-        if (Double.compare(that.x, x) != 0) return false;
-        if (Double.compare(that.y, y) != 0) return false;
+        if (Double.compare(that.x, x) != 0) {
+            return false;
+        }
+        if (Double.compare(that.y, y) != 0) {
+            return false;
+        }
 
         return true;
     }

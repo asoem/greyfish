@@ -10,21 +10,19 @@ import java.util.Iterator;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * User: christoph
- * Date: 03.11.11
- * Time: 08:55
+ * User: christoph Date: 03.11.11 Time: 08:55
  */
 public final class Chains {
 
-    private Chains() {}
+    private Chains() {
+    }
 
     public static <T> Iterable<T> of(@Nullable final T root, final Function<? super T, ? extends T> nextElementFunction) {
         checkNotNull(nextElementFunction);
 
         if (root == null) {
             return ImmutableList.of();
-        }
-        else {
+        } else {
             return new Iterable<T>() {
                 @Override
                 public Iterator<T> iterator() {
@@ -33,9 +31,9 @@ public final class Chains {
 
                         @Override
                         protected T computeNext() {
-                            if (next == null)
+                            if (next == null) {
                                 return endOfData();
-                            else {
+                            } else {
                                 final T ret = next;
                                 next = nextElementFunction.apply(next);
                                 return ret;

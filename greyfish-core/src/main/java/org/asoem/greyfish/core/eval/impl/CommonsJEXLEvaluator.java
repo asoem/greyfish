@@ -82,12 +82,18 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final CommonsJEXLEvaluator that = (CommonsJEXLEvaluator) o;
 
-        if (!jexlCompiledExpression.getExpression().equals(that.jexlCompiledExpression.getExpression())) return false;
+        if (!jexlCompiledExpression.getExpression().equals(that.jexlCompiledExpression.getExpression())) {
+            return false;
+        }
 
         return true;
     }
@@ -144,12 +150,18 @@ public class CommonsJEXLEvaluator implements Evaluator, Serializable {
 
         @Override
         public boolean equals(final Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             final JEXLResolverAdaptor that = (JEXLResolverAdaptor) o;
 
-            if (!resolver.equals(that.resolver)) return false;
+            if (!resolver.equals(that.resolver)) {
+                return false;
+            }
 
             return true;
         }

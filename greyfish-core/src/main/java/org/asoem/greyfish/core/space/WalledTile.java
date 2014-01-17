@@ -31,10 +31,18 @@ public class WalledTile implements Tile {
         this.y = y;
 
         int mask = 0;
-        if (x == 0) mask |= (1 << WEST.ordinal());
-        if (x == space.colCount() - 1) mask |= (1 << EAST.ordinal());
-        if (y == 0) mask |= (1 << NORTH.ordinal());
-        if (y == space.rowCount() - 1) mask |= (1 << SOUTH.ordinal());
+        if (x == 0) {
+            mask |= (1 << WEST.ordinal());
+        }
+        if (x == space.colCount() - 1) {
+            mask |= (1 << EAST.ordinal());
+        }
+        if (y == 0) {
+            mask |= (1 << NORTH.ordinal());
+        }
+        if (y == space.rowCount() - 1) {
+            mask |= (1 << SOUTH.ordinal());
+        }
         wallFlagsMask = mask;
     }
 
@@ -49,14 +57,13 @@ public class WalledTile implements Tile {
     }
 
     /**
-     * Checks for a wall in the given {@code direction} of this tile and for a wall in the opposite {@code direction} of the tile in the given direction if present.
-     * For combined directions (e.g. {@code NORTHWEST}) the function will return
-     * {@code true} if there is a wall for any of the single directions (e.g. {@code NORTH} or {@code WEST})
+     * Checks for a wall in the given {@code direction} of this tile and for a wall in the opposite {@code direction} of
+     * the tile in the given direction if present. For combined directions (e.g. {@code NORTHWEST}) the function will
+     * return {@code true} if there is a wall for any of the single directions (e.g. {@code NORTH} or {@code WEST})
      *
      * @param direction The direction to check
-     * @return {@code true} if this location has a wall in the given {@code direction}
-     *         or the location in the given {@code direction}, if present, has a border in the opposite direction,
-     *         {@code false} otherwise.
+     * @return {@code true} if this location has a wall in the given {@code direction} or the location in the given
+     * {@code direction}, if present, has a border in the opposite direction, {@code false} otherwise.
      */
     public boolean hasWall(final TileDirection direction) {
 
@@ -68,25 +75,30 @@ public class WalledTile implements Tile {
             case SOUTH:
             case WEST:
             case EAST:
-                if (isWallFlagSet(1 << direction.ordinal()))
+                if (isWallFlagSet(1 << direction.ordinal())) {
                     return true;
+                }
                 break;
 
             case NORTHEAST:
-                if (isWallFlagSet(1 << NORTH.ordinal() | 1 << EAST.ordinal()))
+                if (isWallFlagSet(1 << NORTH.ordinal() | 1 << EAST.ordinal())) {
                     return true;
+                }
                 break;
             case SOUTHEAST:
-                if (isWallFlagSet(1 << SOUTH.ordinal() | 1 << EAST.ordinal()))
+                if (isWallFlagSet(1 << SOUTH.ordinal() | 1 << EAST.ordinal())) {
                     return true;
+                }
                 break;
             case SOUTHWEST:
-                if (isWallFlagSet(1 << SOUTH.ordinal() | 1 << WEST.ordinal()))
+                if (isWallFlagSet(1 << SOUTH.ordinal() | 1 << WEST.ordinal())) {
                     return true;
+                }
                 break;
             case NORTHWEST:
-                if (isWallFlagSet(1 << NORTH.ordinal() | 1 << WEST.ordinal()))
+                if (isWallFlagSet(1 << NORTH.ordinal() | 1 << WEST.ordinal())) {
                     return true;
+                }
                 break;
         }
 
@@ -155,12 +167,15 @@ public class WalledTile implements Tile {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         final WalledTile other = (WalledTile) obj;
         return x == other.x && y == other.y;
     }
@@ -169,14 +184,30 @@ public class WalledTile implements Tile {
     public String toString() {
         final ArrayList<String> walls = Lists.newArrayList();
 
-        if (hasWall(NORTH)) walls.add("N");
-        if (hasWall(NORTHEAST)) walls.add("NE");
-        if (hasWall(EAST)) walls.add("E");
-        if (hasWall(SOUTHEAST)) walls.add("SE");
-        if (hasWall(SOUTH)) walls.add("S");
-        if (hasWall(SOUTHWEST)) walls.add("SW");
-        if (hasWall(WEST)) walls.add("W");
-        if (hasWall(NORTHWEST)) walls.add("NW");
+        if (hasWall(NORTH)) {
+            walls.add("N");
+        }
+        if (hasWall(NORTHEAST)) {
+            walls.add("NE");
+        }
+        if (hasWall(EAST)) {
+            walls.add("E");
+        }
+        if (hasWall(SOUTHEAST)) {
+            walls.add("SE");
+        }
+        if (hasWall(SOUTH)) {
+            walls.add("S");
+        }
+        if (hasWall(SOUTHWEST)) {
+            walls.add("SW");
+        }
+        if (hasWall(WEST)) {
+            walls.add("W");
+        }
+        if (hasWall(NORTHWEST)) {
+            walls.add("NW");
+        }
 
         return "[" + Doubles.join(",", x, y) + "] (border:" + Joiner.on(",").join(walls) + ")";
     }

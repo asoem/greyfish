@@ -46,8 +46,9 @@ public final class FifoBuffer<E> extends ForwardingCollection<E> implements Seri
     public boolean add(final E element) {
         synchronized (this) {
             final boolean add = super.add(element);
-            if (size() > capacity)
+            if (size() > capacity) {
                 delegate.removeFirst();
+            }
             return add;
         }
     }
@@ -59,13 +60,21 @@ public final class FifoBuffer<E> extends ForwardingCollection<E> implements Seri
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FifoBuffer)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FifoBuffer)) {
+            return false;
+        }
 
         final FifoBuffer that = (FifoBuffer) o;
 
-        if (capacity != that.capacity) return false;
-        if (!delegate.equals(that.delegate)) return false;
+        if (capacity != that.capacity) {
+            return false;
+        }
+        if (!delegate.equals(that.delegate)) {
+            return false;
+        }
 
         return true;
     }
@@ -79,10 +88,9 @@ public final class FifoBuffer<E> extends ForwardingCollection<E> implements Seri
 
     private void readObject(final ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
-        if (capacity <= 0)
+        if (capacity <= 0) {
             throw new InvalidObjectException("box must not be null");
-        if (delegate == null)
-            throw new InvalidObjectException("delegate must not be null");
+        }
     }
 
     private static final long serialVersionUID = 0;

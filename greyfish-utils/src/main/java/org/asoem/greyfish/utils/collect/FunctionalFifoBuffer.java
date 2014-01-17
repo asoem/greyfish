@@ -60,12 +60,18 @@ public final class FunctionalFifoBuffer<M> extends ForwardingCollection<M>
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof FunctionalFifoBuffer)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof FunctionalFifoBuffer)) {
+            return false;
+        }
 
         final FunctionalFifoBuffer that = (FunctionalFifoBuffer) o;
 
-        if (!buffer.equals(that.buffer)) return false;
+        if (!buffer.equals(that.buffer)) {
+            return false;
+        }
 
         return true;
     }

@@ -184,8 +184,9 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends 
         @Override
         protected final void checkBuilder() {
             super.checkBuilder();
-            if (Strings.isNullOrEmpty(ontology))
+            if (Strings.isNullOrEmpty(ontology)) {
                 logger.warn(FemaleLikeMating.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
+            }
         }
     }
 }

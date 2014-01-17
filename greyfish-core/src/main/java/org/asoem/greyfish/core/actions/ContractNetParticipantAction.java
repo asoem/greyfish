@@ -62,8 +62,9 @@ public abstract class ContractNetParticipantAction<A extends Agent<?>> extends F
                 logger.debug("{}: Replying to CFP with {}", this, cfpReply);
                 context.sendMessage(cfpReply);
 
-                if (cfpReply.matches(MessageTemplates.performative(ACLPerformative.PROPOSE)))
+                if (cfpReply.matches(MessageTemplates.performative(ACLPerformative.PROPOSE))) {
                     ++nExpectedProposeAnswers;
+                }
             }
 
             if (nExpectedProposeAnswers > 0) {
@@ -104,16 +105,18 @@ public abstract class ContractNetParticipantAction<A extends Agent<?>> extends F
 
             ++timeoutCounter;
 
-            if (nExpectedProposeAnswers == 0)
+            if (nExpectedProposeAnswers == 0) {
                 endTransition(State.END);
-            else {
-                if (timeoutCounter > TIMEOUT_ACCEPT_STEPS)
+            } else {
+                if (timeoutCounter > TIMEOUT_ACCEPT_STEPS) {
                     failure("Timeout for ACCEPT messages");
-                else
+                } else {
                     transition(State.WAIT_FOR_ACCEPT);
+                }
             }
-        } else
+        } else {
             throw unknownState();
+        }
     }
 
     protected abstract String getOntology();

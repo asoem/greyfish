@@ -8,11 +8,11 @@ public class ImmutablePoint2D extends AbstractPoint2D {
     private final double x;
 
     private final double y;
-    
+
     public ImmutablePoint2D(final Point2D newLocatable) {
         this(newLocatable.getX(), newLocatable.getY());
     }
-    
+
     @Override
     public double getX() {
         return x;
@@ -38,6 +38,7 @@ public class ImmutablePoint2D extends AbstractPoint2D {
 
     /**
      * Returns a new ImmutablePoint2D with coordinates equal to the sum of each dimension
+     *
      * @param l2ds The locations to sum up
      * @return A new ImmutablePoint2D
      */
@@ -55,6 +56,7 @@ public class ImmutablePoint2D extends AbstractPoint2D {
 
     /**
      * Returns a new ImmutablePoint2D with coordinates equal to the sum of each dimension
+     *
      * @param a The first location
      * @param b The second location
      * @return A new ImmutablePoint2D
@@ -77,13 +79,21 @@ public class ImmutablePoint2D extends AbstractPoint2D {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ImmutablePoint2D)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ImmutablePoint2D)) {
+            return false;
+        }
 
         final ImmutablePoint2D that = (ImmutablePoint2D) o;
 
-        if (that.x != x) return false;
-        if (that.y != y) return false;
+        if (that.x != x) {
+            return false;
+        }
+        if (that.y != y) {
+            return false;
+        }
 
         return true;
     }

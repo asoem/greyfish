@@ -12,9 +12,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.math.RandomGenerators.nextBoolean;
 
 /**
- * User: christoph
- * Date: 04.04.11
- * Time: 16:49
+ * User: christoph Date: 04.04.11 Time: 16:49
  */
 public class BitSequence extends AbstractLinearSequence<Boolean> implements Comparable<BitSequence> {
 
@@ -51,13 +49,21 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
     @SuppressWarnings("RedundantIfStatement")
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final BitSequence that = (BitSequence) o;
 
-        if (length != that.length) return false;
-        if (!bitSet.equals(that.bitSet)) return false;
+        if (length != that.length) {
+            return false;
+        }
+        if (!bitSet.equals(that.bitSet)) {
+            return false;
+        }
 
         return true;
     }
@@ -122,8 +128,9 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
         checkNotNull(val);
         final BitSet bs = new BitSet();
         int idx = 0;
-        for(final boolean b : val)
+        for (final boolean b : val) {
             bs.set(idx++, b);
+        }
         return create(idx, bs);
     }
 
@@ -135,6 +142,7 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
 
     /**
      * Create a new {@code BitSequence} from given string {@code s} of '0' and '1' chars
+     *
      * @param s a string of '0' and '1' chars
      * @return a new BitSequence equal to the representation of {@code s}
      */
@@ -146,8 +154,9 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
         checkNotNull(rng);
         final BitSet bs = new BitSet(length);
         int idx = 0;
-        for (int i=0; i<length; ++i)
+        for (int i = 0; i < length; ++i) {
             bs.set(idx++, rng.nextBoolean());
+        }
         return new BitSequence(bs, length);
     }
 
@@ -155,8 +164,9 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
         checkNotNull(rng);
         final BitSet bs = new BitSet(length);
         int idx = 0;
-        for (int i=0; i<length; ++i)
+        for (int i = 0; i < length; ++i) {
             bs.set(idx++, nextBoolean(rng, p));
+        }
         return new BitSequence(bs, length);
     }
 }

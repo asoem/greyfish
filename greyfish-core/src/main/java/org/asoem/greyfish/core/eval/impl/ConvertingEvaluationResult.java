@@ -10,9 +10,7 @@ import java.text.ParseException;
 import java.util.Locale;
 
 /**
- * User: christoph
- * Date: 17.02.12
- * Time: 16:10
+ * User: christoph Date: 17.02.12 Time: 16:10
  */
 public class ConvertingEvaluationResult implements EvaluationResult {
 
@@ -22,20 +20,21 @@ public class ConvertingEvaluationResult implements EvaluationResult {
 
     public ConvertingEvaluationResult(@Nullable final Object result) {
         this.result = result;
-        if (result == null)
+        if (result == null) {
             resultType = RESULT_TYPE.NULL;
-        else if (result instanceof Double)
+        } else if (result instanceof Double) {
             resultType = RESULT_TYPE.DOUBLE;
-        else if (result instanceof Float)
+        } else if (result instanceof Float) {
             resultType = RESULT_TYPE.FLOAT;
-        else if (result instanceof Integer)
+        } else if (result instanceof Integer) {
             resultType = RESULT_TYPE.INTEGER;
-        else if (result instanceof Boolean)
+        } else if (result instanceof Boolean) {
             resultType = RESULT_TYPE.BOOLEAN;
-        else if (result instanceof String)
+        } else if (result instanceof String) {
             resultType = RESULT_TYPE.STRING;
-        else
+        } else {
             resultType = RESULT_TYPE.OBJECT;
+        }
     }
 
     @Override
@@ -53,7 +52,8 @@ public class ConvertingEvaluationResult implements EvaluationResult {
                 return (Number) result;
             case BOOLEAN:
                 return Boolean.class.cast(result) ? 1 : 0;
-            default: throw new EvaluationException(result + " cannot be converted to a Number");
+            default:
+                throw new EvaluationException(result + " cannot be converted to a Number");
         }
     }
 
@@ -65,9 +65,12 @@ public class ConvertingEvaluationResult implements EvaluationResult {
     @Override
     public boolean asBoolean() throws EvaluationException {
         switch (resultType) {
-            case BOOLEAN: return Boolean.class.cast(result);
-            case STRING: return Boolean.parseBoolean(String.class.cast(result)); // TODO: include 1 as true
-            default: throw new EvaluationException(result + " cannot be converted to Boolean");
+            case BOOLEAN:
+                return Boolean.class.cast(result);
+            case STRING:
+                return Boolean.parseBoolean(String.class.cast(result)); // TODO: include 1 as true
+            default:
+                throw new EvaluationException(result + " cannot be converted to Boolean");
         }
     }
 
@@ -99,8 +102,12 @@ public class ConvertingEvaluationResult implements EvaluationResult {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         final ConvertingEvaluationResult that = (ConvertingEvaluationResult) o;
 

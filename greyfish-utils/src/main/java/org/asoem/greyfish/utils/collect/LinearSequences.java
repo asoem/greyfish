@@ -75,8 +75,9 @@ public class LinearSequences {
         final Iterable<Product2<E, E>> zipped = Products.zip(a, b);
         int sum = 0;
         for (final Product2<E, E> el : zipped) {
-            if (!el.first().equals(el.second()))
+            if (!el.first().equals(el.second())) {
                 ++sum;
+            }
         }
         return sum;
     }
