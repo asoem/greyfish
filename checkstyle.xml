@@ -68,7 +68,11 @@
 
         <!-- Checks for Naming Conventions.                  -->
         <!-- See http://checkstyle.sf.net/config_naming.html -->
-        <module name="ConstantName"/>
+        <module name="ConstantName">
+            <!-- For the rational behind this alteration read
+            http://google-styleguide.googlecode.com/svn/trunk/javaguide.html#s5.2.4-constant-names -->
+            <property name="format" value="^[a-zA-Z][a-zA-Z0-9]*(_[a-zA-Z0-9]+)*$"/>
+        </module>
         <module name="LocalFinalVariableName"/>
         <module name="LocalVariableName"/>
         <module name="MemberName"/>
