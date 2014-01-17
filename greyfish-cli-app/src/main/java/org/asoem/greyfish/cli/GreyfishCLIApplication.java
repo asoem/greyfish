@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -46,22 +47,22 @@ import static java.util.Arrays.asList;
 public final class GreyfishCLIApplication {
 
     private static final Logger logger = LoggerFactory.getLogger(GreyfishCLIApplication.class);
-    private static final OptionParser OPTION_PARSER = new OptionParser();
-    private static final OptionSpecBuilder HELP_OPTION_SPEC =
-            OPTION_PARSER.acceptsAll(asList("h", "?"), "Print this help");
-    private static final ArgumentAcceptingOptionSpec<String> CLASSPATH_OPTION_SPEC =
-            OPTION_PARSER.acceptsAll(asList("cp", "classpath"), "add to classpath (where model classes can be found)")
+    private static final OptionParser optionParser = new OptionParser();
+    private static final OptionSpecBuilder helpOptionSpec =
+            optionParser.acceptsAll(asList("h", "?"), "Print this help");
+    private static final ArgumentAcceptingOptionSpec<String> classpathOptionSpec =
+            optionParser.acceptsAll(asList("cp", "classpath"), "add to classpath (where model classes can be found)")
                     .withRequiredArg().ofType(String.class);
-    /* private static final OptionSpecBuilder REPRODUCIBLE_MODE_OPTION_SPEC =
-            OPTION_PARSER.accepts("R", "Reproducible mode. Sets the seed of the Pseudo Random Generator to 0"); */
-    private static final ArgumentAcceptingOptionSpec<String> SIMULATION_NAME_OPTION_SPEC =
-            OPTION_PARSER.acceptsAll(asList("n", "name"), "Set simulation name")
+    /* private static final OptionSpecBuilder reproducibleModeOptionSpec =
+            optionParser.accepts("R", "Reproducible mode. Sets the seed of the Pseudo Random Generator to 0"); */
+    private static final ArgumentAcceptingOptionSpec<String> simulationNameOptionSpec =
+            optionParser.acceptsAll(asList("n", "name"), "Set simulation name")
                     .withRequiredArg().ofType(String.class);
-    private static final ArgumentAcceptingOptionSpec<Integer> PARALLELIZATION_THRESHOLD_OPTION_SPEC =
-            OPTION_PARSER.accepts("pt", "Set parallelization threshold")
+    private static final ArgumentAcceptingOptionSpec<Integer> parallelizationThresholdOptionSpec =
+            optionParser.accepts("pt", "Set parallelization threshold")
                     .withRequiredArg().ofType(Integer.class).defaultsTo(1000);
-    private static final ArgumentAcceptingOptionSpec<ModelParameterOptionValue> MODEL_PARAMETER_OPTION_SPEC =
-            OPTION_PARSER.accepts("D", "set model parameter for given model class")
+    private static final ArgumentAcceptingOptionSpec<ModelParameterOptionValue> modelParameterOptionSpec =
+            optionParser.accepts("D", "set model parameter for given model class")
                     .withRequiredArg().withValuesConvertedBy(new ValueConverter<ModelParameterOptionValue>() {
                 @Override
                 public ModelParameterOptionValue convert(final String value) {
@@ -79,18 +80,18 @@ public final class GreyfishCLIApplication {
                     return "key=value";
                 }
             });
-    private static final ArgumentAcceptingOptionSpec<String> WORKING_DIRECTORY_OPTION_SPEC =
-            OPTION_PARSER.accepts("w", "Set working directory").withOptionalArg().ofType(String.class).defaultsTo("./");
-    private static final OptionSpecBuilder QUIET_OPTION_SPEC =
-            OPTION_PARSER.accepts("q", "Be quiet. Don't print progress information");
-    private static final ArgumentAcceptingOptionSpec<Integer> STEPS_OPTION_SPEC =
-            OPTION_PARSER.acceptsAll(asList("s", "steps"), "stop simulation after MAX steps")
+    private static final ArgumentAcceptingOptionSpec<String> workingDirectoryOptionSpec =
+            optionParser.accepts("w", "Set working directory").withOptionalArg().ofType(String.class).defaultsTo("./");
+    private static final OptionSpecBuilder quietOptionSpec =
+            optionParser.accepts("q", "Be quiet. Don't print progress information");
+    private static final ArgumentAcceptingOptionSpec<Integer> stepsOptionSpec =
+            optionParser.acceptsAll(asList("s", "steps"), "stop simulation after MAX steps")
                     .withRequiredArg().ofType(Integer.class).required();
-    private static final ArgumentAcceptingOptionSpec<Integer> COMMIT_THRESHOLD_SPEC =
-            OPTION_PARSER.accepts("ct", "Commit threshold for JDBC batch operations")
+    private static final ArgumentAcceptingOptionSpec<Integer> commitThresholdSpec =
+            optionParser.accepts("ct", "Commit threshold for JDBC batch operations")
                     .withRequiredArg().ofType(int.class).defaultsTo(1000);
 
-    private static final Closer CLOSER = Closer.create();
+    private static final Closer closer = Closer.create();
 
     private GreyfishCLIApplication() {
     }
@@ -109,9 +110,9 @@ public final class GreyfishCLIApplication {
                 final String modelClassName = optionSet.nonOptionArguments().get(0);
 
                 ClassLoader classLoader = GreyfishCLIApplication.class.getClassLoader();
-                if (optionSet.has(CLASSPATH_OPTION_SPEC)) {
+                if (optionSet.has(classpathOptionSpec)) {
                     try {
-                        final String pathName = optionSet.valueOf(CLASSPATH_OPTION_SPEC);
+                        final String pathName = optionSet.valueOf(classpathOptionSpec);
                         final File file = new File(pathName);
                         if (!file.canRead()) {
                             exitWithErrorMessage("Specified classpath is not readable: " + pathName);
@@ -137,12 +138,15 @@ public final class GreyfishCLIApplication {
                     exitWithErrorMessage("Could not find class " + modelClassName);
                 }
 
-                if (optionSet.has(MODEL_PARAMETER_OPTION_SPEC)) {
+                if (optionSet.has(modelParameterOptionSpec)) {
                     final Map<String, String> properties = Maps.newHashMap();
-                    for (final ModelParameterOptionValue modelParameterOption : optionSet.valuesOf(MODEL_PARAMETER_OPTION_SPEC)) {
+                    final List<ModelParameterOptionValue> modelParameterOptionValues =
+                            optionSet.valuesOf(modelParameterOptionSpec);
+                    for (final ModelParameterOptionValue modelParameterOption : modelParameterOptionValues) {
                         if (properties.containsKey(modelParameterOption.key)) {
                             logger.warn("Model parameter {} was defined twice. Overwriting value {} with {}",
-                                    modelParameterOption.key, properties.get(modelParameterOption.key), modelParameterOption.value);
+                                    modelParameterOption.key, properties.get(modelParameterOption.key),
+                                    modelParameterOption.value);
                         }
                         properties.put(modelParameterOption.key, modelParameterOption.value);
                     }
@@ -150,24 +154,26 @@ public final class GreyfishCLIApplication {
                 }
 
                 bind(Integer.class).annotatedWith(Names.named("steps"))
-                        .toInstance(optionSet.valueOf(STEPS_OPTION_SPEC));
+                        .toInstance(optionSet.valueOf(stepsOptionSpec));
                 bind(Boolean.class).annotatedWith(Names.named("quiet"))
-                        .toProvider(Providers.of(optionSet.has(QUIET_OPTION_SPEC)));
+                        .toProvider(Providers.of(optionSet.has(quietOptionSpec)));
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
-                        .toInstance(optionSet.valueOf(PARALLELIZATION_THRESHOLD_OPTION_SPEC));
+                        .toInstance(optionSet.valueOf(parallelizationThresholdOptionSpec));
 
                 // TODO: One should be able to define the database url independent of the working directory
-                final String pathname = optionSet.valueOf(WORKING_DIRECTORY_OPTION_SPEC) + "/"
-                        + optionSet.valueOf(SIMULATION_NAME_OPTION_SPEC);
+                final String pathname = optionSet.valueOf(workingDirectoryOptionSpec) + "/"
+                        + optionSet.valueOf(simulationNameOptionSpec);
                 final String path = Files.simplifyPath(pathname);
 
                 try {
                     final GreyfishH2ConnectionManager connectionSupplier =
                             GreyfishH2ConnectionManager.create(path);
-                    SimulationLogger jdbcLogger = SimulationLoggers.createJDBCLogger(connectionSupplier, optionSet.valueOf(COMMIT_THRESHOLD_SPEC));
+                    SimulationLogger jdbcLogger = SimulationLoggers.createJDBCLogger(
+                            connectionSupplier, optionSet.valueOf(commitThresholdSpec));
 
-                    CLOSER.register(connectionSupplier);
-                    CLOSER.register(jdbcLogger); // Must be closed before the connection (put on stack after the connection)
+                    closer.register(connectionSupplier);
+                    // Logger must be closed before the connection (put on stack after the connection)
+                    closer.register(jdbcLogger);
 
                     bind(SimulationLogger.class).toInstance(jdbcLogger);
                 } catch (Exception e) {
@@ -189,20 +195,18 @@ public final class GreyfishCLIApplication {
             @Override
             public void run() {
                 try {
-                    CLOSER.close();
+                    closer.close();
                 } catch (IOException e) {
                     logger.warn("Exception while closing resources", e);
                 }
             }
         });
 
-        final OptionParser optionParser = OPTION_PARSER;
-
         try {
             final OptionSet optionSet = optionParser.parse(args);
 
-            if (optionSet.has(HELP_OPTION_SPEC)) {
-                printHelp(optionParser);
+            if (optionSet.has(helpOptionSpec)) {
+                printHelp();
                 System.exit(0);
             }
 
@@ -225,9 +229,10 @@ public final class GreyfishCLIApplication {
             final ExperimentExecutionService experimentExecutionService =
                     injector.getInstance(ExperimentExecutionService.class);
 
-            if (!optionSet.has(QUIET_OPTION_SPEC)) {
+            if (!optionSet.has(quietOptionSpec)) {
                 final ExperimentMonitorService monitorService =
-                        new ExperimentMonitorService(experimentExecutionService.getExperiment(), System.out, optionSet.valueOf(STEPS_OPTION_SPEC), eventBus);
+                        new ExperimentMonitorService(experimentExecutionService.getExperiment(),
+                                System.out, optionSet.valueOf(stepsOptionSpec), eventBus);
 
                 monitorService.addListener(new Service.Listener() {
                     @Override
@@ -319,7 +324,8 @@ public final class GreyfishCLIApplication {
         exitWithErrorMessage(message, throwable, false);
     }
 
-    private static void exitWithErrorMessage(final String message, @Nullable final Throwable throwable, final boolean printHelp) {
+    private static void exitWithErrorMessage(final String message, @Nullable final Throwable throwable,
+                                             final boolean printHelp) {
         assert message != null;
 
         logger.error(message, throwable);
@@ -337,13 +343,13 @@ public final class GreyfishCLIApplication {
         System.out.println(messageBuilder.toString());
 
         if (printHelp) {
-            printHelp(OPTION_PARSER);
+            printHelp();
         }
 
         System.exit(1);
     }
 
-    private static void printHelp(final OptionParser optionParser) {
+    private static void printHelp() {
         System.out.println("Usage: greyfish [Options] <ModelClass>");
         try {
             optionParser.printHelpOn(System.out);
