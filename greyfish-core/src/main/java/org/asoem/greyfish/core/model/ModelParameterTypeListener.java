@@ -38,7 +38,15 @@ public final class ModelParameterTypeListener implements TypeListener {
 
     @Override
     public <T> void hear(final TypeLiteral<T> typeLiteral, final TypeEncounter<T> typeEncounter) {
-        for (final Field field : typeLiteral.getRawType().getDeclaredFields()) {
+        Class<? super T> type = typeLiteral.getRawType();
+        while (type != Object.class) {
+            injectDeclaredFields(typeEncounter, type);
+            type = type.getSuperclass();
+        }
+    }
+
+    private <T> void injectDeclaredFields(final TypeEncounter<T> typeEncounter, final Class<? super T> type) {
+        for (final Field field : type.getDeclaredFields()) {
             if (field.isAnnotationPresent(ModelParameter.class)) {
                 final ModelParameter fieldAnnotation = field.getAnnotation(ModelParameter.class);
                 final String annotationValue = fieldAnnotation.value();
