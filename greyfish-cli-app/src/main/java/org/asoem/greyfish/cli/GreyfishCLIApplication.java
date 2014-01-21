@@ -108,19 +108,20 @@ public final class GreyfishCLIApplication {
 
                 ClassLoader classLoader = GreyfishCLIApplication.class.getClassLoader();
                 if (optionSet.has(classpathOptionSpec)) {
-                    try {
-                        final String pathName = optionSet.valueOf(classpathOptionSpec);
-                        final File file = new File(pathName);
-                        if (!file.canRead()) {
-                            exitWithErrorMessage("Specified classpath is not readable: " + pathName);
-                        }
+                    for (String classPath : optionSet.valuesOf(classpathOptionSpec)) {
+                        try {
+                            final File file = new File(classPath);
+                            if (!file.canRead()) {
+                                exitWithErrorMessage("Specified classpath is not readable: " + classPath);
+                            }
 
-                        classLoader = URLClassLoader.newInstance(
-                                new URL[]{file.toURI().toURL()},
-                                classLoader
-                        );
-                    } catch (MalformedURLException e) {
-                        throw new AssertionError(e);
+                            classLoader = URLClassLoader.newInstance(
+                                    new URL[]{file.toURI().toURL()},
+                                    classLoader
+                            );
+                        } catch (MalformedURLException e) {
+                            throw new AssertionError(e);
+                        }
                     }
                 }
 
