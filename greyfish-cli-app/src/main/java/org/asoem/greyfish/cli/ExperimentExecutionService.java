@@ -4,8 +4,6 @@ import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.model.Experiment;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 /**
  * This service executes a given {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation}.
  */

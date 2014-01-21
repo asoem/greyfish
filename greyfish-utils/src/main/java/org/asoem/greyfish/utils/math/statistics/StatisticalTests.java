@@ -26,7 +26,8 @@ public final class StatisticalTests {
 
     /**
      * Performs the Shapiro-Wilk test of normality. <p>This algorithm is limited to samples of size in the range [3,
-     * 5000]</p> <p>Wikipedia: <a href="https://en.wikipedia.org/wiki/Shapiro_wilk">https://en.wikipedia.org/wiki/Shapiro_wilk</a></p>
+     * 5000]</p> <p>Wikipedia: <a href="https://en.wikipedia.org/wiki/Shapiro_wilk">https://en.wikipedia.org/wiki/Shapiro_wilk</a>
+     * </p>
      *
      * @param sample the sample to test
      * @return the test summary
