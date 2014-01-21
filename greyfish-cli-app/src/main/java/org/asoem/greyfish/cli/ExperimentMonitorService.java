@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractScheduledService;
-import org.asoem.greyfish.core.model.Experiment;
 import org.asoem.greyfish.core.model.SimulationCreatedEvent;
 import org.asoem.greyfish.core.simulation.Simulation;
 
@@ -16,7 +15,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -25,19 +23,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 final class ExperimentMonitorService extends AbstractScheduledService {
 
-    private final Experiment experiment;
-
     private List<ObservedSimulation> activeSimulations = Lists.newCopyOnWriteArrayList();
 
     private final PrintWriter writer;
-    private final int steps;
     private String lastMessage = "";
 
-    public ExperimentMonitorService(final Experiment experiment, final OutputStream outputStream, final int steps, final EventBus eventBus) {
-        checkArgument(steps > 0);
-        this.steps = steps;
-        this.experiment = checkNotNull(experiment);
-
+    public ExperimentMonitorService(final OutputStream outputStream, final EventBus eventBus) {
         checkNotNull(eventBus);
         eventBus.register(this);
 

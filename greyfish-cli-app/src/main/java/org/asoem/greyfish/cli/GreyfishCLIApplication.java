@@ -84,9 +84,6 @@ public final class GreyfishCLIApplication {
             optionParser.accepts("w", "Set working directory").withOptionalArg().ofType(String.class).defaultsTo("./");
     private static final OptionSpecBuilder quietOptionSpec =
             optionParser.accepts("q", "Be quiet. Don't print progress information");
-    private static final ArgumentAcceptingOptionSpec<Integer> stepsOptionSpec =
-            optionParser.acceptsAll(asList("s", "steps"), "stop simulation after MAX steps")
-                    .withRequiredArg().ofType(Integer.class).required();
     private static final ArgumentAcceptingOptionSpec<Integer> commitThresholdSpec =
             optionParser.accepts("ct", "Commit threshold for JDBC batch operations")
                     .withRequiredArg().ofType(int.class).defaultsTo(1000);
@@ -153,8 +150,6 @@ public final class GreyfishCLIApplication {
                     bindListener(Matchers.any(), new ModelParameterTypeListener(properties));
                 }
 
-                bind(Integer.class).annotatedWith(Names.named("steps"))
-                        .toInstance(optionSet.valueOf(stepsOptionSpec));
                 bind(Boolean.class).annotatedWith(Names.named("quiet"))
                         .toProvider(Providers.of(optionSet.has(quietOptionSpec)));
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
@@ -231,8 +226,8 @@ public final class GreyfishCLIApplication {
 
             if (!optionSet.has(quietOptionSpec)) {
                 final ExperimentMonitorService monitorService =
-                        new ExperimentMonitorService(experimentExecutionService.getExperiment(),
-                                System.out, optionSet.valueOf(stepsOptionSpec), eventBus);
+                        new ExperimentMonitorService(
+                                System.out, eventBus);
 
                 monitorService.addListener(new Service.Listener() {
                     @Override
