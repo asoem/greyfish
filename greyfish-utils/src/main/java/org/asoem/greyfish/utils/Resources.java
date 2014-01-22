@@ -1,5 +1,6 @@
 package org.asoem.greyfish.utils;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -7,6 +8,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.jar.JarFile;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class Resources {
 
@@ -22,8 +25,14 @@ public final class Resources {
      * @throws IOException if the jar file could not be read
      */
     public static JarFile getJarFile(final Class<?> clazz) throws IOException {
-        final String className = clazz.getSimpleName() + ".class";
+        checkNotNull(clazz);
+        final String className = clazz.getName().substring(clazz.getName().lastIndexOf('.') + 1) + ".class";
+        @Nullable
         final URL resource = clazz.getResource(className);
+        if (resource == null) {
+            throw new IOException("Found no resource with name " + className);
+        }
+
         final String classPath = resource.toString();
         if (!classPath.startsWith("jar:file:")) {
             // Class not from JAR
