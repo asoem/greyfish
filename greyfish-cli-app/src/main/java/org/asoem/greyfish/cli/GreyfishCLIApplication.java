@@ -90,8 +90,7 @@ public final class GreyfishCLIApplication {
 
     private static final Closer closer = Closer.create();
 
-    private GreyfishCLIApplication() {
-    }
+    private GreyfishCLIApplication() {}
 
     private static Module createCommandLineModule(final OptionSet optionSet) {
 
