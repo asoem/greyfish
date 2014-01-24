@@ -1,10 +1,9 @@
 package org.asoem.greyfish.utils.collect;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import org.apache.commons.math3.random.RandomGenerator;
 
-import java.math.BigInteger;
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.BitSet;
 
 import static com.google.common.base.Preconditions.checkElementIndex;
@@ -12,108 +11,54 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.math.RandomGenerators.nextBoolean;
 
 /**
- * User: christoph Date: 04.04.11 Time: 16:49
+ * An immutable linear sequence of boolean values.
  */
-public class BitSequence extends AbstractLinearSequence<Boolean> implements Comparable<BitSequence> {
+@ThreadSafe
+public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
 
-    private final BitSet bitSet;
-    private final int length;
+    public abstract int cardinality();
 
-    private BitSequence(final BitSet bitSet, final int length) {
-        assert bitSet != null;
+    public abstract BitSet asBitSet();
 
-        this.bitSet = bitSet;
-        this.length = length;
-    }
-
-    @Override
-    public int length() {
-        return length;
-    }
-
-    @Override
-    public String toString() {
-        return Strings.padStart(BitSets.toString(bitSet), length, '0');
-    }
-
-    @Override
-    public Boolean get(final int index) {
-        checkElementIndex(index, length());
-        return bitSet.get(index);
-    }
-
-    public int cardinality() {
-        return bitSet.cardinality();
-    }
-
-    @SuppressWarnings("RedundantIfStatement")
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final BitSequence that = (BitSequence) o;
-
-        if (length != that.length) {
-            return false;
-        }
-        if (!bitSet.equals(that.bitSet)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = bitSet.hashCode();
-        result = 31 * result + length;
-        return result;
-    }
-
-    @Override
-    public int compareTo(final BitSequence val) {
-        return this.asBigInteger().compareTo(val.asBigInteger());
-    }
-
-    public BigInteger asBigInteger() {
-        return new BigInteger(BitSets.toByteArray(bitSet));
-    }
-
-    public BitSet asBitSet() {
-        return (BitSet) bitSet.clone();
-    }
-
-    public BitSequence and(final BitSequence bs) {
+    public final BitSequence and(final BitSequence bs) {
         final BitSet bitSet = bs.asBitSet();
-        bitSet.and(this.bitSet);
-        return new BitSequence(bitSet, Math.max(length(), bs.length()));
+        bitSet.and(this.asBitSet());
+        return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
-    public BitSequence or(final BitSequence bs) {
+    public final BitSequence or(final BitSequence bs) {
         final BitSet bitSet = bs.asBitSet();
-        bitSet.or(this.bitSet);
-        return new BitSequence(bitSet, Math.max(length(), bs.length()));
+        bitSet.or(this.asBitSet());
+        return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
-    public BitSequence xor(final BitSequence bs) {
+    public final BitSequence xor(final BitSequence bs) {
         final BitSet bitSet = bs.asBitSet();
-        bitSet.xor(this.bitSet);
-        return new BitSequence(bitSet, Math.max(length(), bs.length()));
+        bitSet.xor(this.asBitSet());
+        return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
-    public BitSequence andNot(final BitSequence bs) {
+    public final BitSequence andNot(final BitSequence bs) {
         final BitSet bitSet = bs.asBitSet();
-        bitSet.andNot(this.bitSet);
-        return new BitSequence(bitSet, Math.max(length(), bs.length()));
+        bitSet.andNot(this.asBitSet());
+        return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
+    }
+
+    public final BitSequence subSequence(final int start, final int end) {
+        return new BitSequenceView(this, start, end);
+    }
+
+    @Override
+    public final String toString() {
+        final StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < this.length(); i++) {
+            builder.append(get(i) ? '1' : '0');
+        }
+        return builder.reverse().toString();
     }
 
     private static BitSequence create(final int length, final BitSet bitSet) {
-        return new BitSequence(bitSet, length);
+        return new RegularBitSequence(bitSet, length);
     }
 
     public static BitSequence ones(final int length) {
@@ -134,7 +79,8 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
         return create(idx, bs);
     }
 
-    public static BitSequence concat(final BitSequence sequence1, final BitSequence sequence2) {
+    public static BitSequence concat(final Iterable<? extends Boolean> sequence1,
+                                     final Iterable<? extends Boolean> sequence2) {
         checkNotNull(sequence1);
         checkNotNull(sequence2);
         return forIterable(Iterables.concat(sequence1, sequence2));
@@ -147,7 +93,7 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
      * @return a new BitSequence equal to the representation of {@code s}
      */
     public static BitSequence parse(final String s) {
-        return new BitSequence(BitSets.parse(s), s.length());
+        return new RegularBitSequence(BitSets.parse(s), s.length());
     }
 
     public static BitSequence random(final int length, final RandomGenerator rng) {
@@ -157,7 +103,7 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
         for (int i = 0; i < length; ++i) {
             bs.set(idx++, rng.nextBoolean());
         }
-        return new BitSequence(bs, length);
+        return new RegularBitSequence(bs, length);
     }
 
     public static BitSequence random(final int length, final RandomGenerator rng, final double p) {
@@ -167,6 +113,76 @@ public class BitSequence extends AbstractLinearSequence<Boolean> implements Comp
         for (int i = 0; i < length; ++i) {
             bs.set(idx++, nextBoolean(rng, p));
         }
-        return new BitSequence(bs, length);
+        return new RegularBitSequence(bs, length);
+    }
+
+    private static final class RegularBitSequence extends BitSequence {
+        private final BitSet bitSet; // is mutable, so don't expose outside of class
+        private final int length;
+
+        private RegularBitSequence(final BitSet bitSet, final int length) {
+            assert bitSet != null;
+
+            this.bitSet = bitSet;
+            this.length = length;
+        }
+
+        @Override
+        public int length() {
+            return length;
+        }
+
+        @Override
+        public Boolean get(final int index) {
+            checkElementIndex(index, length());
+            return bitSet.get(index);
+        }
+
+        @Override
+        public int cardinality() {
+            return bitSet.cardinality();
+        }
+
+        public BitSet asBitSet() {
+            return (BitSet) bitSet.clone();
+        }
+    }
+
+    private static final class BitSequenceView extends BitSequence {
+        private final BitSequence bitSequence;
+        private final int start;
+        private final int end;
+
+        public BitSequenceView(final BitSequence bitSequence, final int start, final int end) {
+            super();
+            this.bitSequence = bitSequence;
+            this.start = start;
+            this.end = end;
+        }
+
+        @Override
+        public int cardinality() {
+            int cardinality = 0;
+            for (Boolean aBoolean : this) {
+                cardinality += aBoolean ? 1 : 0;
+            }
+            return cardinality;
+        }
+
+        @Override
+        public BitSet asBitSet() {
+            return bitSequence.asBitSet().get(start, end);
+        }
+
+        @Override
+        public Boolean get(final int index) {
+            checkElementIndex(index, size());
+            return bitSequence.get(start + index);
+        }
+
+        @Override
+        public int length() {
+            return end - start;
+        }
     }
 }

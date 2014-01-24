@@ -9,11 +9,6 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-/**
- * User: christoph
- * Date: 01.02.13
- * Time: 10:16
- */
 public class BitSequenceTest {
     @Test
     public void testToString() throws Exception {
@@ -101,5 +96,19 @@ public class BitSequenceTest {
 
         // then
         assertThat(concat, is(equalTo(BitSequence.ones(20))));
+    }
+
+    @Test
+    public void testSubSequence() throws Exception {
+        // given
+        final BitSequence originalSequence = BitSequence.parse("001011001000101");
+
+        // when
+        final BitSequence subSequence = originalSequence.subSequence(3, 7);
+
+        // then
+        assertThat(subSequence, is(equalTo(BitSequence.parse("1000"))));
+        assertThat(subSequence.cardinality(), is(1));
+        assertThat(subSequence.length(), is(4));
     }
 }
