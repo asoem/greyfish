@@ -21,7 +21,11 @@ import java.util.NoSuchElementException;
 /**
  * This class provides a skeletal implementation of the {@code Agent} interface.
  */
-public abstract class AbstractAgent<A extends Agent<C>, C extends BasicSimulationContext<?, A>, AC extends AgentContext<A>> implements Agent<C> {
+public abstract class AbstractAgent<
+        A extends Agent<C>,
+        C extends BasicSimulationContext<?, A>,
+        AC extends AgentContext<A>>
+        implements Agent<C> {
     private static final Logger logger = LoggerFactory.getLogger(AbstractAgent.class);
 
     private static <E extends AgentComponent<?>> E findByName(final Searchable<E> elements, final String name) {
@@ -101,7 +105,8 @@ public abstract class AbstractAgent<A extends Agent<C>, C extends BasicSimulatio
             final ComponentMessage request = (ComponentMessage) message;
             return ask(request, replyType);
         } else if (message instanceof ACLMessage) {
-            receive((ACLMessage<A>) message);
+            final ACLMessage aclMessage = (ACLMessage) message;
+            receive(aclMessage);
             return replyType.cast(null);
         } else if (message instanceof RequestAllTraitValues) {
             FunctionalList<AgentProperty<? super AC, ?>> properties = getProperties();

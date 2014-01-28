@@ -42,29 +42,6 @@ public abstract class AbstractAgentComponent<C> implements AgentComponent<C> {
         throw new UnsupportedOperationException("Cannot handle message " + message);
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final AbstractAgentComponent<C> that = (AbstractAgentComponent<C>) o;
-
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return name != null ? name.hashCode() : 0;
-    }
-
     /**
      * Get all children of this node. <p>This default implementation simple returns an empty list but other
      * implementations might overwrite this method, if they add nodes to the tree.</p>
@@ -74,7 +51,11 @@ public abstract class AbstractAgentComponent<C> implements AgentComponent<C> {
         return ImmutableList.of();
     }
 
-    protected abstract static class AbstractBuilder<C extends AbstractAgentComponent<?>, B extends AbstractBuilder<C, B>> extends InheritableBuilder<C, B> implements Serializable {
+    protected abstract static class AbstractBuilder<
+            C extends AbstractAgentComponent<?>,
+            B extends AbstractBuilder<C, B>>
+            extends InheritableBuilder<C, B>
+            implements Serializable {
         protected String name;
 
         protected AbstractBuilder(final AbstractAgentComponent<?> component) {
