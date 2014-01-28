@@ -51,6 +51,29 @@ public abstract class AbstractAgentComponent<C> implements AgentComponent<C> {
         return ImmutableList.of();
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final AbstractAgentComponent that = (AbstractAgentComponent) o;
+
+        if (!name.equals(that.name)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
     protected abstract static class AbstractBuilder<
             C extends AbstractAgentComponent<?>,
             B extends AbstractBuilder<C, B>>
