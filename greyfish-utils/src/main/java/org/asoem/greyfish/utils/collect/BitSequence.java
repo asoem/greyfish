@@ -1,5 +1,7 @@
 package org.asoem.greyfish.utils.collect;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Iterables;
 import org.apache.commons.math3.random.RandomGenerator;
 
@@ -21,26 +23,26 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
     public abstract BitSet asBitSet();
 
     public final BitSequence and(final BitSequence bs) {
-        final BitSet bitSet = bs.asBitSet();
-        bitSet.and(this.asBitSet());
+        final BitSet bitSet = this.asBitSet();
+        bitSet.and(bs.asBitSet());
         return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
     public final BitSequence or(final BitSequence bs) {
-        final BitSet bitSet = bs.asBitSet();
-        bitSet.or(this.asBitSet());
+        final BitSet bitSet = this.asBitSet();
+        bitSet.or(bs.asBitSet());
         return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
     public final BitSequence xor(final BitSequence bs) {
-        final BitSet bitSet = bs.asBitSet();
-        bitSet.xor(this.asBitSet());
+        final BitSet bitSet = this.asBitSet();
+        bitSet.xor(bs.asBitSet());
         return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
     public final BitSequence andNot(final BitSequence bs) {
-        final BitSet bitSet = bs.asBitSet();
-        bitSet.andNot(this.asBitSet());
+        final BitSet bitSet = this.asBitSet();
+        bitSet.andNot(bs.asBitSet());
         return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
     }
 
@@ -83,7 +85,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
                                      final Iterable<? extends Boolean> sequence2) {
         checkNotNull(sequence1);
         checkNotNull(sequence2);
-        return forIterable(Iterables.concat(sequence1, sequence2));
+        return forIterable(Iterables.concat(sequence2, sequence1));
     }
 
     /**
@@ -93,7 +95,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
      * @return a new BitSequence equal to the representation of {@code s}
      */
     public static BitSequence parse(final String s) {
-        return new RegularBitSequence(BitSets.parse(s), s.length());
+        return new RegularBitSequence(s);
     }
 
     public static BitSequence random(final int length, final RandomGenerator rng) {
@@ -116,15 +118,25 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         return new RegularBitSequence(bs, length);
     }
 
-    private static final class RegularBitSequence extends BitSequence {
+    static final class RegularBitSequence extends BitSequence {
         private final BitSet bitSet; // is mutable, so don't expose outside of class
         private final int length;
+        private final Supplier<Integer> cardinalityMemoizer = Suppliers.memoize(new Supplier<Integer>() {
+            @Override
+            public Integer get() {
+                return bitSet.cardinality();
+            }
+        });
 
-        private RegularBitSequence(final BitSet bitSet, final int length) {
+        RegularBitSequence(final BitSet bitSet, final int length) {
             assert bitSet != null;
 
             this.bitSet = bitSet;
             this.length = length;
+        }
+
+        RegularBitSequence(final String s) {
+            this(BitSets.parse(s), s.length());
         }
 
         @Override
@@ -140,7 +152,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
 
         @Override
         public int cardinality() {
-            return bitSet.cardinality();
+            return cardinalityMemoizer.get();
         }
 
         public BitSet asBitSet() {
@@ -148,13 +160,18 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
     }
 
-    private static final class BitSequenceView extends BitSequence {
+    static final class BitSequenceView extends BitSequence {
         private final BitSequence bitSequence;
         private final int start;
         private final int end;
+        private final Supplier<Integer> cardinalityMemoizer = Suppliers.memoize(new Supplier<Integer>() {
+            @Override
+            public Integer get() {
+                return computeCardinality();
+            }
+        });
 
         public BitSequenceView(final BitSequence bitSequence, final int start, final int end) {
-            super();
             this.bitSequence = bitSequence;
             this.start = start;
             this.end = end;
@@ -162,6 +179,10 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
 
         @Override
         public int cardinality() {
+            return cardinalityMemoizer.get();
+        }
+
+        private int computeCardinality() {
             int cardinality = 0;
             for (Boolean aBoolean : this) {
                 cardinality += aBoolean ? 1 : 0;
