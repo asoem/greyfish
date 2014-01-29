@@ -1,64 +1,48 @@
 package org.asoem.greyfish.utils.base;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 
-import java.util.concurrent.atomic.AtomicReference;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * A single element cache is a supplier of an object of type {@code T}.
- * This value has an associated context which makes it valid or invalid.
+ * A single element cache is a memoizer of an object of type {@code T}. <p>The cache can be {@link #invalidate()
+ * invalidated} so that it will reload the memoized value on the next call to {@link #get()}</p>
+ *
  * @param <T> the type of the element to supply
  */
-public class SingleElementCache<T> implements Supplier<T> {
+@ThreadSafe
+public final class SingleElementCache<T> extends Memoizer<T> {
 
     private final Supplier<T> delegate;
-    private final AtomicReference<CacheState> state =
-            new AtomicReference<CacheState>(CacheState.INVALID);
-    private T value;
+    private transient volatile boolean valid = false;
 
     private SingleElementCache(final Supplier<T> delegate) {
         this.delegate = delegate;
     }
 
-    @Override
-    public T get() {
-        if (state.get() != CacheState.VALID) {
-            update();
-        }
-        return value;
-    }
-
-    public void update() {
-        synchronized (this) {
-            while (state.compareAndSet(CacheState.INVALID, CacheState.UPDATING)) {
-                value = delegate.get();
-                this.state.compareAndSet(CacheState.UPDATING, CacheState.VALID);
-            }
-        }
-    }
-
     public void invalidate() {
-        state.set(CacheState.INVALID);
+        valid = false;
     }
 
     /**
-     * Create a new {@code SingleElementCache} which reloads it's supplying element,
-     * if it is in an invalid state. Therefore the {@link #get()} operation will always return a valid element.
-     * @param delegate the reload strategy
-     * @param <T> the type of the element to cache
+     * Create a new {@code SingleElementCache} which computes it's memoized value using {@code delegate}.
+     *
+     * @param delegate the value supplier
+     * @param <T>      the type of the element to cache
      * @return a new cache
      */
     public static <T> SingleElementCache<T> memoize(final Supplier<T> delegate) {
         return new SingleElementCache<T>(delegate);
     }
 
-    public boolean isInvalid() {
-        return state.get() != CacheState.VALID;
+    protected Supplier<T> delegate() {
+        return delegate;
     }
 
-    private static enum CacheState {
-        VALID,
-        INVALID,
-        UPDATING
+    @Override
+    protected boolean isValid(final Optional<T> memoized) {
+        return valid;
     }
+
 }
