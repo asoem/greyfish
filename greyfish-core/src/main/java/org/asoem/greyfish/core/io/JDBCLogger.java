@@ -9,11 +9,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.reflect.TypeToken;
-import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.EventTranslator;
-import com.lmax.disruptor.ExceptionHandler;
+import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.ProducerType;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.Simulation;
@@ -23,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,6 +43,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A {@code SimulationLogger} which logs to a JDBC {@link Connection}. This implementation uses a {@link Disruptor} to
  * handle the incoming events and therefore is threadsafe.
  */
+@ThreadSafe
 final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContext<?, A>, ?, ?>>
         implements SimulationLogger {
 
@@ -81,7 +81,7 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
             public BindEvent newInstance() {
                 return new BindEvent();
             }
-        }, RING_BUFFER_SIZE, executor);
+        }, RING_BUFFER_SIZE, executor, ProducerType.MULTI, new YieldingWaitStrategy());
 
         final EventHandler<BindEvent> eventHandler = new EventHandler<BindEvent>() {
             @Override
@@ -95,7 +95,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
             }
         };
 
-        disruptor.handleExceptionsWith(new ExceptionHandler() { // Attention: Call this method before #handleEventsWith (See javadoc of #handleExceptionsWith)
+        // Attention: handleExceptionsWith must be called before handleEventsWith (See javadoc of #handleExceptionsWith)
+        disruptor.handleExceptionsWith(new ExceptionHandler() {
             @Override
             public void handleEventException(final Throwable ex, final long sequence, final Object event) {
                 logger.error("Failed to handle event", ex);
@@ -121,7 +122,7 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
         } catch (Throwable t) {
             LoggerFactory.getLogger(JDBCLogger.class).error("Disruptor failed to start", t);
         }
-        queries = new ArrayList<BatchQuery>(commitThreshold);
+        queries = new ArrayList<>(commitThreshold);
     }
 
     /**
@@ -142,13 +143,14 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
                 });
         try {
             for (BatchQuery query : this.queries) {
-                final PreparedStatement preparedStatement = query.prepareStatement(new Function<String, PreparedStatement>() {
-                    @Nullable
-                    @Override
-                    public PreparedStatement apply(@Nullable final String input) {
-                        return cache.getUnchecked(input);
-                    }
-                });
+                final PreparedStatement preparedStatement = query.prepareStatement(
+                        new Function<String, PreparedStatement>() {
+                            @Nullable
+                            @Override
+                            public PreparedStatement apply(@Nullable final String input) {
+                                return cache.getUnchecked(input);
+                            }
+                        });
                 preparedStatement.addBatch();
             }
             for (PreparedStatement preparedStatement : cache.asMap().values()) {
@@ -224,7 +226,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
     }
 
     @Override
-    public void logAgentEvent(final int currentStep, final String source, final String title, final String message, final int agentId, final Object2D projection) {
+    public void logAgentEvent(final int currentStep, final String source, final String title,
+                              final String message, final int agentId, final Object2D projection) {
         final InsertEventQuery insertEventOperation =
                 new InsertEventQuery(
                         currentStep, agentId, projection,
@@ -288,7 +291,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
          * @param statementFactory the statement factory
          * @throws java.sql.SQLException if an error occurred when setting values
          */
-        PreparedStatement prepareStatement(Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException;
+        PreparedStatement prepareStatement(Function<? super String, ? extends PreparedStatement> statementFactory)
+                throws SQLException;
     }
 
     private static final class InsertEventQuery implements BatchQuery {
@@ -314,7 +318,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
         }
 
         @Override
-        public PreparedStatement prepareStatement(final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
+        public PreparedStatement prepareStatement(
+                final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
             PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
 
             preparedStatement.setInt(1, currentStep);
@@ -330,13 +335,15 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
     }
 
     private static final class InsertAgentQuery implements BatchQuery {
-        private static final String SQL = "INSERT INTO agents (id, population_name_id, activated_at, simulation_id) VALUES (?, ?, ?, ?)";
+        private static final String SQL =
+                "INSERT INTO agents (id, population_name_id, activated_at, simulation_id) VALUES (?, ?, ?, ?)";
         private final int id;
         private final short populationNameId;
         private final int timeOfBirth;
         private final int simulationId;
 
-        public InsertAgentQuery(final int id, final short populationNameId, final int timeOfBirth, final int simulationId) {
+        public InsertAgentQuery(final int id, final short populationNameId,
+                                final int timeOfBirth, final int simulationId) {
             this.id = id;
             this.populationNameId = populationNameId;
             this.timeOfBirth = timeOfBirth;
@@ -344,7 +351,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
         }
 
         @Override
-        public PreparedStatement prepareStatement(final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
+        public PreparedStatement prepareStatement(
+                final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
             PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
 
             preparedStatement.setInt(1, id);
@@ -367,7 +375,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
         }
 
         @Override
-        public PreparedStatement prepareStatement(final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
+        public PreparedStatement prepareStatement(
+                final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
             PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
 
             preparedStatement.setInt(1, childAgentId);
@@ -378,7 +387,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
     }
 
     private static final class InsertTraitAsDoubleQuery implements BatchQuery {
-        private static final String SQL = "INSERT INTO quantitative_traits (agent_id, trait_name_id, value) VALUES (?, ?, ?)";
+        private static final String SQL =
+                "INSERT INTO quantitative_traits (agent_id, trait_name_id, value) VALUES (?, ?, ?)";
         private final int agentId;
         private final short geneNameId;
         private final Double allele;
@@ -390,7 +400,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
         }
 
         @Override
-        public PreparedStatement prepareStatement(final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
+        public PreparedStatement prepareStatement(
+                final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
             PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
 
             preparedStatement.setInt(1, agentId);
@@ -402,7 +413,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
     }
 
     private static final class InsertTraitAsStringQuery implements BatchQuery {
-        private static final String SQL = "INSERT INTO discrete_traits (agent_id, trait_name_id, trait_value_id) VALUES (?, ?, ?)";
+        private static final String SQL =
+                "INSERT INTO discrete_traits (agent_id, trait_name_id, trait_value_id) VALUES (?, ?, ?)";
         private final int agentId;
         private final short geneNameId;
         private final short traitValueId;
@@ -414,7 +426,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
         }
 
         @Override
-        public PreparedStatement prepareStatement(final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
+        public PreparedStatement prepareStatement(
+                final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
             PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
 
             preparedStatement.setInt(1, agentId);
@@ -436,7 +449,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
         }
 
         @Override
-        public PreparedStatement prepareStatement(final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
+        public PreparedStatement prepareStatement(
+                final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
             PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
 
             preparedStatement.setShort(1, id);
@@ -459,7 +473,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
         }
 
         @Override
-        public PreparedStatement prepareStatement(final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
+        public PreparedStatement prepareStatement(
+                final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
             PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
 
             preparedStatement.setString(1, type);
@@ -486,7 +501,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
         }
 
         @Override
-        public PreparedStatement prepareStatement(final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
+        public PreparedStatement prepareStatement(
+                final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
             final PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
 
             preparedStatement.setInt(1, id);
