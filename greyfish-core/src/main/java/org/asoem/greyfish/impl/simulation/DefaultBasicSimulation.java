@@ -146,7 +146,7 @@ public final class DefaultBasicSimulation
     public void enqueueAddition(final BasicAgent agent) {
         checkNotNull(agent);
         checkArgument(!agent.isActive(), "Agent is active");
-        // TODO: inactive agents can enqueued multiple times. Should this be prevented?
+        // TODO: inactive agents can be enqueued multiple times. Should this be prevented? Here?
         checkState(!Phase.UPDATE.equals(phase.get()));
         this.delayedModifications.add(new AgentActivation(agent));
     }
@@ -221,7 +221,8 @@ public final class DefaultBasicSimulation
      */
     public static class Builder {
         private final String name;
-        private ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        private ExecutorService executorService =
+                Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         private DefaultSimulationContextFactory<BasicSimulation, BasicAgent> simulationContextFactory =
                 DefaultSimulationContextFactory.<BasicSimulation, BasicAgent>create();
         private EventBus eventPublisher = new EventBus();
