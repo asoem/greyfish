@@ -48,7 +48,6 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
     public T value(final C context) {
         if (expirationCallback.apply(CachingProperty.this, ImmutableMap.<String, Object>of())) {
             valueCache.invalidate();
-            valueCache.update();
             lastModificationStep = agent().get().getContext().get().getTime();
         }
         return valueCache.get();

@@ -50,7 +50,6 @@ public class ContextualTrait<A extends Agent<? extends BasicSimulationContext<?,
     public T value(final AgentContext<A> context) {
         if (expirationCallback.apply(ContextualTrait.this, ImmutableMap.<String, Object>of())) {
             valueCache.invalidate();
-            valueCache.update();
             lastModificationStep = context.agent().getContext().get().getTime();
         }
         return valueCache.get();
