@@ -45,4 +45,12 @@ public final class SingleElementCache<T> extends Memoizer<T> {
         return valid;
     }
 
+    boolean isInvalid() {
+        return !valid;
+    }
+
+    @Override
+    protected void loaded(final T t) {
+        valid = true;
+    }
 }

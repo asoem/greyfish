@@ -8,18 +8,25 @@ public abstract class Memoizer<T> implements Supplier<T> {
 
     @Override
     public final T get() {
-        // A 2-field variant of Double Checked Locking.
         if (!isValid(value)) {
             synchronized (this) {
                 if (!isValid(value)) {
                     T t = delegate().get();
                     value = Optional.fromNullable(t);
+                    loaded(t);
                     return t;
                 }
             }
         }
         return value.orNull();
     }
+
+    /**
+     * This method will be called if the memoizer has loaded and stored the value {@code t} to memoize.
+     *
+     * @param t the new memoized value
+     */
+    protected void loaded(final T t) {}
 
     protected abstract Supplier<T> delegate();
 
