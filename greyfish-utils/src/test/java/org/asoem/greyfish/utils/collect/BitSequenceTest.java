@@ -139,4 +139,31 @@ public abstract class BitSequenceTest {
         // then
         assertThat(cardinality, is(6));
     }
+
+    @Test
+    public void testEquals() throws Exception {
+        // given
+        final BitSequence sequence1 = createSequence("001010010");
+        final BitSequence sequence2 = createSequence("001010010");
+
+        // when
+        final boolean equals = sequence1.equals(sequence2);
+
+        // then
+        assertThat(equals, is(true));
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        // given
+        final BitSequence sequence1 = createSequence("001010010");
+        final BitSequence sequence2 = createSequence("001010010");
+
+        // when
+        final int hashCode1 = sequence1.hashCode();
+        final int hashCode2 = sequence2.hashCode();
+
+        // then
+        assertThat(hashCode1, is(equalTo(hashCode2)));
+    }
 }

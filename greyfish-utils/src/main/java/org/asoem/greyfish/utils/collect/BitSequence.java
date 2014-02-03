@@ -5,6 +5,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.Iterables;
 import org.apache.commons.math3.random.RandomGenerator;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.BitSet;
 
@@ -22,28 +23,28 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
 
     public abstract BitSet asBitSet();
 
-    public final BitSequence and(final BitSequence bs) {
+    public final BitSequence and(final BitSequence other) {
         final BitSet bitSet = this.asBitSet();
-        bitSet.and(bs.asBitSet());
-        return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
+        bitSet.and(other.asBitSet());
+        return new RegularBitSequence(bitSet, Math.max(this.length(), other.length()));
     }
 
-    public final BitSequence or(final BitSequence bs) {
+    public final BitSequence or(final BitSequence other) {
         final BitSet bitSet = this.asBitSet();
-        bitSet.or(bs.asBitSet());
-        return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
+        bitSet.or(other.asBitSet());
+        return new RegularBitSequence(bitSet, Math.max(this.length(), other.length()));
     }
 
-    public final BitSequence xor(final BitSequence bs) {
+    public final BitSequence xor(final BitSequence other) {
         final BitSet bitSet = this.asBitSet();
-        bitSet.xor(bs.asBitSet());
-        return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
+        bitSet.xor(other.asBitSet());
+        return new RegularBitSequence(bitSet, Math.max(this.length(), other.length()));
     }
 
-    public final BitSequence andNot(final BitSequence bs) {
+    public final BitSequence andNot(final BitSequence other) {
         final BitSet bitSet = this.asBitSet();
-        bitSet.andNot(bs.asBitSet());
-        return new RegularBitSequence(bitSet, Math.max(length(), bs.length()));
+        bitSet.andNot(other.asBitSet());
+        return new RegularBitSequence(bitSet, Math.max(this.length(), other.length()));
     }
 
     public final BitSequence subSequence(final int start, final int end) {
@@ -57,6 +58,30 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
             builder.append(get(i) ? '1' : '0');
         }
         return builder.reverse().toString();
+    }
+
+    @Override
+    public final boolean equals(@Nullable final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof BitSequence)) {
+            return false;
+        }
+        final BitSequence bitSequence = (BitSequence) obj;
+        return Iterables.elementsEqual(this, bitSequence);
+    }
+
+    @Override
+    public final int hashCode() {
+        int hashCode = 1;
+        for (Object o : this) {
+            hashCode = 31 * hashCode + o.hashCode();
+
+            hashCode = ~~hashCode;
+            // needed to deal with GWT integer overflow
+        }
+        return hashCode;
     }
 
     private static BitSequence create(final int length, final BitSet bitSet) {
