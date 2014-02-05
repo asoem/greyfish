@@ -9,14 +9,21 @@ import org.asoem.greyfish.utils.collect.*;
 
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class Recombinations {
     private Recombinations() {}
 
     public static Recombination<BitSequence> nPointCrossover(final RandomGenerator rng, final double p) {
+        checkNotNull(rng);
+        checkArgument(p >= 0 && p <= 1);
         return new NPointCrossover(rng, p);
     }
 
     public static Recombination<BitSequence> uniformCrossover(final RandomGenerator rng, final double p) {
+        checkNotNull(rng);
+        checkArgument(p >= 0 && p <= 1);
         return new UniformCrossover(rng, p);
     }
 

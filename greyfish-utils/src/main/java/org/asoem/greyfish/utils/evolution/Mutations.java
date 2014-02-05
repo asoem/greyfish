@@ -4,12 +4,15 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.utils.collect.BitSequence;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class Mutations {
     private Mutations() {}
 
     public static Mutation<BitSequence> bitFlipMutation(final RandomGenerator rng, final double p) {
+        checkNotNull(rng);
+        checkArgument(p >= 0 && p <= 1);
         return new BitFlipMutation(rng, p);
     }
 
