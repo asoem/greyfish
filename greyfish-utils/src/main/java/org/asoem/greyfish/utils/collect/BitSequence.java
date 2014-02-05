@@ -1,5 +1,6 @@
 package org.asoem.greyfish.utils.collect;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Iterables;
@@ -9,9 +10,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.BitSet;
 
-import static com.google.common.base.Preconditions.checkElementIndex;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static org.asoem.greyfish.utils.math.RandomGenerators.nextBoolean;
+import static com.google.common.base.Preconditions.*;
 
 /**
  * An immutable linear sequence of boolean values.
@@ -23,24 +22,52 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
 
     public abstract BitSet asBitSet();
 
+    /**
+     * Creates a new bit sequence by performing a logical <b>AND</b> of this bit sequence with an {@code other} bit
+     * sequence. If the lengths do differ, the smaller one is padded with zeros.
+     *
+     * @param other the other bit sequence
+     * @return a new bit sequence
+     */
     public final BitSequence and(final BitSequence other) {
         final BitSet bitSet = this.asBitSet();
         bitSet.and(other.asBitSet());
         return new RegularBitSequence(bitSet, Math.max(this.length(), other.length()));
     }
 
+    /**
+     * Creates a new bit sequence by performing a logical <b>OR</b> of this bit sequence with an {@code other} bit
+     * sequence. If the lengths do differ, the smaller one is padded with zeros.
+     *
+     * @param other the other bit sequence
+     * @return a new bit sequence
+     */
     public final BitSequence or(final BitSequence other) {
         final BitSet bitSet = this.asBitSet();
         bitSet.or(other.asBitSet());
         return new RegularBitSequence(bitSet, Math.max(this.length(), other.length()));
     }
 
+    /**
+     * Creates a new bit sequence by performing a logical <b>XOR</b> of this bit sequence with an {@code other} bit
+     * sequence. If the lengths do differ, the smaller one is padded with zeros.
+     *
+     * @param other the other bit sequence
+     * @return a new bit sequence
+     */
     public final BitSequence xor(final BitSequence other) {
         final BitSet bitSet = this.asBitSet();
         bitSet.xor(other.asBitSet());
         return new RegularBitSequence(bitSet, Math.max(this.length(), other.length()));
     }
 
+    /**
+     * Creates a new bit sequence by performing a logical <b>AND NOT</b> of this bit sequence with an {@code other} bit
+     * sequence. If the lengths do differ, the smaller one is padded with zeros.
+     *
+     * @param other the other bit sequence
+     * @return a new bit sequence
+     */
     public final BitSequence andNot(final BitSequence other) {
         final BitSet bitSet = this.asBitSet();
         bitSet.andNot(other.asBitSet());
@@ -59,6 +86,8 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
         return builder.reverse().toString();
     }
+
+    public abstract long[] toLongArray();
 
     @Override
     public final boolean equals(@Nullable final Object obj) {
@@ -85,14 +114,23 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
     }
 
     private static BitSequence create(final int length, final BitSet bitSet) {
+        if (length == 0) {
+            return emptyBitSequence();
+        }
         return new RegularBitSequence(bitSet, length);
     }
 
     public static BitSequence ones(final int length) {
+        if (length == 0) {
+            return emptyBitSequence();
+        }
         return create(length, BitSets.newBitSet(length, true));
     }
 
     public static BitSequence zeros(final int length) {
+        if (length == 0) {
+            return emptyBitSequence();
+        }
         return create(length, BitSets.newBitSet(length, false));
     }
 
@@ -125,24 +163,50 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
 
     public static BitSequence random(final int length, final RandomGenerator rng) {
         checkNotNull(rng);
-        final BitSet bs = new BitSet(length);
-        int idx = 0;
-        for (int i = 0; i < length; ++i) {
-            bs.set(idx++, rng.nextBoolean());
+        checkArgument(length >= 0);
+
+        if (length == 0) {
+            return emptyBitSequence();
         }
-        return new RegularBitSequence(bs, length);
+
+        long[] longs = new long[(length + 63) / 64];
+        for (int i = 0; i < longs.length; i++) {
+            longs[i] = rng.nextLong();
+        }
+        longs[longs.length - 1] = longs[longs.length - 1] & (0xffffffffffffffffL >>> (longs.length * 64 - length));
+        return new RegularBitSequence(BitSet.valueOf(longs), length);
+    }
+
+    private static BitSequence emptyBitSequence() {
+        return EmptyBitSequence.INSTANCE;
     }
 
     public static BitSequence random(final int length, final RandomGenerator rng, final double p) {
         checkNotNull(rng);
-        final BitSet bs = new BitSet(length);
-        int idx = 0;
-        for (int i = 0; i < length; ++i) {
-            bs.set(idx++, nextBoolean(rng, p));
+        checkArgument(p >= 0 && p <= 1);
+        checkArgument(length >= 0);
+
+        if (length == 0) {
+            return emptyBitSequence();
         }
-        return new RegularBitSequence(bs, length);
+
+        if (p == 0) {
+            return ones(length);
+        } else if (p == 1) {
+            return zeros(length);
+        } else if (p == 0.5) {
+            return random(length, rng);
+        } else {
+            final BitSet bs = new BitSet(length);
+            int idx = 0;
+            for (int i = 0; i < length; ++i) {
+                bs.set(idx++, rng.nextDouble() < p);
+            }
+            return new RegularBitSequence(bs, length);
+        }
     }
 
+    @VisibleForTesting
     static final class RegularBitSequence extends BitSequence {
         private final BitSet bitSet; // is mutable, so don't expose outside of class
         private final int length;
@@ -155,7 +219,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
 
         RegularBitSequence(final BitSet bitSet, final int length) {
             assert bitSet != null;
-
+            assert bitSet.length() <= length : "Length of bitSet was > length: " + bitSet.length() + " > " + length;
             this.bitSet = bitSet;
             this.length = length;
         }
@@ -183,8 +247,14 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         public BitSet asBitSet() {
             return (BitSet) bitSet.clone();
         }
+
+        @Override
+        public long[] toLongArray() {
+            return bitSet.toLongArray();
+        }
     }
 
+    @VisibleForTesting
     static final class BitSequenceView extends BitSequence {
         private final BitSequence bitSequence;
         private final int start;
@@ -221,6 +291,11 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
 
         @Override
+        public long[] toLongArray() {
+            return asBitSet().toLongArray();
+        }
+
+        @Override
         public Boolean get(final int index) {
             checkElementIndex(index, size());
             return bitSequence.get(start + index);
@@ -229,6 +304,39 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         @Override
         public int length() {
             return end - start;
+        }
+    }
+
+    private static class EmptyBitSequence extends BitSequence {
+        public static final EmptyBitSequence INSTANCE = new EmptyBitSequence();
+
+        private EmptyBitSequence() {
+        }
+
+        @Override
+        public int cardinality() {
+            return 0;
+        }
+
+        @Override
+        public BitSet asBitSet() {
+            return new BitSet(0);
+        }
+
+        @Override
+        public long[] toLongArray() {
+            return new long[0];
+        }
+
+        @Override
+        public Boolean get(final int index) {
+            checkElementIndex(index, size());
+            throw new AssertionError("Unreachable");
+        }
+
+        @Override
+        public int length() {
+            return 0;
         }
     }
 }

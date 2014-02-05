@@ -1,6 +1,6 @@
 package org.asoem.greyfish.utils.collect;
 
-public class BitSequenceViewTest extends BitSequenceTest {
+public class BitSequenceViewTest extends AbstractBitSequenceImplementationTest {
     @Override
     protected BitSequence createSequence(final String bitString) {
         return new BitSequence.BitSequenceView(
