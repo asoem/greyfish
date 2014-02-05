@@ -7,7 +7,7 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public abstract class AbstractBitSequenceImplementationTest {
     @Test
@@ -92,12 +92,13 @@ public abstract class AbstractBitSequenceImplementationTest {
     public void testRandom() throws Exception {
         // given
         final RandomGenerator generator = mock(RandomGenerator.class);
-        given(generator.nextBoolean()).willReturn(true, false, false, true, false, true, true, false);
+        given(generator.nextLong()).willReturn(105L);
 
         // when
         final BitSequence bitSequence = BitSequence.random(8, generator);
 
         // then
+        verify(generator, only()).nextLong();
         assertThat(bitSequence.toString(), is(equalTo("01101001")));
     }
 
