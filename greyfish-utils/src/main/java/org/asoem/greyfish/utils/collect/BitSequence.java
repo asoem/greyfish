@@ -376,7 +376,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
     }
 
     @VisibleForTesting
-    static class Ones extends BitSequence {
+    static final class Ones extends BitSequence {
         private final int length;
 
         public Ones(final int length) {
@@ -417,7 +417,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
     }
 
     @VisibleForTesting
-    static class Zeros extends BitSequence {
+    static final class Zeros extends BitSequence {
         private final int length;
 
         public Zeros(final int length) {
@@ -426,7 +426,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
 
         @Override
         public int cardinality() {
-            return length;
+            return 0;
         }
 
         @Override
