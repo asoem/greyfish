@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -112,7 +113,7 @@ public abstract class AbstractBitSequenceImplementationTest {
         final BitSequence concat = BitSequence.concat(sequence1, sequence2);
 
         // then
-        assertThat(concat.toString(), is(equalTo("100101010000100111")));
+        assertThat(concat.toString(), is(equalTo("000100111100101010")));
     }
 
     @Test
@@ -180,5 +181,34 @@ public abstract class AbstractBitSequenceImplementationTest {
         // then
         assertThat(longs.length, is(equalTo((sequence1.length() + 63) / 64)));
         assertThat(LongArrays.bitCount(longs), is(equalTo((long) sequence1.cardinality())));
+    }
+
+    @Test
+    public void testGet() throws Exception {
+        // given
+        final String bitString = "001010010";
+        final BitSequence sequence1 = createSequence(bitString);
+
+        // when
+        final StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < sequence1.size(); i++) {
+            stringBuilder.append(sequence1.get(i) ? '1' : '0');
+        }
+
+        // then
+        assertThat(stringBuilder.reverse().toString(), is(equalTo(bitString)));
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testGetOutOfRange() throws Exception {
+        // given
+        final String bitString = "001010010";
+        final BitSequence sequence1 = createSequence(bitString);
+
+        // when
+        sequence1.get(10);
+
+        // then
+        fail();
     }
 }
