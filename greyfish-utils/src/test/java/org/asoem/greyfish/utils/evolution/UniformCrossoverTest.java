@@ -25,7 +25,7 @@ public class UniformCrossoverTest {
 
         // then
         verify(rng, only()).nextLong();
-        assertThat(recombined.first(), is(equalTo(BitSequence.parse("1011"))));
-        assertThat(recombined.second(), is(equalTo(BitSequence.parse("0100"))));
+        assertThat(recombined.first(), is(equalTo(BitSequence.parse("0100"))));
+        assertThat(recombined.second(), is(equalTo(BitSequence.parse("1011"))));
     }
 }

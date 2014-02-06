@@ -67,7 +67,7 @@ public final class Recombinations {
             final BitSet bitSet1 = new BitSet(length);
             final BitSet bitSet2 = new BitSet(length);
 
-            boolean state = true;
+            boolean state = false;
             for (int i = 0; i < crossoverTemplate.length(); i++) {
                 state ^= crossoverTemplate.get(i);
                 if (state) {
@@ -78,7 +78,7 @@ public final class Recombinations {
             }
 
             final BitSequence recombinedBitSequence1 = BitSequence.forBitSet(bitSet1, length);
-            final BitSequence recombinedBitSequence2 = BitSequence.forBitSet(bitSet1, length);
+            final BitSequence recombinedBitSequence2 = BitSequence.forBitSet(bitSet2, length);
 
             return RegularRecombinationProduct.of(recombinedBitSequence1, recombinedBitSequence2);
         }
@@ -113,7 +113,7 @@ public final class Recombinations {
             }
 
             final BitSequence recombinedBitSequence1 = BitSequence.forBitSet(bitSet1, length);
-            final BitSequence recombinedBitSequence2 = BitSequence.forBitSet(bitSet1, length);
+            final BitSequence recombinedBitSequence2 = BitSequence.forBitSet(bitSet2, length);
 
             return RegularRecombinationProduct.of(recombinedBitSequence1, recombinedBitSequence2);
         }
