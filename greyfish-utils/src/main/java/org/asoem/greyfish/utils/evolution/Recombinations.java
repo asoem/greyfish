@@ -1,13 +1,10 @@
 package org.asoem.greyfish.utils.evolution;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.asoem.greyfish.utils.collect.*;
+import org.asoem.greyfish.utils.collect.BitSequence;
 
-import javax.annotation.Nullable;
+import java.util.BitSet;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -64,31 +61,24 @@ public final class Recombinations {
         @Override
         public RecombinationProduct<BitSequence> recombine(
                 final BitSequence bitSequence1, final BitSequence bitSequence2) {
-            final BitSequence crossoverTemplate = BitSequence.random(bitSequence1.length(), rng, p);
+            final int length = bitSequence1.length();
+            final BitSequence crossoverTemplate = BitSequence.random(length, rng, p);
 
-            final Iterable<Product3<Boolean, Boolean, Boolean>> zip =
-                    Products.zip(bitSequence1, bitSequence2, crossoverTemplate);
-            final Iterable<Product2<Boolean, Boolean>> crossoverPairs =
-                    // convert into a list to fix state
-                    ImmutableList.copyOf(Iterables.transform(zip,
-                            new Function<Product3<Boolean, Boolean, Boolean>, Product2<Boolean, Boolean>>() {
-                                private boolean state = true;
+            final BitSet bitSet1 = new BitSet(length);
+            final BitSet bitSet2 = new BitSet(length);
 
-                                @Nullable
-                                @Override
-                                public Product2<Boolean, Boolean> apply(
-                                        final Product3<Boolean, Boolean, Boolean> input) {
-                                    state ^= input.third();
-                                    return state
-                                            ? Tuple2.of(input.first(), input.second())
-                                            : Tuple2.of(input.second(), input.first());
-                                }
-                            }));
+            boolean state = true;
+            for (int i = 0; i < crossoverTemplate.length(); i++) {
+                state ^= crossoverTemplate.get(i);
+                if (state) {
+                    bitSet1.set(i);
+                } else {
+                    bitSet2.set(i);
+                }
+            }
 
-            final Product2<Iterable<Boolean>, Iterable<Boolean>> unzippedCrossoverPairs =
-                    Products.unzip(crossoverPairs);
-            final BitSequence recombinedBitSequence1 = BitSequence.forIterable(unzippedCrossoverPairs.first());
-            final BitSequence recombinedBitSequence2 = BitSequence.forIterable(unzippedCrossoverPairs.second());
+            final BitSequence recombinedBitSequence1 = BitSequence.forBitSet(bitSet1, length);
+            final BitSequence recombinedBitSequence2 = BitSequence.forBitSet(bitSet1, length);
 
             return RegularRecombinationProduct.of(recombinedBitSequence1, recombinedBitSequence2);
         }
@@ -107,27 +97,23 @@ public final class Recombinations {
         @Override
         public RecombinationProduct<BitSequence> recombine(
                 final BitSequence bitSequence1, final BitSequence bitSequence2) {
-            final BitSequence crossoverTemplate = BitSequence.random(bitSequence1.length(), rng, p);
+            final int length = bitSequence1.length();
+            final BitSequence crossoverTemplate = BitSequence.random(length, rng, p);
 
-            final Iterable<Product3<Boolean, Boolean, Boolean>> zip =
-                    Products.zip(bitSequence1, bitSequence2, crossoverTemplate);
-            final Iterable<Product2<Boolean, Boolean>> crossoverPairs =
-                    Iterables.transform(zip,
-                            new Function<Product3<Boolean, Boolean, Boolean>, Product2<Boolean, Boolean>>() {
-                                @Nullable
-                                @Override
-                                public Product2<Boolean, Boolean> apply(
-                                        final Product3<Boolean, Boolean, Boolean> input) {
-                                    return input.third()
-                                            ? Tuple2.of(input.first(), input.second())
-                                            : Tuple2.of(input.second(), input.first());
-                                }
-                            });
+            final BitSet bitSet1 = new BitSet(length);
+            final BitSet bitSet2 = new BitSet(length);
 
-            final Product2<Iterable<Boolean>, Iterable<Boolean>> unzippedCrossoverPairs =
-                    Products.unzip(crossoverPairs);
-            final BitSequence recombinedBitSequence1 = BitSequence.forIterable(unzippedCrossoverPairs.first());
-            final BitSequence recombinedBitSequence2 = BitSequence.forIterable(unzippedCrossoverPairs.second());
+            for (int i = 0; i < crossoverTemplate.length(); i++) {
+                final Boolean aBoolean = crossoverTemplate.get(i);
+                if (aBoolean) {
+                    bitSet1.set(i);
+                } else {
+                    bitSet2.set(i);
+                }
+            }
+
+            final BitSequence recombinedBitSequence1 = BitSequence.forBitSet(bitSet1, length);
+            final BitSequence recombinedBitSequence2 = BitSequence.forBitSet(bitSet1, length);
 
             return RegularRecombinationProduct.of(recombinedBitSequence1, recombinedBitSequence2);
         }

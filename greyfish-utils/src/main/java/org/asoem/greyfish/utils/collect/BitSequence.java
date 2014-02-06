@@ -237,6 +237,10 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
     }
 
+    public static BitSequence forBitSet(final BitSet bitSet, final int length) {
+        return create(length, bitSet);
+    }
+
     @VisibleForTesting
     static final class RegularBitSequence extends BitSequence {
         private final BitSet bitSet; // is mutable, so don't expose outside of class
