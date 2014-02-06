@@ -9,15 +9,34 @@ import java.util.BitSet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * A utility class for creating recombination operators.
+ */
 public final class Recombinations {
     private Recombinations() {}
 
+    /**
+     * Create a n-point crossover recombination function. <p>The parameter n is not explicitly given but a result of
+     * selecting each position before a bit as a crossover point with probability {@code p}.</p>
+     *
+     * @param rng the random generator to use
+     * @param p   the probability for any position in the bit sequence to become a crossover point
+     * @return a new n-point crossover recombination function
+     */
     public static Recombination<BitSequence> nPointCrossover(final RandomGenerator rng, final double p) {
         checkNotNull(rng);
         checkArgument(p >= 0 && p <= 1);
         return new NPointCrossover(rng, p);
     }
 
+    /**
+     * Create an uniform crossover recombination function. This crossover technique swaps the bits of the two parents at
+     * each position with probability {@code p}.
+     *
+     * @param rng the random generator to use
+     * @param p   the probability to swap the bits of the parents at any given position
+     * @return a new n-point crossover recombination function
+     */
     public static Recombination<BitSequence> uniformCrossover(final RandomGenerator rng, final double p) {
         checkNotNull(rng);
         checkArgument(p >= 0 && p <= 1);
