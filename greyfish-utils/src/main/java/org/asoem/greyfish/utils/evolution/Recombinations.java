@@ -16,8 +16,9 @@ public final class Recombinations {
     private Recombinations() {}
 
     /**
-     * Create a n-point crossover recombination function. <p>The parameter n is not explicitly given but a result of
-     * selecting each position before a bit as a crossover point with probability {@code p}.</p>
+     * Create a n-point crossover recombination function for bit sequences of equal length. <p>The parameter n is not
+     * explicitly given but a result of selecting each position before a bit as a crossover point with probability
+     * {@code p}.</p>
      *
      * @param rng the random generator to use
      * @param p   the probability for any position in the bit sequence to become a crossover point
@@ -30,8 +31,8 @@ public final class Recombinations {
     }
 
     /**
-     * Create an uniform crossover recombination function. This crossover technique swaps the bits of the two parents at
-     * each position with probability {@code p}.
+     * Create an uniform crossover recombination function for bit sequences of equal length. This crossover technique
+     * swaps the bits of the two parents at each position with probability {@code p}.
      *
      * @param rng the random generator to use
      * @param p   the probability to swap the bits of the parents at any given position
@@ -47,7 +48,7 @@ public final class Recombinations {
         private final T sequence1;
         private final T sequence2;
 
-        public RegularRecombinationProduct(final T sequence1, final T sequence2) {
+        private RegularRecombinationProduct(final T sequence1, final T sequence2) {
             this.sequence1 = sequence1;
             this.sequence2 = sequence2;
         }
@@ -80,6 +81,10 @@ public final class Recombinations {
         @Override
         public RecombinationProduct<BitSequence> recombine(
                 final BitSequence bitSequence1, final BitSequence bitSequence2) {
+            checkNotNull(bitSequence1);
+            checkNotNull(bitSequence2);
+            checkArgument(bitSequence1.length() == bitSequence2.length());
+
             final int length = bitSequence1.length();
             final BitSequence crossoverTemplate = BitSequence.random(length, rng, p);
 
@@ -116,6 +121,10 @@ public final class Recombinations {
         @Override
         public RecombinationProduct<BitSequence> recombine(
                 final BitSequence bitSequence1, final BitSequence bitSequence2) {
+            checkNotNull(bitSequence1);
+            checkNotNull(bitSequence2);
+            checkArgument(bitSequence1.length() == bitSequence2.length());
+
             final int length = bitSequence1.length();
             final BitSequence crossoverTemplate = BitSequence.random(length, rng, p);
 

@@ -7,6 +7,7 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -27,5 +28,48 @@ public class UniformCrossoverTest {
         verify(rng, only()).nextLong();
         assertThat(recombined.first(), is(equalTo(BitSequence.parse("0100"))));
         assertThat(recombined.second(), is(equalTo(BitSequence.parse("1011"))));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRecombineDifferentLengths() throws Exception {
+        // given
+        final BitSequence bitSequence1 = BitSequence.ones(10);
+        final BitSequence bitSequence2 = BitSequence.ones(11);
+        final RandomGenerator rng = mock(RandomGenerator.class);
+        Recombinations.UniformCrossover crossover = new Recombinations.UniformCrossover(rng, 0.5);
+
+        // when
+        crossover.recombine(bitSequence1, bitSequence2);
+
+        // then
+        fail();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRecombineNullLeft() throws Exception {
+        // given
+        final BitSequence bitSequence1 = BitSequence.ones(10);
+        final RandomGenerator rng = mock(RandomGenerator.class);
+        Recombinations.UniformCrossover crossover = new Recombinations.UniformCrossover(rng, 0.5);
+
+        // when
+        crossover.recombine(null, bitSequence1);
+
+        // then
+        fail();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRecombineNullRight() throws Exception {
+        // given
+        final BitSequence bitSequence1 = BitSequence.ones(10);
+        final RandomGenerator rng = mock(RandomGenerator.class);
+        Recombinations.UniformCrossover crossover = new Recombinations.UniformCrossover(rng, 0.5);
+
+        // when
+        crossover.recombine(bitSequence1, null);
+
+        // then
+        fail();
     }
 }
