@@ -222,9 +222,9 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
 
         if (p == 0) {
-            return ones(length);
-        } else if (p == 1) {
             return zeros(length);
+        } else if (p == 1) {
+            return ones(length);
         } else if (p == 0.5) {
             return random(length, rng);
         } else {
