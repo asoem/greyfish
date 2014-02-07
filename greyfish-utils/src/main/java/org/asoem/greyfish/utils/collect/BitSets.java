@@ -56,7 +56,8 @@ public final class BitSets {
     }
 
     /**
-     * Parses a string of '0' and '1' characters interpreted in big-endian format and transforms it into a BitString
+     * Parses a string of '0' and '1' characters interpreted in big-endian format and transforms it into a BitSet.
+     * <p>Whitespaces are ignored.</p>
      *
      * @param s the input string
      * @return A {@code BitSet} whose bits at indices are set to {@code true}, when the reversed input string has a '1'
@@ -69,8 +70,18 @@ public final class BitSets {
         final ImmutableList<Character> characters = Lists.charactersOf(s);
         final BitSet bitSet = new BitSet(characters.size());
         for (int i = 0, j = characters.size() - 1; i < characters.size() && j >= 0; i++, j--) {
-            final boolean b = characters.get(j) == '1';
-            bitSet.set(i, b);
+            final Character character = characters.get(j);
+            switch (character) {
+                case '1':
+                    bitSet.set(i);
+                    break;
+                case '0':
+                    break;
+                default:
+                    if (!Character.isWhitespace(character)) {
+                        throw new IllegalArgumentException("Invalid character at position " + j);
+                    }
+            }
         }
 
         return bitSet;
