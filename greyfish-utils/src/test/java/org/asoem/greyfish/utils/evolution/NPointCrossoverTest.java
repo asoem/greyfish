@@ -15,10 +15,10 @@ public class NPointCrossoverTest {
     @Test
     public void testRecombine() throws Exception {
         // given
-        final BitSequence bitSequence1 = BitSequence.zeros(8);
-        final BitSequence bitSequence2 = BitSequence.ones(8);
+        final BitSequence bitSequence1 = BitSequence.parse("110000");
+        final BitSequence bitSequence2 = BitSequence.parse("001111");
         final RandomGenerator rng = mock(RandomGenerator.class);
-        given(rng.nextLong()).willReturn(84L);
+        given(rng.nextLong()).willReturn(4L);
         Recombinations.NPointCrossover crossover = new Recombinations.NPointCrossover(rng, 0.5);
 
         // when
@@ -26,8 +26,8 @@ public class NPointCrossoverTest {
 
         // then
         verify(rng, only()).nextLong();
-        assertThat(recombined.first(), is(equalTo(BitSequence.parse("11001100"))));
-        assertThat(recombined.second(), is(equalTo(BitSequence.parse("00110011"))));
+        assertThat(recombined.first(), is(equalTo(BitSequence.parse("001100"))));
+        assertThat(recombined.second(), is(equalTo(BitSequence.parse("110011"))));
     }
 
     @Test(expected = IllegalArgumentException.class)

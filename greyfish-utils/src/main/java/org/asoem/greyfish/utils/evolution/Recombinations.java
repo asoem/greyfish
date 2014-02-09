@@ -88,16 +88,15 @@ public final class Recombinations {
             final int length = bitSequence1.length();
             final BitSequence crossoverTemplate = BitSequence.random(length, rng, p);
 
-            final BitSet bitSet1 = new BitSet(length);
-            final BitSet bitSet2 = new BitSet(length);
+            final BitSet bitSet1 = BitSet.valueOf(bitSequence1.toLongArray());
+            final BitSet bitSet2 = BitSet.valueOf(bitSequence2.toLongArray());
 
             boolean state = false;
             for (int i = 0; i < crossoverTemplate.length(); i++) {
                 state ^= crossoverTemplate.get(i);
                 if (state) {
-                    bitSet1.set(i);
-                } else {
-                    bitSet2.set(i);
+                    bitSet1.set(i, bitSequence2.get(i));
+                    bitSet2.set(i, bitSequence1.get(i));
                 }
             }
 
@@ -128,15 +127,15 @@ public final class Recombinations {
             final int length = bitSequence1.length();
             final BitSequence crossoverTemplate = BitSequence.random(length, rng, p);
 
-            final BitSet bitSet1 = new BitSet(length);
-            final BitSet bitSet2 = new BitSet(length);
+            final BitSet bitSet1 = BitSet.valueOf(bitSequence1.toLongArray());
+            final BitSet bitSet2 = BitSet.valueOf(bitSequence2.toLongArray());
 
             for (int i = 0; i < crossoverTemplate.length(); i++) {
                 final Boolean aBoolean = crossoverTemplate.get(i);
+
                 if (aBoolean) {
-                    bitSet1.set(i);
-                } else {
-                    bitSet2.set(i);
+                    bitSet1.set(i, bitSequence2.get(i));
+                    bitSet2.set(i, bitSequence1.get(i));
                 }
             }
 

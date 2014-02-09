@@ -15,8 +15,8 @@ public class UniformCrossoverTest {
     @Test
     public void testRecombine() throws Exception {
         // given
-        final BitSequence bitSequence1 = BitSequence.parse("0000");
-        final BitSequence bitSequence2 = BitSequence.parse("1111");
+        final BitSequence bitSequence1 = BitSequence.parse("110000");
+        final BitSequence bitSequence2 = BitSequence.parse("001111");
         final RandomGenerator rng = mock(RandomGenerator.class);
         given(rng.nextLong()).willReturn(4L);
         Recombinations.UniformCrossover crossover = new Recombinations.UniformCrossover(rng, 0.5);
@@ -26,8 +26,8 @@ public class UniformCrossoverTest {
 
         // then
         verify(rng, only()).nextLong();
-        assertThat(recombined.first(), is(equalTo(BitSequence.parse("0100"))));
-        assertThat(recombined.second(), is(equalTo(BitSequence.parse("1011"))));
+        assertThat(recombined.first(), is(equalTo(BitSequence.parse("110100"))));
+        assertThat(recombined.second(), is(equalTo(BitSequence.parse("001011"))));
     }
 
     @Test(expected = IllegalArgumentException.class)
