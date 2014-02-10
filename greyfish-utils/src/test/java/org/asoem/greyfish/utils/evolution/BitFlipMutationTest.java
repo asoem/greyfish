@@ -1,7 +1,7 @@
 package org.asoem.greyfish.utils.evolution;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.asoem.greyfish.utils.collect.BitSequence;
+import org.asoem.greyfish.utils.collect.BitString;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,10 +20,10 @@ public class BitFlipMutationTest {
         final Mutations.BitFlipMutation mutation = new Mutations.BitFlipMutation(rng, p);
 
         // when
-        final BitSequence mutated = mutation.mutate(BitSequence.zeros(4));
+        final BitString mutated = mutation.mutate(BitString.zeros(4));
 
         // then
         verify(rng, only()).nextLong();
-        assertThat(mutated, is(equalTo(BitSequence.parse("0100"))));
+        assertThat(mutated, is(equalTo(BitString.parse("0100"))));
     }
 }

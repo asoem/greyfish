@@ -1,7 +1,7 @@
 package org.asoem.greyfish.utils.evolution;
 
 import org.apache.commons.math3.random.RandomGenerator;
-import org.asoem.greyfish.utils.collect.BitSequence;
+import org.asoem.greyfish.utils.collect.BitString;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -15,31 +15,31 @@ public class UniformCrossoverTest {
     @Test
     public void testRecombine() throws Exception {
         // given
-        final BitSequence bitSequence1 = BitSequence.parse("110000");
-        final BitSequence bitSequence2 = BitSequence.parse("001111");
+        final BitString bitString1 = BitString.parse("110000");
+        final BitString bitString2 = BitString.parse("001111");
         final RandomGenerator rng = mock(RandomGenerator.class);
         given(rng.nextLong()).willReturn(4L);
         Recombinations.UniformCrossover crossover = new Recombinations.UniformCrossover(rng, 0.5);
 
         // when
-        final RecombinationProduct<BitSequence> recombined = crossover.recombine(bitSequence1, bitSequence2);
+        final RecombinationProduct<BitString> recombined = crossover.recombine(bitString1, bitString2);
 
         // then
         verify(rng, only()).nextLong();
-        assertThat(recombined.first(), is(equalTo(BitSequence.parse("110100"))));
-        assertThat(recombined.second(), is(equalTo(BitSequence.parse("001011"))));
+        assertThat(recombined.first(), is(equalTo(BitString.parse("110100"))));
+        assertThat(recombined.second(), is(equalTo(BitString.parse("001011"))));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testRecombineDifferentLengths() throws Exception {
         // given
-        final BitSequence bitSequence1 = BitSequence.ones(10);
-        final BitSequence bitSequence2 = BitSequence.ones(11);
+        final BitString bitString1 = BitString.ones(10);
+        final BitString bitString2 = BitString.ones(11);
         final RandomGenerator rng = mock(RandomGenerator.class);
         Recombinations.UniformCrossover crossover = new Recombinations.UniformCrossover(rng, 0.5);
 
         // when
-        crossover.recombine(bitSequence1, bitSequence2);
+        crossover.recombine(bitString1, bitString2);
 
         // then
         fail();
@@ -48,12 +48,12 @@ public class UniformCrossoverTest {
     @Test(expected = NullPointerException.class)
     public void testRecombineNullLeft() throws Exception {
         // given
-        final BitSequence bitSequence1 = BitSequence.ones(10);
+        final BitString bitString1 = BitString.ones(10);
         final RandomGenerator rng = mock(RandomGenerator.class);
         Recombinations.UniformCrossover crossover = new Recombinations.UniformCrossover(rng, 0.5);
 
         // when
-        crossover.recombine(null, bitSequence1);
+        crossover.recombine(null, bitString1);
 
         // then
         fail();
@@ -62,12 +62,12 @@ public class UniformCrossoverTest {
     @Test(expected = NullPointerException.class)
     public void testRecombineNullRight() throws Exception {
         // given
-        final BitSequence bitSequence1 = BitSequence.ones(10);
+        final BitString bitString1 = BitString.ones(10);
         final RandomGenerator rng = mock(RandomGenerator.class);
         Recombinations.UniformCrossover crossover = new Recombinations.UniformCrossover(rng, 0.5);
 
         // when
-        crossover.recombine(bitSequence1, null);
+        crossover.recombine(bitString1, null);
 
         // then
         fail();

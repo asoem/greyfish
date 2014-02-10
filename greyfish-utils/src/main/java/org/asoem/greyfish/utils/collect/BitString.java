@@ -8,19 +8,38 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.AbstractList;
 import java.util.BitSet;
 
 import static com.google.common.base.Preconditions.*;
 
 /**
- * An immutable linear sequence of boolean values.
+ * An immutable, finite and ordered sequence of binary values.
  */
 @ThreadSafe
-public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
+public abstract class BitString extends AbstractList<Boolean> {
 
+    /**
+     * Get the number of 1 bits in this string.
+     *
+     * @return the number of 1 bits
+     */
     public abstract int cardinality();
 
-    public abstract BitSet asBitSet();
+    /**
+     * Returns a new {@link java.util.BitSet} containing all the bits in this bit string, so that {@code
+     * bitString.get(i) == bitSet.get(i)} for {@code 0 <= i < size()}
+     *
+     * @return a new {@code BitSet}
+     */
+    public abstract BitSet toBitSet();
+
+    /**
+     * Returns a new long array containing all the bits in this bit string.
+     *
+     * @return a long array containing a little-endian representation of all the bits in this bit string
+     */
+    public abstract long[] toLongArray();
 
     /**
      * Creates a new bit sequence by performing a logical <b>AND</b> of this bit sequence with an {@code other} bit
@@ -29,14 +48,14 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
      * @param other the other bit sequence
      * @return a new bit sequence
      */
-    public final BitSequence and(final BitSequence other) {
+    public final BitString and(final BitString other) {
         if (this instanceof Zeros || other instanceof Zeros
-                || this.length() == 0 || other.length() == 0) {
-            return new Zeros(Math.max(this.length(), other.length()));
+                || size() == 0 || other.size() == 0) {
+            return new Zeros(Math.max(size(), other.size()));
         }
-        final BitSet bitSet = this.asBitSet();
-        bitSet.and(other.asBitSet());
-        return new RegularBitSequence(bitSet, Math.max(this.length(), other.length()));
+        final BitSet bitSet = this.toBitSet();
+        bitSet.and(other.toBitSet());
+        return new RegularBitString(bitSet, Math.max(size(), other.size()));
     }
 
     /**
@@ -46,16 +65,16 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
      * @param other the other bit sequence
      * @return a new bit sequence
      */
-    public final BitSequence or(final BitSequence other) {
-        if (other.length() == 0 || this instanceof Ones && this.length() >= other.length()) {
+    public final BitString or(final BitString other) {
+        if (other.size() == 0 || this instanceof Ones && size() >= other.size()) {
             return this;
         }
-        if (this.length() == 0 || other instanceof Ones && other.length() >= this.length()) {
+        if (size() == 0 || other instanceof Ones && other.size() >= size()) {
             return other;
         }
-        final BitSet bitSet = this.asBitSet();
-        bitSet.or(other.asBitSet());
-        return new RegularBitSequence(bitSet, Math.max(this.length(), other.length()));
+        final BitSet bitSet = this.toBitSet();
+        bitSet.or(other.toBitSet());
+        return new RegularBitString(bitSet, Math.max(size(), other.size()));
     }
 
     /**
@@ -65,16 +84,16 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
      * @param other the other bit sequence
      * @return a new bit sequence
      */
-    public final BitSequence xor(final BitSequence other) {
-        if (other.length() == 0 || other instanceof Zeros) {
+    public final BitString xor(final BitString other) {
+        if (other.size() == 0 || other instanceof Zeros) {
             return this;
         }
-        if (this.length() == 0 || this instanceof Zeros) {
+        if (size() == 0 || this instanceof Zeros) {
             return other;
         }
-        final BitSet bitSet = this.asBitSet();
-        bitSet.xor(other.asBitSet());
-        return new RegularBitSequence(bitSet, Math.max(this.length(), other.length()));
+        final BitSet bitSet = this.toBitSet();
+        bitSet.xor(other.toBitSet());
+        return new RegularBitString(bitSet, Math.max(size(), other.size()));
     }
 
     /**
@@ -84,41 +103,39 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
      * @param other the other bit sequence
      * @return a new bit sequence
      */
-    public final BitSequence andNot(final BitSequence other) {
-        final BitSet bitSet = this.asBitSet();
-        bitSet.andNot(other.asBitSet());
-        return new RegularBitSequence(bitSet, Math.max(this.length(), other.length()));
+    public final BitString andNot(final BitString other) {
+        final BitSet bitSet = this.toBitSet();
+        bitSet.andNot(other.toBitSet());
+        return new RegularBitString(bitSet, Math.max(size(), other.size()));
     }
 
-    public final BitSequence subSequence(final int start, final int end) {
+    public final BitString subSequence(final int start, final int end) {
         checkPositionIndexes(start, end, size());
         if (start == end) {
             return emptyBitSequence();
         }
-        return new BitSequenceView(this, start, end);
+        return new BitStringView(this, start, end);
     }
 
     @Override
     public final String toString() {
         final StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < this.length(); i++) {
+        for (int i = 0; i < size(); i++) {
             builder.append(get(i) ? '1' : '0');
         }
         return builder.reverse().toString();
     }
-
-    public abstract long[] toLongArray();
 
     @Override
     public final boolean equals(@Nullable final Object obj) {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BitSequence)) {
+        if (!(obj instanceof BitString)) {
             return false;
         }
-        final BitSequence bitSequence = (BitSequence) obj;
-        return Iterables.elementsEqual(this, bitSequence);
+        final BitString bitString = (BitString) obj;
+        return Iterables.elementsEqual(this, bitString);
     }
 
     @Override
@@ -133,66 +150,71 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         return hashCode;
     }
 
-    private static BitSequence create(final int length, final BitSet bitSet) {
+    private static BitString create(final BitSet bitSet, final int length) {
         if (length == 0) {
             return emptyBitSequence();
         }
-        return new RegularBitSequence(bitSet, length);
+        return new RegularBitString(bitSet, length);
     }
 
-    public static BitSequence ones(final int length) {
+    private static BitString create(final BitSet bitSet, final int length, final int cardinality) {
+        if (length == 0) {
+            return emptyBitSequence();
+        } else if (cardinality == 0) {
+            return zeros(length);
+        } else if (cardinality == length) {
+            return ones(length);
+        } else {
+            return new RegularBitString(bitSet, length, cardinality);
+        }
+    }
+
+    public static BitString ones(final int length) {
         if (length == 0) {
             return emptyBitSequence();
         }
         return new Ones(length);
     }
 
-    public static BitSequence zeros(final int length) {
+    public static BitString zeros(final int length) {
         if (length == 0) {
             return emptyBitSequence();
         }
         return new Zeros(length);
     }
 
-    public static BitSequence forIterable(final Iterable<? extends Boolean> val) {
+    public static BitString create(final Iterable<? extends Boolean> val) {
         checkNotNull(val);
         final BitSet bs = new BitSet();
         int idx = 0;
+        int cardinality = 0;
         for (final boolean b : val) {
-            // TODO: we could record the cardinality here
             bs.set(idx++, b);
+            if (b) {
+                ++cardinality;
+            }
         }
-        if (idx == 0) {
-            return emptyBitSequence();
-        }
-        return create(idx, bs);
+        return create(bs, idx, cardinality);
     }
 
-    public static BitSequence concat(final BitSequence sequence1,
-                                     final BitSequence sequence2) {
+    public static BitString concat(final BitString sequence1,
+                                   final BitString sequence2) {
         checkNotNull(sequence1);
         checkNotNull(sequence2);
-        return new CombinedSequence(sequence1, sequence2);
-    }
-
-    public static BitSequence concat(final Iterable<? extends Boolean> sequence1,
-                                     final Iterable<? extends Boolean> sequence2) {
-        checkNotNull(sequence1);
-        checkNotNull(sequence2);
-        return forIterable(Iterables.concat(sequence2, sequence1));
+        return new CombinedString(sequence1, sequence2);
     }
 
     /**
-     * Create a new {@code BitSequence} from given string {@code s} of '0' and '1' chars
+     * Create a new {@code BitString} from given string {@code s} of '0' and '1' chars
      *
      * @param s a string of '0' and '1' chars
-     * @return a new BitSequence equal to the representation of {@code s}
+     * @return a new BitString equal to the representation of {@code s}
      */
-    public static BitSequence parse(final String s) {
-        return new RegularBitSequence(s);
+    public static BitString parse(final String s) {
+        return new RegularBitString(s);
     }
 
-    public static BitSequence random(final int length, final RandomGenerator rng) {
+    public static BitString random(final int length, final RandomGenerator rng) {
         checkNotNull(rng);
         checkArgument(length >= 0);
 
@@ -205,14 +227,14 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
             longs[i] = rng.nextLong();
         }
         longs[longs.length - 1] = longs[longs.length - 1] & (0xffffffffffffffffL >>> (longs.length * 64 - length));
-        return new RegularBitSequence(BitSet.valueOf(longs), length);
+        return new RegularBitString(BitSet.valueOf(longs), length);
     }
 
-    private static BitSequence emptyBitSequence() {
-        return EmptyBitSequence.INSTANCE;
+    private static BitString emptyBitSequence() {
+        return EmptyBitString.INSTANCE;
     }
 
-    public static BitSequence random(final int length, final RandomGenerator rng, final double p) {
+    public static BitString random(final int length, final RandomGenerator rng, final double p) {
         checkNotNull(rng);
         checkArgument(p >= 0 && p <= 1);
         checkArgument(length >= 0);
@@ -233,53 +255,63 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
             for (int i = 0; i < length; ++i) {
                 bs.set(idx++, rng.nextDouble() < p);
             }
-            return new RegularBitSequence(bs, length);
+            return new RegularBitString(bs, length);
         }
     }
 
-    public static BitSequence forBitSet(final BitSet bitSet, final int length) {
-        return create(length, bitSet);
+    public static BitString forBitSet(final BitSet bitSet, final int length) {
+        return create(bitSet, length);
     }
 
     @VisibleForTesting
-    static final class RegularBitSequence extends BitSequence {
+    static final class RegularBitString extends BitString {
         private final BitSet bitSet; // is mutable, so don't expose outside of class
         private final int length;
-        private final Supplier<Integer> cardinalityMemoizer = Suppliers.memoize(new Supplier<Integer>() {
-            @Override
-            public Integer get() {
-                return bitSet.cardinality();
-            }
-        });
+        private final Supplier<Integer> cardinalitySupplier;
 
-        RegularBitSequence(final BitSet bitSet, final int length) {
-            assert bitSet != null;
-            assert bitSet.length() <= length : "Length of bitSet was > length: " + bitSet.length() + " > " + length;
-            this.bitSet = bitSet;
-            this.length = length;
+        RegularBitString(final BitSet bitSet, final int length) {
+            this(bitSet, length, Suppliers.memoize(new Supplier<Integer>() {
+                @Override
+                public Integer get() {
+                    return bitSet.cardinality();
+                }
+            }));
         }
 
-        RegularBitSequence(final String s) {
+        RegularBitString(final String s) {
             this(BitSets.parse(s), s.length());
         }
 
-        @Override
-        public int length() {
-            return length;
+        RegularBitString(final BitSet bitSet, final int length, final int cardinality) {
+            this(bitSet, length, new Supplier<Integer>() {
+                @Override
+                public Integer get() {
+                    return cardinality;
+                }
+            });
+        }
+
+        RegularBitString(final BitSet bitSet, final int length, final Supplier<Integer> cardinalitySupplier) {
+            assert bitSet != null;
+            assert bitSet.length() <= length : "Length of bitSet was > length: " + bitSet.length() + " > " + length;
+            assert cardinalitySupplier != null;
+            this.bitSet = bitSet;
+            this.length = length;
+            this.cardinalitySupplier = cardinalitySupplier;
         }
 
         @Override
         public Boolean get(final int index) {
-            checkElementIndex(index, length());
+            checkElementIndex(index, size());
             return bitSet.get(index);
         }
 
         @Override
         public int cardinality() {
-            return cardinalityMemoizer.get();
+            return cardinalitySupplier.get();
         }
 
-        public BitSet asBitSet() {
+        public BitSet toBitSet() {
             return (BitSet) bitSet.clone();
         }
 
@@ -287,11 +319,16 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         public long[] toLongArray() {
             return bitSet.toLongArray();
         }
+
+        @Override
+        public int size() {
+            return length;
+        }
     }
 
     @VisibleForTesting
-    static final class BitSequenceView extends BitSequence {
-        private final BitSequence bitSequence;
+    static final class BitStringView extends BitString {
+        private final BitString bitString;
         private final int start;
         private final int end;
         private final Supplier<Integer> cardinalityMemoizer = Suppliers.memoize(new Supplier<Integer>() {
@@ -301,8 +338,8 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
             }
         });
 
-        public BitSequenceView(final BitSequence bitSequence, final int start, final int end) {
-            this.bitSequence = bitSequence;
+        public BitStringView(final BitString bitString, final int start, final int end) {
+            this.bitString = bitString;
             this.start = start;
             this.end = end;
         }
@@ -321,31 +358,31 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
 
         @Override
-        public BitSet asBitSet() {
-            return bitSequence.asBitSet().get(start, end);
+        public BitSet toBitSet() {
+            return bitString.toBitSet().get(start, end);
         }
 
         @Override
         public long[] toLongArray() {
-            return asBitSet().toLongArray();
+            return toBitSet().toLongArray();
         }
 
         @Override
         public Boolean get(final int index) {
             checkElementIndex(index, size());
-            return bitSequence.get(start + index);
+            return bitString.get(start + index);
         }
 
         @Override
-        public int length() {
+        public int size() {
             return end - start;
         }
     }
 
-    private static class EmptyBitSequence extends BitSequence {
-        public static final EmptyBitSequence INSTANCE = new EmptyBitSequence();
+    private static class EmptyBitString extends BitString {
+        public static final EmptyBitString INSTANCE = new EmptyBitString();
 
-        private EmptyBitSequence() {
+        private EmptyBitString() {
         }
 
         @Override
@@ -354,7 +391,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
 
         @Override
-        public BitSet asBitSet() {
+        public BitSet toBitSet() {
             return new BitSet(0);
         }
 
@@ -370,13 +407,13 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
 
         @Override
-        public int length() {
+        public final int size() {
             return 0;
         }
     }
 
     @VisibleForTesting
-    static final class Ones extends BitSequence {
+    static final class Ones extends BitString {
         private final int length;
 
         public Ones(final int length) {
@@ -390,7 +427,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
 
         @Override
-        public BitSet asBitSet() {
+        public BitSet toBitSet() {
             return BitSet.valueOf(toLongArray());
         }
 
@@ -411,13 +448,13 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
 
         @Override
-        public int length() {
+        public int size() {
             return length;
         }
     }
 
     @VisibleForTesting
-    static final class Zeros extends BitSequence {
+    static final class Zeros extends BitString {
         private final int length;
 
         public Zeros(final int length) {
@@ -430,7 +467,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
 
         @Override
-        public BitSet asBitSet() {
+        public BitSet toBitSet() {
             return new BitSet(length);
         }
 
@@ -446,17 +483,17 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
 
         @Override
-        public int length() {
+        public int size() {
             return length;
         }
     }
 
     @VisibleForTesting
-    static final class CombinedSequence extends BitSequence {
-        private final BitSequence sequence1;
-        private final BitSequence sequence2;
+    static final class CombinedString extends BitString {
+        private final BitString sequence1;
+        private final BitString sequence2;
 
-        public CombinedSequence(final BitSequence sequence1, final BitSequence sequence2) {
+        public CombinedString(final BitString sequence1, final BitString sequence2) {
 
             this.sequence1 = sequence1;
             this.sequence2 = sequence2;
@@ -468,9 +505,9 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
 
         @Override
-        public BitSet asBitSet() {
-            final BitSet bitSet1 = sequence1.asBitSet();
-            final BitSet bitSet2 = sequence2.asBitSet();
+        public BitSet toBitSet() {
+            final BitSet bitSet1 = sequence1.toBitSet();
+            final BitSet bitSet2 = sequence2.toBitSet();
             for (int i = 0; i < bitSet2.length(); i++) {
                 bitSet1.set(sequence1.size() + i, sequence2.get(i));
             }
@@ -479,7 +516,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
 
         @Override
         public long[] toLongArray() {
-            return asBitSet().toLongArray();
+            return toBitSet().toLongArray();
         }
 
         @Override
@@ -493,7 +530,7 @@ public abstract class BitSequence extends AbstractLinearSequence<Boolean> {
         }
 
         @Override
-        public int length() {
+        public int size() {
             return sequence1.size() + sequence2.size();
         }
     }

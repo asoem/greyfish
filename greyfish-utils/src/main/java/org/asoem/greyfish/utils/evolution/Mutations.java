@@ -2,7 +2,7 @@ package org.asoem.greyfish.utils.evolution;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.asoem.greyfish.utils.collect.BitSequence;
+import org.asoem.greyfish.utils.collect.BitString;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -10,14 +10,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class Mutations {
     private Mutations() {}
 
-    public static Mutation<BitSequence> bitFlipMutation(final RandomGenerator rng, final double p) {
+    public static Mutation<BitString> bitFlipMutation(final RandomGenerator rng, final double p) {
         checkNotNull(rng);
         checkArgument(p >= 0 && p <= 1);
         return new BitFlipMutation(rng, p);
     }
 
     @VisibleForTesting
-    static class BitFlipMutation implements Mutation<BitSequence> {
+    static class BitFlipMutation implements Mutation<BitString> {
         private final RandomGenerator rng;
         private final double p;
 
@@ -27,9 +27,9 @@ public final class Mutations {
         }
 
         @Override
-        public BitSequence mutate(final BitSequence input) {
+        public BitString mutate(final BitString input) {
             checkNotNull(input);
-            return input.xor(BitSequence.random(input.length(), rng, p));
+            return input.xor(BitString.random(input.size(), rng, p));
         }
     }
 }

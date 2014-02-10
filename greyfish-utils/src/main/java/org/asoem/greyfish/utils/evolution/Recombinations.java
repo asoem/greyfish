@@ -2,7 +2,7 @@ package org.asoem.greyfish.utils.evolution;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.asoem.greyfish.utils.collect.BitSequence;
+import org.asoem.greyfish.utils.collect.BitString;
 
 import java.util.BitSet;
 
@@ -24,7 +24,7 @@ public final class Recombinations {
      * @param p   the probability for any position in the bit sequence to become a crossover point
      * @return a new n-point crossover recombination function
      */
-    public static Recombination<BitSequence> nPointCrossover(final RandomGenerator rng, final double p) {
+    public static Recombination<BitString> nPointCrossover(final RandomGenerator rng, final double p) {
         checkNotNull(rng);
         checkArgument(p >= 0 && p <= 1);
         return new NPointCrossover(rng, p);
@@ -38,7 +38,7 @@ public final class Recombinations {
      * @param p   the probability to swap the bits of the parents at any given position
      * @return a new n-point crossover recombination function
      */
-    public static Recombination<BitSequence> uniformCrossover(final RandomGenerator rng, final double p) {
+    public static Recombination<BitString> uniformCrossover(final RandomGenerator rng, final double p) {
         checkNotNull(rng);
         checkArgument(p >= 0 && p <= 1);
         return new UniformCrossover(rng, p);
@@ -69,7 +69,7 @@ public final class Recombinations {
     }
 
     @VisibleForTesting
-    static class NPointCrossover implements Recombination<BitSequence> {
+    static class NPointCrossover implements Recombination<BitString> {
         private final RandomGenerator rng;
         private final double p;
 
@@ -79,36 +79,36 @@ public final class Recombinations {
         }
 
         @Override
-        public RecombinationProduct<BitSequence> recombine(
-                final BitSequence bitSequence1, final BitSequence bitSequence2) {
-            checkNotNull(bitSequence1);
-            checkNotNull(bitSequence2);
-            checkArgument(bitSequence1.length() == bitSequence2.length());
+        public RecombinationProduct<BitString> recombine(
+                final BitString bitString1, final BitString bitString2) {
+            checkNotNull(bitString1);
+            checkNotNull(bitString2);
+            checkArgument(bitString1.size() == bitString2.size());
 
-            final int length = bitSequence1.length();
-            final BitSequence crossoverTemplate = BitSequence.random(length, rng, p);
+            final int length = bitString1.size();
+            final BitString crossoverTemplate = BitString.random(length, rng, p);
 
-            final BitSet bitSet1 = BitSet.valueOf(bitSequence1.toLongArray());
-            final BitSet bitSet2 = BitSet.valueOf(bitSequence2.toLongArray());
+            final BitSet bitSet1 = BitSet.valueOf(bitString1.toLongArray());
+            final BitSet bitSet2 = BitSet.valueOf(bitString2.toLongArray());
 
             boolean state = false;
-            for (int i = 0; i < crossoverTemplate.length(); i++) {
+            for (int i = 0; i < crossoverTemplate.size(); i++) {
                 state ^= crossoverTemplate.get(i);
                 if (state) {
-                    bitSet1.set(i, bitSequence2.get(i));
-                    bitSet2.set(i, bitSequence1.get(i));
+                    bitSet1.set(i, bitString2.get(i));
+                    bitSet2.set(i, bitString1.get(i));
                 }
             }
 
-            final BitSequence recombinedBitSequence1 = BitSequence.forBitSet(bitSet1, length);
-            final BitSequence recombinedBitSequence2 = BitSequence.forBitSet(bitSet2, length);
+            final BitString recombinedBitString1 = BitString.forBitSet(bitSet1, length);
+            final BitString recombinedBitString2 = BitString.forBitSet(bitSet2, length);
 
-            return RegularRecombinationProduct.of(recombinedBitSequence1, recombinedBitSequence2);
+            return RegularRecombinationProduct.of(recombinedBitString1, recombinedBitString2);
         }
     }
 
     @VisibleForTesting
-    static class UniformCrossover implements Recombination<BitSequence> {
+    static class UniformCrossover implements Recombination<BitString> {
         private final RandomGenerator rng;
         private final double p;
 
@@ -118,31 +118,31 @@ public final class Recombinations {
         }
 
         @Override
-        public RecombinationProduct<BitSequence> recombine(
-                final BitSequence bitSequence1, final BitSequence bitSequence2) {
-            checkNotNull(bitSequence1);
-            checkNotNull(bitSequence2);
-            checkArgument(bitSequence1.length() == bitSequence2.length());
+        public RecombinationProduct<BitString> recombine(
+                final BitString bitString1, final BitString bitString2) {
+            checkNotNull(bitString1);
+            checkNotNull(bitString2);
+            checkArgument(bitString1.size() == bitString2.size());
 
-            final int length = bitSequence1.length();
-            final BitSequence crossoverTemplate = BitSequence.random(length, rng, p);
+            final int length = bitString1.size();
+            final BitString crossoverTemplate = BitString.random(length, rng, p);
 
-            final BitSet bitSet1 = BitSet.valueOf(bitSequence1.toLongArray());
-            final BitSet bitSet2 = BitSet.valueOf(bitSequence2.toLongArray());
+            final BitSet bitSet1 = BitSet.valueOf(bitString1.toLongArray());
+            final BitSet bitSet2 = BitSet.valueOf(bitString2.toLongArray());
 
-            for (int i = 0; i < crossoverTemplate.length(); i++) {
+            for (int i = 0; i < crossoverTemplate.size(); i++) {
                 final Boolean aBoolean = crossoverTemplate.get(i);
 
                 if (aBoolean) {
-                    bitSet1.set(i, bitSequence2.get(i));
-                    bitSet2.set(i, bitSequence1.get(i));
+                    bitSet1.set(i, bitString2.get(i));
+                    bitSet2.set(i, bitString1.get(i));
                 }
             }
 
-            final BitSequence recombinedBitSequence1 = BitSequence.forBitSet(bitSet1, length);
-            final BitSequence recombinedBitSequence2 = BitSequence.forBitSet(bitSet2, length);
+            final BitString recombinedBitString1 = BitString.forBitSet(bitSet1, length);
+            final BitString recombinedBitString2 = BitString.forBitSet(bitSet2, length);
 
-            return RegularRecombinationProduct.of(recombinedBitSequence1, recombinedBitSequence2);
+            return RegularRecombinationProduct.of(recombinedBitString1, recombinedBitString2);
         }
     }
 }

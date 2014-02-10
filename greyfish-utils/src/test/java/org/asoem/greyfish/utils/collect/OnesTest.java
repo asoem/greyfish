@@ -10,7 +10,7 @@ public class OnesTest {
     public void testCardinality() throws Exception {
         // given
         final int length = 10;
-        final BitSequence.Ones zeros = new BitSequence.Ones(length);
+        final BitString.Ones zeros = new BitString.Ones(length);
 
         // when
         final int cardinality = zeros.cardinality();

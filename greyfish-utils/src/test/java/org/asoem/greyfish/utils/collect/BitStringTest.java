@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-public class BitSequenceTest {
+public class BitStringTest {
     @Test
     public void testRandom() throws Exception {
         // given
@@ -18,9 +18,9 @@ public class BitSequenceTest {
         given(rng.nextLong()).willReturn(0xffffffffffffffffL);
 
         // when
-        final BitSequence bitSequence = BitSequence.random(length, rng);
+        final BitString bitString = BitString.random(length, rng);
 
         // then
-        assertThat(bitSequence, is(equalTo(BitSequence.ones(length))));
+        assertThat(bitString, is(equalTo(BitString.ones(length))));
     }
 }
