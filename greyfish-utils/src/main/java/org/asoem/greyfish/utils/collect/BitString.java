@@ -251,9 +251,10 @@ public abstract class BitString extends AbstractList<Boolean> {
             return random(length, rng);
         } else {
             final BitSet bs = new BitSet(length);
-            int idx = 0;
             for (int i = 0; i < length; ++i) {
-                bs.set(idx++, rng.nextDouble() < p);
+                if (rng.nextDouble() < p) {
+                    bs.set(i);
+                }
             }
             return new RegularBitString(bs, length);
         }
