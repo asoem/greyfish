@@ -252,7 +252,7 @@ public abstract class BitString extends AbstractList<Boolean> {
         } else {
             final BitSet bs = new BitSet(length);
             for (int i = 0; i < length; ++i) {
-                if (rng.nextDouble() < p) {
+                if (rng.nextFloat() < p) { // float should be faster than double
                     bs.set(i);
                 }
             }
