@@ -4,6 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Iterables;
+import org.apache.commons.math3.distribution.BinomialDistribution;
+import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import javax.annotation.Nullable;
@@ -250,10 +252,16 @@ public abstract class BitString extends AbstractList<Boolean> {
         } else if (p == 0.5) {
             return random(length, rng);
         } else {
-            final BitSet bs = new BitSet(length);
-            for (int i = 0; i < length; ++i) {
-                if (rng.nextFloat() < p) { // float should be faster than double
-                    bs.set(i);
+            final int n = new BinomialDistribution(rng, length, p).sample();
+            final UniformIntegerDistribution indexDistribution = new UniformIntegerDistribution(rng, 0, length - 1);
+
+            final BitSet bs = new BitSet();
+            int cardinality = 0;
+            while (cardinality != n) {
+                final int nextIndex = indexDistribution.sample();
+                if (!bs.get(nextIndex)) {
+                    bs.set(nextIndex);
+                    ++cardinality;
                 }
             }
             return new RegularBitString(bs, length);
@@ -263,6 +271,8 @@ public abstract class BitString extends AbstractList<Boolean> {
     public static BitString forBitSet(final BitSet bitSet, final int length) {
         return create(bitSet, length);
     }
+
+    public abstract int nextSetBit(final int from);
 
     @VisibleForTesting
     static final class RegularBitString extends BitString {
@@ -322,6 +332,11 @@ public abstract class BitString extends AbstractList<Boolean> {
         }
 
         @Override
+        public int nextSetBit(final int from) {
+            return bitSet.nextSetBit(from);
+        }
+
+        @Override
         public int size() {
             return length;
         }
@@ -369,6 +384,11 @@ public abstract class BitString extends AbstractList<Boolean> {
         }
 
         @Override
+        public int nextSetBit(final int from) {
+            return bitString.nextSetBit(start + from);
+        }
+
+        @Override
         public Boolean get(final int index) {
             checkElementIndex(index, size());
             return bitString.get(start + index);
@@ -399,6 +419,11 @@ public abstract class BitString extends AbstractList<Boolean> {
         @Override
         public long[] toLongArray() {
             return new long[0];
+        }
+
+        @Override
+        public int nextSetBit(final int from) {
+            return -1;
         }
 
         @Override
@@ -443,6 +468,11 @@ public abstract class BitString extends AbstractList<Boolean> {
         }
 
         @Override
+        public int nextSetBit(final int from) {
+            return from;
+        }
+
+        @Override
         public Boolean get(final int index) {
             checkPositionIndex(index, size());
             return true;
@@ -475,6 +505,11 @@ public abstract class BitString extends AbstractList<Boolean> {
         @Override
         public long[] toLongArray() {
             return new long[(length + 63) / 64];
+        }
+
+        @Override
+        public int nextSetBit(final int from) {
+            return -1;
         }
 
         @Override
@@ -518,6 +553,16 @@ public abstract class BitString extends AbstractList<Boolean> {
         @Override
         public long[] toLongArray() {
             return toBitSet().toLongArray();
+        }
+
+        @Override
+        public int nextSetBit(final int from) {
+            checkElementIndex(from, size());
+            if (from < sequence1.size()) {
+                return sequence1.nextSetBit(from);
+            } else {
+                return sequence2.nextSetBit((from - sequence1.size()));
+            }
         }
 
         @Override
