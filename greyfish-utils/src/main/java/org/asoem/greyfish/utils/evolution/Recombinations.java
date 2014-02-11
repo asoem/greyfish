@@ -80,7 +80,7 @@ public final class Recombinations {
                     final UniformIntegerDistribution indexDistribution =
                             new UniformIntegerDistribution(rng, 0, input - 1);
 
-                    BitSet bitSet = new BitSet();
+                    final BitSet bitSet = new BitSet();
                     int cardinality = 0;
                     while (cardinality != n) {
                         final int index = indexDistribution.sample();

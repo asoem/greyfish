@@ -249,13 +249,11 @@ public abstract class BitString extends AbstractList<Boolean> {
             return zeros(length);
         } else if (p == 1) {
             return ones(length);
-        } else if (p == 0.5) {
-            return random(length, rng);
         } else {
             final int n = new BinomialDistribution(rng, length, p).sample();
             final UniformIntegerDistribution indexDistribution = new UniformIntegerDistribution(rng, 0, length - 1);
 
-            final BitSet bs = new BitSet();
+            final BitSet bs = new BitSet(length);
             int cardinality = 0;
             while (cardinality != n) {
                 final int nextIndex = indexDistribution.sample();
