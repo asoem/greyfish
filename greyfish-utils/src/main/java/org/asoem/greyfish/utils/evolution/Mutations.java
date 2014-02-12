@@ -1,6 +1,7 @@
 package org.asoem.greyfish.utils.evolution;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.utils.collect.BitString;
 
@@ -29,18 +30,26 @@ public final class Mutations {
 
     @VisibleForTesting
     static class BitFlipMutation implements Mutation<BitString> {
-        private final RandomGenerator rng;
-        private final double p;
+        private final Function<? super Integer, ? extends BitString> mutationTemplateFactory;
 
-        public BitFlipMutation(final RandomGenerator rng, final double p) {
-            this.rng = rng;
-            this.p = p;
+        private BitFlipMutation(final RandomGenerator rng, final double p) {
+            this(new Function<Integer, BitString>() {
+                @Override
+                public BitString apply(final Integer input) {
+                    return BitString.random(input, rng, p);
+                }
+            });
+        }
+
+        @VisibleForTesting
+        BitFlipMutation(final Function<? super Integer, ? extends BitString> function) {
+            this.mutationTemplateFactory = function;
         }
 
         @Override
         public BitString mutate(final BitString input) {
             checkNotNull(input);
-            return input.xor(BitString.random(input.size(), rng, p));
+            return input.xor(mutationTemplateFactory.apply(input.size()));
         }
     }
 }

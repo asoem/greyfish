@@ -296,6 +296,10 @@ public abstract class BitString extends AbstractList<Boolean> {
         return create(bitSet, length);
     }
 
+    public static BitString create(final int length, final long... longs) {
+        return create(BitSet.valueOf(longs), length);
+    }
+
     @VisibleForTesting
     static final class RegularBitString extends BitString {
         private final BitSet bitSet; // is mutable, so don't expose outside of class

@@ -1,29 +1,24 @@
 package org.asoem.greyfish.utils.evolution;
 
-import org.apache.commons.math3.random.RandomGenerator;
+import com.google.common.base.Functions;
 import org.asoem.greyfish.utils.collect.BitString;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
 
 public class BitFlipMutationTest {
     @Test
     public void testMutate() throws Exception {
         // given
-        final RandomGenerator rng = mock(RandomGenerator.class);
-        given(rng.nextLong()).willReturn(4L);
-        final double p = 0.5;
-        final Mutations.BitFlipMutation mutation = new Mutations.BitFlipMutation(rng, p);
+        final Mutations.BitFlipMutation mutation =
+                new Mutations.BitFlipMutation(Functions.constant(BitString.create(4, 0b100l)));
 
         // when
         final BitString mutated = mutation.mutate(BitString.zeros(4));
 
         // then
-        verify(rng, only()).nextLong();
         assertThat(mutated, is(equalTo(BitString.parse("0100"))));
     }
 }
