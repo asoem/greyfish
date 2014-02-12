@@ -117,7 +117,7 @@ public final class Recombinations {
             final BitString crossoverPoints = checkNotNull(crossoverPointSampling.apply(length));
 
             int lastCrossoverPoint = 0;
-            for (int i = crossoverPoints.nextSetBit(0); i >= 0; i = crossoverPoints.nextSetBit(i + 1)) {
+            for (Integer i : crossoverPoints.setBits()) {
                 if (state) {
                     copyRange(bitSet1, bitString2, lastCrossoverPoint, i);
                     copyRange(bitSet2, bitString1, lastCrossoverPoint, i);
@@ -177,7 +177,7 @@ public final class Recombinations {
 
             final BitString crossoverPoints = checkNotNull(crossoverPointSampling.apply(length));
 
-            for (int i = crossoverPoints.nextSetBit(0); i >= 0; i = crossoverPoints.nextSetBit(i + 1)) {
+            for (Integer i : crossoverPoints.setBits()) {
                 bitSet1.set(i, bitString2.get(i));
                 bitSet2.set(i, bitString1.get(i));
             }

@@ -3,6 +3,8 @@ package org.asoem.greyfish.utils.collect;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
@@ -12,6 +14,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.AbstractList;
 import java.util.BitSet;
+import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -42,6 +45,29 @@ public abstract class BitString extends AbstractList<Boolean> {
      * @return a long array containing a little-endian representation of all the bits in this bit string
      */
     public abstract long[] toLongArray();
+
+    public abstract int nextSetBit(final int from);
+
+    public final Iterable<Integer> setBits() {
+        return new FluentIterable<Integer>() {
+            @Override
+            public Iterator<Integer> iterator() {
+                return new AbstractIterator<Integer>() {
+                    private int searchIndex = 0;
+
+                    @Override
+                    protected Integer computeNext() {
+                        final int nextSetIndex = nextSetBit(searchIndex);
+                        if (nextSetIndex == -1) {
+                            return endOfData();
+                        }
+                        searchIndex = nextSetIndex + 1;
+                        return nextSetIndex;
+                    }
+                };
+            }
+        };
+    }
 
     /**
      * Creates a new bit sequence by performing a logical <b>AND</b> of this bit sequence with an {@code other} bit
@@ -269,8 +295,6 @@ public abstract class BitString extends AbstractList<Boolean> {
     public static BitString forBitSet(final BitSet bitSet, final int length) {
         return create(bitSet, length);
     }
-
-    public abstract int nextSetBit(final int from);
 
     @VisibleForTesting
     static final class RegularBitString extends BitString {
