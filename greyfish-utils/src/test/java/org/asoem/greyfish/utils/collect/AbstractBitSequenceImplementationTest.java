@@ -5,6 +5,7 @@ import org.asoem.greyfish.utils.base.LongArrays;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
@@ -210,5 +211,18 @@ public abstract class AbstractBitSequenceImplementationTest {
 
         // then
         fail();
+    }
+
+    @Test
+    public void testSetBits() throws Exception {
+        // given
+        final String bitString = "001010010";
+        final BitString sequence1 = createSequence(bitString);
+
+        // when
+        final Iterable<Integer> indexes = sequence1.setBits();
+
+        // then
+        assertThat(indexes, contains(1, 4, 6));
     }
 }

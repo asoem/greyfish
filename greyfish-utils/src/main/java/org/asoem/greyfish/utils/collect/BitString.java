@@ -407,7 +407,12 @@ public abstract class BitString extends AbstractList<Boolean> {
 
         @Override
         public int nextSetBit(final int from) {
-            return bitString.nextSetBit(start + from);
+            checkPositionIndex(from, size());
+            final int i = bitString.nextSetBit(start + from) - start;
+            if (i >= size()) {
+                return -1;
+            }
+            return i;
         }
 
         @Override
@@ -579,11 +584,12 @@ public abstract class BitString extends AbstractList<Boolean> {
 
         @Override
         public int nextSetBit(final int from) {
-            checkElementIndex(from, size());
+            checkPositionIndex(from, size());
             if (from < sequence1.size()) {
                 return sequence1.nextSetBit(from);
             } else {
-                return sequence2.nextSetBit((from - sequence1.size()));
+                final int i = sequence2.nextSetBit((from - sequence1.size()));
+                return i == -1 ? -1 : sequence1.size() + i;
             }
         }
 
