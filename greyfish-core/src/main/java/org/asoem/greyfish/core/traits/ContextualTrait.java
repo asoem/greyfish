@@ -26,7 +26,7 @@ public class ContextualTrait<A extends Agent<? extends BasicSimulationContext<?,
 
     private final Callback<? super ContextualTrait<A, T>, ? extends T> valueCallback;
 
-    private final Callback<? super ContextualTrait<A, T>, ? extends Boolean> expirationCallback;
+    private final Callback<? super ContextualTrait<A, T>, Boolean> expirationCallback;
 
     private final SingleElementCache<T> valueCache;
 
@@ -114,7 +114,7 @@ public class ContextualTrait<A extends Agent<? extends BasicSimulationContext<?,
     private abstract static class AbstractBuilder<T, A extends Agent<? extends BasicSimulationContext<?, A>>, P extends ContextualTrait<A, T>, B extends AbstractBuilder<T, A, P, B>> extends AbstractAgentTrait.AbstractBuilder<P, B> implements Serializable {
         private Callback<? super ContextualTrait<A, T>, ? extends T> valueCallback;
 
-        private Callback<? super ContextualTrait<A, T>, ? extends Boolean> expirationCallback = ContextualTrait.expiresAtBirth();
+        private Callback<? super ContextualTrait<A, T>, Boolean> expirationCallback = ContextualTrait.expiresAtBirth();
 
         protected AbstractBuilder() {
         }
@@ -129,7 +129,7 @@ public class ContextualTrait<A extends Agent<? extends BasicSimulationContext<?,
             return self();
         }
 
-        public B expires(final Callback<? super ContextualTrait<A, T>, ? extends Boolean> expirationCallback) {
+        public B expires(final Callback<? super ContextualTrait<A, T>, Boolean> expirationCallback) {
             this.expirationCallback = checkNotNull(expirationCallback);
             return self();
         }

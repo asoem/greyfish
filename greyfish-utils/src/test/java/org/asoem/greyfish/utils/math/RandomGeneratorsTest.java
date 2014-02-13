@@ -1,17 +1,13 @@
 package org.asoem.greyfish.utils.math;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -31,7 +27,7 @@ public class RandomGeneratorsTest {
         final RandomGenerator rng = mock(RandomGenerator.class);
 
         // when
-        RandomGenerators.sample(rng, elements);
+        RandomGenerators.sample(elements, rng);
 
         // then
         fail();
@@ -44,7 +40,7 @@ public class RandomGeneratorsTest {
         final RandomGenerator rng = mock(RandomGenerator.class);
 
         // when
-        final Integer sample = RandomGenerators.sample(rng, elements);
+        final Integer sample = RandomGenerators.sample(elements, rng);
 
         // then
         assertThat(sample, is(equalTo(42)));
@@ -59,7 +55,7 @@ public class RandomGeneratorsTest {
         final Collection<Integer> elements = ImmutableList.of(42, 4, 543, 65, 34, 2);
 
         // when
-        final Integer sample = RandomGenerators.sample(rng, elements);
+        final Integer sample = RandomGenerators.sample(elements, rng);
 
         // then
         assertThat(sample, is(equalTo(34)));
@@ -73,7 +69,7 @@ public class RandomGeneratorsTest {
         final RandomGenerator rng = mock(RandomGenerator.class);
 
         // when
-        RandomGenerators.sample(rng, elements, sampleSize);
+        RandomGenerators.sample(elements, sampleSize, rng);
 
         // then
         fail();
@@ -87,7 +83,7 @@ public class RandomGeneratorsTest {
         final int sampleSize = 5;
 
         // when
-        final Collection<Integer> sample = RandomGenerators.sample(rng, elements, sampleSize);
+        final Collection<Integer> sample = RandomGenerators.sample(elements, sampleSize, rng);
 
         // then
         assertThat(sample, is(equalTo((Object) ImmutableList.of(42, 42, 42, 42, 42))));
@@ -103,7 +99,7 @@ public class RandomGeneratorsTest {
         final int sampleSize = 5;
 
         // when
-        final Collection<Integer> sample = RandomGenerators.sample(rng, elements, sampleSize);
+        final Collection<Integer> sample = RandomGenerators.sample(elements, sampleSize, rng);
 
         // then
         assertThat(sample, contains(7, 2, 6, 5, 5));
@@ -112,29 +108,17 @@ public class RandomGeneratorsTest {
     @Test
     public void testSampleUnique() throws Exception {
         // given
-        final int collectionSize = 10;
-        final int sampleSize = 3;
-
-        final List<Double> elementsToSample = Lists.newArrayList();
-        for (int i = 0; i < collectionSize; i++) {
-            elementsToSample.add(new Random().nextDouble());
-        }
-
-        final RandomGenerator rng = new JDKRandomGenerator();
-        rng.setSeed(0);
+        final ContiguousSet<Integer> integers =
+                ContiguousSet.create(Range.closedOpen(0, 10), DiscreteDomain.integers());
+        final RandomGenerator rng = RandomGenerators.rng();
 
         // when
-        final Iterable<Double> samples = RandomGenerators.sampleOnce(rng, elementsToSample, sampleSize);
+        final Iterable<Integer> sampled = RandomGenerators.sampleUnique(integers, 3, rng);
 
         // then
-        final ImmutableList<Double> actualSamples = ImmutableList.copyOf(samples);
-        final ImmutableList<Double> expectedSamples = ImmutableList.of(
-                elementsToSample.get(7),
-                elementsToSample.get(2),
-                elementsToSample.get(6));
-        System.out.println(Joiner.on(",").join(elementsToSample));
-        assertThat(actualSamples, Matchers.<Collection<Double>>both(Matchers.hasSize(expectedSamples.size()))
-                .and(everyItem(isIn(expectedSamples))));
+        assertThat(sampled, is(Matchers.<Integer>iterableWithSize(3)));
+        assertThat("Sampled elements are not unique",
+                Sets.newHashSet(sampled), is(Matchers.<Integer>iterableWithSize(3)));
     }
 
     @Test

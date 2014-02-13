@@ -86,4 +86,40 @@ public final class BitSets {
 
         return bitSet;
     }
+
+    public static void set(final BitSet bitSet, final int offset, final Iterable<Boolean> booleans) {
+        checkNotNull(bitSet);
+        checkNotNull(booleans);
+
+        int i = offset;
+        for (Boolean aBoolean : booleans) {
+            bitSet.set(i++, aBoolean);
+        }
+    }
+
+    public static BitSet create(final BitString bitString) {
+        checkNotNull(bitString);
+
+        return (BitSet) bitString.bitSet().clone();
+    }
+
+    public static void swap(final BitSet bitSet1, final int offset1,
+                            final BitSet bitSet2, final int offset2,
+                            final int length) {
+        checkNotNull(bitSet1);
+        checkNotNull(bitSet2);
+
+        for (int i = 0; i < length; i++) {
+            final int pos1 = offset1 + i;
+            final boolean b1 = bitSet1.get(pos1);
+            final int pos2 = offset2 + i;
+            final boolean b2 = bitSet2.get(pos2);
+            bitSet1.set(pos1, b2);
+            bitSet2.set(pos2, b1);
+        }
+    }
+
+    public static BitSet create(final long... longs) {
+        return BitSet.valueOf(longs);
+    }
 }

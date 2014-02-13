@@ -8,6 +8,7 @@ import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.NumberIsTooLargeException;
 import org.apache.commons.math3.exception.util.LocalizedFormats;
+import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.SynchronizedRandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
@@ -86,12 +87,11 @@ public final class RandomGenerators {
     /**
      * Randomly sample one element from given {@code elements} using {@code rng}.
      *
-     * @param rng      the random number generator to use
      * @param elements the elements to sample
-     * @param <T>      the type of the elements to sample
+     * @param rng      the random number generator to use
      * @return the sampled element
      */
-    public static <T> T sample(final RandomGenerator rng, final Collection<? extends T> elements) {
+    public static <T> T sample(final Collection<? extends T> elements, final RandomGenerator rng) {
         checkNotNull(rng);
         checkNotNull(elements);
         switch (elements.size()) {
@@ -105,42 +105,57 @@ public final class RandomGenerators {
     }
 
     /**
-     * <p>Randomly sample {@code sampleSize} elements from given {@code collection} using {@code rng}.<br> Each element
-     * will be contained in the returned {@code Iterable} exactly once.<br> {@code sampleSize} must be less than or
-     * equal to the size of {@code collection}.</p> <p/> <p><b>Attention: Although the elements are selected randomly,
-     * the order of the returned elements is NOT random. You should shuffle the the returned elements if this is not
-     * acceptable.</b> </p>
+     * <p>Randomly sample {@code n} elements from given {@code collection} without replacement.
      *
-     * @param rng        the random number generator to use
      * @param collection the collection to sample from
-     * @param sampleSize the number of elements to sample
+     * @param n          the number of elements to sample
+     * @param rng        the random number generator to use
      * @return an unmodifiable iterable containing randomly but not repeatedly selected elements of the collection
      */
-    public static <T> Iterable<T> sampleOnce(final RandomGenerator rng,
-                                             final Collection<? extends T> collection, final int sampleSize) {
+    public static <T> Iterable<T> sampleUnique(final Collection<? extends T> collection, final int n,
+                                               final RandomGenerator rng) {
         checkNotNull(rng);
         checkNotNull(collection);
         checkArgument(!collection.isEmpty(),
                 "Cannot sample element from empty collection");
-        checkArgument(sampleSize <= collection.size(),
-                "Cannot sample {} unique elements from collection of size {}", sampleSize, collection.size());
+        checkArgument(n <= collection.size(),
+                "Cannot sample {} unique elements from collection of size {}", n, collection.size());
 
+        if (n == 0) {
+            return ImmutableList.of();
+        } else if (n / (double) collection.size() < 0.1) {
+            return sampleUniqueUsingIndexHash(collection, n, rng);
+        } else {
+            return sampleUniqueUsingShuffle(collection, n, rng);
+        }
+    }
+
+    private static <T> Iterable<T> sampleUniqueUsingIndexHash(final Collection<? extends T> collection,
+                                                              final int n, final RandomGenerator rng) {
         final UniformIntegerDistribution distribution = new UniformIntegerDistribution(rng, 0, collection.size() - 1);
-        final SortedSet<Integer> indexSet = Sets.newTreeSet();
-        while (indexSet.size() != sampleSize) {
+        final LinkedHashSet<Integer> indexSet = Sets.newLinkedHashSet();
+        while (indexSet.size() != n) {
             indexSet.add(distribution.sample());
         }
 
         if (collection instanceof List && collection instanceof RandomAccess) {
             @SuppressWarnings("unchecked") // checked by instanceof
-            final List<T> elementList = (List<T>) collection;
-            return filterByIndex(elementList, indexSet);
+            final List<T> list = (List<T>) collection;
+            return selectRandomAccess(list, indexSet);
         } else {
-            return filterByStep(collection, indexSet);
+            return selectIterative(collection, indexSet);
         }
     }
 
-    private static <T> Iterable<T> filterByIndex(final List<T> elements, final Set<Integer> indexes) {
+    private static <T> Iterable<T> sampleUniqueUsingShuffle(final Iterable<? extends T> elements, final int n,
+                                                            final RandomGenerator rng) {
+        final List<T> in = Lists.newArrayList(elements);
+        Collections.shuffle(in, new RandomAdaptor(rng));
+        return in.subList(0, n);
+    }
+
+
+    private static <T> Iterable<T> selectRandomAccess(final List<T> elements, final Set<Integer> indexes) {
         return Iterables.transform(indexes, new Function<Integer, T>() {
             @Override
             public T apply(final Integer input) {
@@ -149,31 +164,24 @@ public final class RandomGenerators {
         });
     }
 
-    private static <T> FluentIterable<T> filterByStep(final Iterable<? extends T> elements, final SortedSet<Integer> indexes) {
+    private static <T> FluentIterable<T> selectIterative(final Iterable<? extends T> elements,
+                                                         final Set<Integer> indexes) {
         return new FluentIterable<T>() {
             @Override
             public Iterator<T> iterator() {
                 return new AbstractIterator<T>() {
-                    private int index = -1;
-                    private Iterator<Integer> indexIterator = indexes.iterator();
-                    private Iterator<? extends T> elementIterator = elements.iterator();
+                    private Iterator<? extends T> it = elements.iterator();
+                    private int index = 0;
 
                     @Override
                     protected T computeNext() {
-                        if (indexIterator.hasNext()) {
-                            final Integer nextIndex = indexIterator.next();
-                            assert nextIndex > index;
-
-                            T next = null;
-                            while (index != nextIndex && elementIterator.hasNext()) {
-                                next = elementIterator.next();
-                                index++;
+                        while (it.hasNext()) {
+                            final T next = it.next();
+                            if (indexes.contains(index++)) {
+                                return next;
                             }
-
-                            return next;
-                        } else {
-                            return endOfData();
                         }
+                        return endOfData();
                     }
                 };
             }
@@ -181,20 +189,19 @@ public final class RandomGenerators {
     }
 
     /**
-     * Randomly sample {@code sampleSize} elements from given {@code elements} using {@code rng}.
+     * Randomly sample {@code n} elements from given {@code elements} using {@code rng}.
      *
-     * @param rng        the random number generator to use
-     * @param elements   the elements to sample
-     * @param sampleSize the number of elements to sample
-     * @param <T>        the type of the elements to sample
+     * @param elements the elements to sample
+     * @param n        the number of elements to sample
+     * @param rng      the random number generator to use
      * @return the collection of sampled elements
      */
-    public static <T> Collection<T> sample(final RandomGenerator rng,
-                                           final Collection<? extends T> elements, final int sampleSize) {
+    public static <T> Collection<T> sample(final Collection<? extends T> elements, final int n,
+                                           final RandomGenerator rng) {
         checkNotNull(rng);
         checkNotNull(elements);
 
-        if (sampleSize == 0) {
+        if (n == 0) {
             return ImmutableList.of();
         }
 
@@ -204,16 +211,16 @@ public final class RandomGenerators {
             case 1:
                 final T onlyElement = Iterables.getOnlyElement(elements);
                 final ImmutableList.Builder<T> builder = ImmutableList.builder();
-                for (int i = 0; i < sampleSize; i++) {
+                for (int i = 0; i < n; i++) {
                     builder.add(onlyElement);
                 }
                 return builder.build();
             default:
                 final UniformIntegerDistribution distribution =
                         new UniformIntegerDistribution(rng, 0, elements.size() - 1);
-                final int[] randomIndexes = distribution.sample(sampleSize);
-                assert randomIndexes.length == sampleSize;
-                final List<T> list = new ArrayList<>(sampleSize);
+                final int[] randomIndexes = distribution.sample(n);
+                assert randomIndexes.length == n;
+                final List<T> list = new ArrayList<>(n);
                 for (int randomIndex : randomIndexes) {
                     list.add(Iterables.get(elements, randomIndex));
                 }
@@ -244,7 +251,7 @@ public final class RandomGenerators {
     /**
      * Generates a uniformly distributed random value from the interval [lower,upper).
      *
-     * @param rng   the {@code RandomGenerator to use}
+     * @param rng   the random generator to use
      * @param lower the lower bound
      * @param upper the upper bound
      * @return a uniformly distributed random value from the open interval (lower,upper)

@@ -18,7 +18,7 @@ public class ImmutableFunctionalList6AT extends ImmutableFunctionalListAT {
         final FunctionalList<String> functionalList = new UnrolledList6<>(ImmutableList.of("a", "b", "c", "d", "e", "f"));
         final ImmutableList<String> immutableList = ImmutableList.copyOf(functionalList);
         final int predicateCount = 10000;
-        final Collection<String> toFind = RandomGenerators.sample(RandomGenerators.rng(), immutableList, predicateCount);
+        final Collection<String> toFind = RandomGenerators.sample(immutableList, predicateCount, RandomGenerators.rng());
         final Iterable<Predicate<String>> predicates = Iterables.transform(
                 toFind,
                 new Function<String, Predicate<String>>() {

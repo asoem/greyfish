@@ -1,11 +1,11 @@
 package org.asoem.greyfish.utils.collect;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.AbstractIterator;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
+import com.google.common.collect.*;
+import com.google.common.primitives.Longs;
 import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -15,6 +15,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import java.util.AbstractList;
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -32,12 +33,11 @@ public abstract class BitString extends AbstractList<Boolean> {
     public abstract int cardinality();
 
     /**
-     * Returns a new {@link java.util.BitSet} containing all the bits in this bit string, so that {@code
-     * bitString.get(i) == bitSet.get(i)} for {@code 0 <= i < size()}
+     * Returns the bit set backend for this bit string.
      *
-     * @return a new {@code BitSet}
+     * @return a {@code BitSet}
      */
-    public abstract BitSet toBitSet();
+    protected abstract BitSet bitSet();
 
     /**
      * Returns a new long array containing all the bits in this bit string.
@@ -46,9 +46,14 @@ public abstract class BitString extends AbstractList<Boolean> {
      */
     public abstract long[] toLongArray();
 
-    public abstract int nextSetBit(final int from);
+    protected abstract int nextSetBit(final int from);
 
-    public final Iterable<Integer> setBits() {
+    /**
+     * Returns an iterable of indices where this string's bits are set to 1.
+     *
+     * @return iterable of indices
+     */
+    public final Iterable<Integer> asIndices() {
         return new FluentIterable<Integer>() {
             @Override
             public Iterator<Integer> iterator() {
@@ -76,14 +81,12 @@ public abstract class BitString extends AbstractList<Boolean> {
      * @param other the other bit sequence
      * @return a new bit sequence
      */
-    public final BitString and(final BitString other) {
-        if (this instanceof Zeros || other instanceof Zeros
-                || size() == 0 || other.size() == 0) {
-            return new Zeros(Math.max(size(), other.size()));
-        }
-        final BitSet bitSet = this.toBitSet();
-        bitSet.and(other.toBitSet());
-        return new RegularBitString(bitSet, Math.max(size(), other.size()));
+    public abstract BitString and(BitString other);
+
+    protected final BitString standardAnd(final BitString other) {
+        final BitSet bitSetCopy = this.bitSet();
+        bitSetCopy.and(other.bitSet());
+        return BitString.create(bitSetCopy, Math.max(size(), other.size()));
     }
 
     /**
@@ -93,16 +96,12 @@ public abstract class BitString extends AbstractList<Boolean> {
      * @param other the other bit sequence
      * @return a new bit sequence
      */
-    public final BitString or(final BitString other) {
-        if (other.size() == 0 || this instanceof Ones && size() >= other.size()) {
-            return this;
-        }
-        if (size() == 0 || other instanceof Ones && other.size() >= size()) {
-            return other;
-        }
-        final BitSet bitSet = this.toBitSet();
-        bitSet.or(other.toBitSet());
-        return new RegularBitString(bitSet, Math.max(size(), other.size()));
+    public abstract BitString or(BitString other);
+
+    protected final BitString standardOr(final BitString other) {
+        final BitSet bitSetCopy = this.bitSet();
+        bitSetCopy.or(other.bitSet());
+        return BitString.create(bitSetCopy, Math.max(size(), other.size()));
     }
 
     /**
@@ -112,16 +111,12 @@ public abstract class BitString extends AbstractList<Boolean> {
      * @param other the other bit sequence
      * @return a new bit sequence
      */
-    public final BitString xor(final BitString other) {
-        if (other.size() == 0 || other instanceof Zeros) {
-            return this;
-        }
-        if (size() == 0 || this instanceof Zeros) {
-            return other;
-        }
-        final BitSet bitSet = this.toBitSet();
-        bitSet.xor(other.toBitSet());
-        return new RegularBitString(bitSet, Math.max(size(), other.size()));
+    public abstract BitString xor(BitString other);
+
+    protected final BitString standardXor(final BitString other) {
+        final BitSet bitSetCopy = this.bitSet();
+        bitSetCopy.xor(other.bitSet());
+        return BitString.create(bitSetCopy, Math.max(size(), other.size()));
     }
 
     /**
@@ -131,18 +126,39 @@ public abstract class BitString extends AbstractList<Boolean> {
      * @param other the other bit sequence
      * @return a new bit sequence
      */
-    public final BitString andNot(final BitString other) {
-        final BitSet bitSet = this.toBitSet();
-        bitSet.andNot(other.toBitSet());
-        return new RegularBitString(bitSet, Math.max(size(), other.size()));
+    public abstract BitString andNot(BitString other);
+
+    protected final BitString standardAndNot(final BitString other) {
+        final BitSet bitSetCopy = this.bitSet();
+        bitSetCopy.andNot(other.bitSet());
+        return BitString.create(bitSetCopy, Math.max(size(), other.size()));
     }
 
+    /**
+     * Return the inverse of this bit string.
+     *
+     * @return the inverse of this bit string
+     */
+    public final BitString not() {
+        if (this instanceof InverseString) {
+            return ((InverseString) this).delegate;
+        }
+        return new InverseString(this);
+    }
+
+    /**
+     * Create a bit string which is a view upon this string from start (inclusive) to end (exclusive).
+     *
+     * @param start the position in this string which should be the first in the new string
+     * @param end   the position in this string which is the first not to get included in the new string
+     * @return a view upon the current string
+     */
     public final BitString subSequence(final int start, final int end) {
         checkPositionIndexes(start, end, size());
         if (start == end) {
             return emptyBitSequence();
         }
-        return new BitStringView(this, start, end);
+        return new SubString(start, end - start);
     }
 
     @Override
@@ -182,7 +198,7 @@ public abstract class BitString extends AbstractList<Boolean> {
         if (length == 0) {
             return emptyBitSequence();
         }
-        return new RegularBitString(bitSet, length);
+        return new BitSetString(bitSet, length);
     }
 
     private static BitString create(final BitSet bitSet, final int length, final int cardinality) {
@@ -193,7 +209,7 @@ public abstract class BitString extends AbstractList<Boolean> {
         } else if (cardinality == length) {
             return ones(length);
         } else {
-            return new RegularBitString(bitSet, length, cardinality);
+            return new BitSetString((BitSet) bitSet.clone(), length, cardinality);
         }
     }
 
@@ -201,17 +217,17 @@ public abstract class BitString extends AbstractList<Boolean> {
         if (length == 0) {
             return emptyBitSequence();
         }
-        return new Ones(length);
+        return new InverseString(zeros(length));
     }
 
     public static BitString zeros(final int length) {
         if (length == 0) {
             return emptyBitSequence();
         }
-        return new Zeros(length);
+        return new IndexSetString(ImmutableSet.<Integer>of(), length);
     }
 
-    public static BitString create(final Iterable<? extends Boolean> val) {
+    public static BitString create(final Iterable<Boolean> val) {
         checkNotNull(val);
         final BitSet bs = new BitSet();
         int idx = 0;
@@ -239,7 +255,7 @@ public abstract class BitString extends AbstractList<Boolean> {
      * @return a new BitString equal to the representation of {@code s}
      */
     public static BitString parse(final String s) {
-        return new RegularBitString(s);
+        return new BitSetString(BitSets.parse(s), s.length());
     }
 
     public static BitString random(final int length, final RandomGenerator rng) {
@@ -254,12 +270,12 @@ public abstract class BitString extends AbstractList<Boolean> {
         for (int i = 0; i < longs.length; i++) {
             longs[i] = rng.nextLong();
         }
-        longs[longs.length - 1] = longs[longs.length - 1] & (0xffffffffffffffffL >>> (longs.length * 64 - length));
-        return new RegularBitString(BitSet.valueOf(longs), length);
+        longs[longs.length - 1] = longs[longs.length - 1] & (~0L >>> (longs.length * 64 - length));
+        return new BitSetString(BitSet.valueOf(longs), length);
     }
 
     private static BitString emptyBitSequence() {
-        return EmptyBitString.INSTANCE;
+        return EmptyString.INSTANCE;
     }
 
     public static BitString random(final int length, final RandomGenerator rng, final double p) {
@@ -276,19 +292,25 @@ public abstract class BitString extends AbstractList<Boolean> {
         } else if (p == 1) {
             return ones(length);
         } else {
-            final int n = new BinomialDistribution(rng, length, p).sample();
+            final BinomialDistribution binomialDistribution = new BinomialDistribution(rng, length, p);
+            final int n = binomialDistribution.sample();
             final UniformIntegerDistribution indexDistribution = new UniformIntegerDistribution(rng, 0, length - 1);
 
-            final BitSet bs = new BitSet(length);
-            int cardinality = 0;
-            while (cardinality != n) {
-                final int nextIndex = indexDistribution.sample();
-                if (!bs.get(nextIndex)) {
-                    bs.set(nextIndex);
-                    ++cardinality;
+            if ((double) n / length < 1.0 / 32) { // < 1 bit per word?
+                final Set<Integer> indices = Sets.newHashSet();
+                while (indices.size() < n) {
+                    indices.add(indexDistribution.sample());
                 }
+                return new IndexSetString(ImmutableSortedSet.copyOf(indices), length);
+            } else {
+                final BitSet bs = new BitSet(length);
+                for (int i = 0; i < length; i++) {
+                    if (p < rng.nextFloat()) {
+                        bs.set(i);
+                    }
+                }
+                return new BitSetString(bs, length);
             }
-            return new RegularBitString(bs, length);
         }
     }
 
@@ -300,13 +322,26 @@ public abstract class BitString extends AbstractList<Boolean> {
         return create(BitSet.valueOf(longs), length);
     }
 
+    public static BitString forIndices(final Iterable<Integer> indices, final int length) {
+        final Set<Integer> indexSet = ImmutableSortedSet.copyOf(indices);
+        if ((double) indexSet.size() / length < 1.0 / 32) {
+            return new IndexSetString(indexSet, length);
+        } else {
+            final BitSet bitSet = new BitSet(length);
+            for (Integer index : indexSet) {
+                bitSet.set(index);
+            }
+            return forBitSet(bitSet, length);
+        }
+    }
+
     @VisibleForTesting
-    static final class RegularBitString extends BitString {
+    static final class BitSetString extends BitString {
         private final BitSet bitSet; // is mutable, so don't expose outside of class
         private final int length;
         private final Supplier<Integer> cardinalitySupplier;
 
-        RegularBitString(final BitSet bitSet, final int length) {
+        BitSetString(final BitSet bitSet, final int length) {
             this(bitSet, length, Suppliers.memoize(new Supplier<Integer>() {
                 @Override
                 public Integer get() {
@@ -315,11 +350,7 @@ public abstract class BitString extends AbstractList<Boolean> {
             }));
         }
 
-        RegularBitString(final String s) {
-            this(BitSets.parse(s), s.length());
-        }
-
-        RegularBitString(final BitSet bitSet, final int length, final int cardinality) {
+        private BitSetString(final BitSet bitSet, final int length, final int cardinality) {
             this(bitSet, length, new Supplier<Integer>() {
                 @Override
                 public Integer get() {
@@ -328,7 +359,7 @@ public abstract class BitString extends AbstractList<Boolean> {
             });
         }
 
-        RegularBitString(final BitSet bitSet, final int length, final Supplier<Integer> cardinalitySupplier) {
+        private BitSetString(final BitSet bitSet, final int length, final Supplier<Integer> cardinalitySupplier) {
             assert bitSet != null;
             assert bitSet.length() <= length : "Length of bitSet was > length: " + bitSet.length() + " > " + length;
             assert cardinalitySupplier != null;
@@ -348,13 +379,13 @@ public abstract class BitString extends AbstractList<Boolean> {
             return cardinalitySupplier.get();
         }
 
-        public BitSet toBitSet() {
+        protected BitSet bitSet() {
             return (BitSet) bitSet.clone();
         }
 
         @Override
         public long[] toLongArray() {
-            return bitSet.toLongArray();
+            return bitSet().toLongArray();
         }
 
         @Override
@@ -366,13 +397,28 @@ public abstract class BitString extends AbstractList<Boolean> {
         public int size() {
             return length;
         }
+
+        public BitString and(final BitString other) {
+            return standardAnd(other);
+        }
+
+        public BitString or(final BitString other) {
+            return standardOr(other);
+        }
+
+        public BitString xor(final BitString other) {
+            return standardXor(other);
+        }
+
+        public BitString andNot(final BitString other) {
+            return standardAndNot(other);
+        }
     }
 
     @VisibleForTesting
-    static final class BitStringView extends BitString {
-        private final BitString bitString;
-        private final int start;
-        private final int end;
+    final class SubString extends BitString {
+        private final int offset;
+        private final int length;
         private final Supplier<Integer> cardinalityMemoizer = Suppliers.memoize(new Supplier<Integer>() {
             @Override
             public Integer get() {
@@ -380,10 +426,9 @@ public abstract class BitString extends AbstractList<Boolean> {
             }
         });
 
-        public BitStringView(final BitString bitString, final int start, final int end) {
-            this.bitString = bitString;
-            this.start = start;
-            this.end = end;
+        public SubString(final int offset, final int length) {
+            this.offset = offset;
+            this.length = length;
         }
 
         @Override
@@ -392,28 +437,24 @@ public abstract class BitString extends AbstractList<Boolean> {
         }
 
         private int computeCardinality() {
-            int cardinality = 0;
-            for (Boolean aBoolean : this) {
-                cardinality += aBoolean ? 1 : 0;
-            }
-            return cardinality;
+            return Iterables.size(asIndices());
         }
 
         @Override
-        public BitSet toBitSet() {
-            return bitString.toBitSet().get(start, end);
+        protected BitSet bitSet() {
+            return BitString.this.bitSet().get(offset, offset + length);
         }
 
         @Override
         public long[] toLongArray() {
-            return toBitSet().toLongArray();
+            return bitSet().toLongArray();
         }
 
         @Override
         public int nextSetBit(final int from) {
             checkPositionIndex(from, size());
-            final int i = bitString.nextSetBit(start + from) - start;
-            if (i >= size()) {
+            final int i = BitString.this.nextSetBit(offset + from) - offset;
+            if (i >= size() || i < 0) {
                 return -1;
             }
             return i;
@@ -422,19 +463,35 @@ public abstract class BitString extends AbstractList<Boolean> {
         @Override
         public Boolean get(final int index) {
             checkElementIndex(index, size());
-            return bitString.get(start + index);
+            return BitString.this.get(offset + index);
         }
 
         @Override
         public int size() {
-            return end - start;
+            return length;
+        }
+
+        public BitString and(final BitString other) {
+            return standardAnd(other);
+        }
+
+        public BitString or(final BitString other) {
+            return standardOr(other);
+        }
+
+        public BitString xor(final BitString other) {
+            return standardXor(other);
+        }
+
+        public BitString andNot(final BitString other) {
+            return standardAndNot(other);
         }
     }
 
-    private static class EmptyBitString extends BitString {
-        public static final EmptyBitString INSTANCE = new EmptyBitString();
+    private static class EmptyString extends BitString {
+        public static final EmptyString INSTANCE = new EmptyString();
 
-        private EmptyBitString() {
+        private EmptyString() {
         }
 
         @Override
@@ -443,7 +500,7 @@ public abstract class BitString extends AbstractList<Boolean> {
         }
 
         @Override
-        public BitSet toBitSet() {
+        protected BitSet bitSet() {
             return new BitSet(0);
         }
 
@@ -467,149 +524,251 @@ public abstract class BitString extends AbstractList<Boolean> {
         public final int size() {
             return 0;
         }
-    }
 
-    @VisibleForTesting
-    static final class Ones extends BitString {
-        private final int length;
-
-        public Ones(final int length) {
-            assert length > 0;
-            this.length = length;
+        public final BitString and(final BitString other) {
+            return zeros(other.size());
         }
 
-        @Override
-        public int cardinality() {
-            return length;
+        public final BitString or(final BitString other) {
+            return other;
         }
 
-        @Override
-        public BitSet toBitSet() {
-            return BitSet.valueOf(toLongArray());
+        public final BitString xor(final BitString other) {
+            return other;
         }
 
-        @Override
-        public long[] toLongArray() {
-            long[] longs = new long[(length + 63) / 64];
-            for (int i = 0; i < longs.length; i++) {
-                longs[i] = ~longs[i];
-            }
-            longs[longs.length - 1] = longs[longs.length - 1] & (0xffffffffffffffffL >>> (longs.length * 64 - length));
-            return longs;
-        }
-
-        @Override
-        public int nextSetBit(final int from) {
-            return from;
-        }
-
-        @Override
-        public Boolean get(final int index) {
-            checkPositionIndex(index, size());
-            return true;
-        }
-
-        @Override
-        public int size() {
-            return length;
-        }
-    }
-
-    @VisibleForTesting
-    static final class Zeros extends BitString {
-        private final int length;
-
-        public Zeros(final int length) {
-            this.length = length;
-        }
-
-        @Override
-        public int cardinality() {
-            return 0;
-        }
-
-        @Override
-        public BitSet toBitSet() {
-            return new BitSet(length);
-        }
-
-        @Override
-        public long[] toLongArray() {
-            return new long[(length + 63) / 64];
-        }
-
-        @Override
-        public int nextSetBit(final int from) {
-            return -1;
-        }
-
-        @Override
-        public Boolean get(final int index) {
-            checkPositionIndex(index, size());
-            return false;
-        }
-
-        @Override
-        public int size() {
-            return length;
+        public final BitString andNot(final BitString other) {
+            return zeros(other.size());
         }
     }
 
     @VisibleForTesting
     static final class CombinedString extends BitString {
-        private final BitString sequence1;
-        private final BitString sequence2;
+        private final BitString bitString1;
+        private final BitString bitString2;
 
-        public CombinedString(final BitString sequence1, final BitString sequence2) {
-
-            this.sequence1 = sequence1;
-            this.sequence2 = sequence2;
+        public CombinedString(final BitString bitString1, final BitString bitString2) {
+            this.bitString1 = bitString1;
+            this.bitString2 = bitString2;
         }
 
         @Override
         public int cardinality() {
-            return sequence1.cardinality() + sequence2.cardinality();
+            return bitString1.cardinality() + bitString2.cardinality();
         }
 
         @Override
-        public BitSet toBitSet() {
-            final BitSet bitSet1 = sequence1.toBitSet();
-            final BitSet bitSet2 = sequence2.toBitSet();
-            for (int i = 0; i < bitSet2.length(); i++) {
-                bitSet1.set(sequence1.size() + i, sequence2.get(i));
-            }
-            return bitSet1;
+        protected BitSet bitSet() {
+            final BitSet combinedBitSet = (BitSet) bitString1.bitSet().clone();
+            BitSets.set(combinedBitSet, bitString1.size(), bitString2);
+            return combinedBitSet;
         }
 
         @Override
         public long[] toLongArray() {
-            return toBitSet().toLongArray();
+            return bitSet().toLongArray();
         }
 
         @Override
         public int nextSetBit(final int from) {
             checkPositionIndex(from, size());
-            if (from < sequence1.size()) {
-                return sequence1.nextSetBit(from);
+            if (from < bitString1.size()) {
+                return bitString1.nextSetBit(from);
             } else {
-                final int i = sequence2.nextSetBit((from - sequence1.size()));
-                return i == -1 ? -1 : sequence1.size() + i;
+                final int i = bitString2.nextSetBit((from - bitString1.size()));
+                return i == -1 ? -1 : bitString1.size() + i;
             }
         }
 
         @Override
         public Boolean get(final int index) {
             checkElementIndex(index, size());
-            if (index < sequence1.size()) {
-                return sequence1.get(index);
+            if (index < bitString1.size()) {
+                return bitString1.get(index);
             } else {
-                return sequence2.get((index - sequence1.size()));
+                return bitString2.get((index - bitString1.size()));
             }
         }
 
         @Override
         public int size() {
-            return sequence1.size() + sequence2.size();
+            return bitString1.size() + bitString2.size();
+        }
+
+        public BitString and(final BitString other) {
+            return standardAnd(other);
+        }
+
+        public BitString or(final BitString other) {
+            return standardOr(other);
+        }
+
+        public BitString xor(final BitString other) {
+            return standardXor(other);
+        }
+
+        public BitString andNot(final BitString other) {
+            return standardAndNot(other);
+        }
+    }
+
+    @VisibleForTesting
+    static final class IndexSetString extends BitString {
+
+        private final Set<Integer> indices;
+        private final int length;
+
+        IndexSetString(final Set<Integer> indices, final int length) {
+            checkArgument(length >= 0);
+            checkNotNull(indices);
+            checkArgument(Ordering.natural().isOrdered(indices));
+            checkArgument(Ordering.natural().compare(Iterables.getFirst(indices, 0), 0) >= 0);
+            checkArgument(Ordering.natural().compare(Iterables.getLast(indices, 0), length) < 0);
+            this.indices = indices;
+            this.length = length;
+        }
+
+        @Override
+        public int cardinality() {
+            return indices.size();
+        }
+
+        @Override
+        protected BitSet bitSet() {
+            final BitSet bitSet = new BitSet(length);
+            for (Integer index : indices) {
+                bitSet.set(index);
+            }
+            return bitSet;
+        }
+
+        @Override
+        public long[] toLongArray() {
+            final long[] longs = bitSet().toLongArray();
+            return Longs.concat(new long[(size() + 63) / 64 - longs.length], longs);
+        }
+
+        @Override
+        protected int nextSetBit(final int from) {
+            checkPositionIndex(from, size());
+            return Iterables.tryFind(indices, new Predicate<Integer>() {
+                @Override
+                public boolean apply(final Integer input) {
+                    return input >= from;
+                }
+            }).or(-1);
+        }
+
+        @Override
+        public Boolean get(final int index) {
+            checkElementIndex(index, size());
+            return indices.contains(index);
+        }
+
+        @Override
+        public int size() {
+            return length;
+        }
+
+        public BitString and(final BitString other) {
+            if (other instanceof IndexSetString) {
+                return forIndices(
+                        Sets.intersection(indices, ((IndexSetString) other).indices),
+                        Math.max(size(), other.size()));
+            }
+            return standardAnd(other);
+        }
+
+        public BitString or(final BitString other) {
+            if (other instanceof IndexSetString) {
+                return forIndices(
+                        Sets.union(indices, ((IndexSetString) other).indices),
+                        Math.max(size(), other.size()));
+            }
+            return standardOr(other);
+        }
+
+        public BitString xor(final BitString other) {
+            if (other instanceof IndexSetString) {
+                return forIndices(
+                        Sets.symmetricDifference(indices, ((IndexSetString) other).indices),
+                        Math.max(size(), other.size()));
+            }
+            return standardXor(other);
+        }
+
+        public BitString andNot(final BitString other) {
+            return standardAndNot(other);
+        }
+    }
+
+    static class InverseString extends BitString {
+        private final BitString delegate;
+
+        public InverseString(final BitString delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public int cardinality() {
+            return delegate.size() - delegate.cardinality();
+        }
+
+        @Override
+        protected BitSet bitSet() {
+            return BitSet.valueOf(toLongArray());
+        }
+
+        @Override
+        public long[] toLongArray() {
+            final long[] longs = delegate.toLongArray();
+            for (int i = 0; i < longs.length; i++) {
+                longs[i] = ~longs[i];
+                if (i == longs.length - 1) {
+                    longs[i] = longs[i] & (~0L >>> (longs.length * 64 - size()));
+                }
+            }
+            return longs;
+        }
+
+        @Override
+        protected int nextSetBit(final int from) {
+            for (int i = from; i < size(); i++) {
+                if (get(i)) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        @Override
+        public BitString and(final BitString other) {
+            return standardAnd(other);
+        }
+
+        @Override
+        public BitString or(final BitString other) {
+            return standardOr(other);
+        }
+
+        @Override
+        public BitString xor(final BitString other) {
+            return standardXor(other);
+        }
+
+        @Override
+        public BitString andNot(final BitString other) {
+            return standardAndNot(other);
+        }
+
+        @Override
+        public Boolean get(final int index) {
+            return !delegate.get(index);
+        }
+
+        @Override
+        public int size() {
+            return delegate.size();
         }
     }
 }

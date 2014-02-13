@@ -22,9 +22,10 @@ public final class ElementSelectionStrategies {
     private ElementSelectionStrategies() {}
 
     /**
-     * A the selection strategy for which the {@link ElementSelectionStrategy#pick(java.util.List, int)} method
-     * returns the {@code k} elements out of {@code n} elements by using a roulette wheel approach.
-     * @param <E> the comparable type of the elements
+     * A the selection strategy for which the {@link ElementSelectionStrategy#pick(java.util.List, int)} method returns
+     * the {@code k} elements out of {@code n} elements by using a roulette wheel approach.
+     *
+     * @param <E>      the comparable type of the elements
      * @param function the function to compute the fitness of the elements
      * @return the strategy to select k elements by using a roulette wheel
      */
@@ -73,8 +74,9 @@ public final class ElementSelectionStrategies {
     }
 
     /**
-     * A the selection strategy for which the {@link ElementSelectionStrategy#pick(java.util.List, int)} method
-     * returns the {@code k} best elements out of {@code n} elements.
+     * A the selection strategy for which the {@link ElementSelectionStrategy#pick(java.util.List, int)} method returns
+     * the {@code k} best elements out of {@code n} elements.
+     *
      * @param <E> the comparable type of the elements
      * @return the strategy to select the k "best" elements of a collection
      */
@@ -93,8 +95,9 @@ public final class ElementSelectionStrategies {
     }
 
     /**
-     * A the selection strategy for which the {@link ElementSelectionStrategy#pick(java.util.List, int)} method
-     * returns {@code k} random elements out of {@code n} elements.
+     * A the selection strategy for which the {@link ElementSelectionStrategy#pick(java.util.List, int)} method returns
+     * {@code k} random elements out of {@code n} elements.
+     *
      * @param <E> the comparable type of the elements
      * @return a strategy to select k random elements
      */
@@ -114,15 +117,16 @@ public final class ElementSelectionStrategies {
                 case 0:
                     return Collections.emptyList();
                 default:
-                    return RandomGenerators.sample(RandomGenerators.rng(), elements, k);
+                    return RandomGenerators.sample(elements, k, RandomGenerators.rng());
             }
         }
     }
 
     /**
-     * A the selection strategy for which the {@link ElementSelectionStrategy#pick(java.util.List, int)} method
-     * returns {@code k} times the the best element,
-     * which is the one with the highest value defined by the elements {@code compare} method.
+     * A the selection strategy for which the {@link ElementSelectionStrategy#pick(java.util.List, int)} method returns
+     * {@code k} times the the best element, which is the one with the highest value defined by the elements {@code
+     * compare} method.
+     *
      * @param <E> the comparable type of the elements
      * @return the strategy to get the "best" element of a collection
      */

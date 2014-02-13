@@ -2,10 +2,18 @@ package org.asoem.greyfish.utils.evolution;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import org.apache.commons.math3.distribution.UniformIntegerDistribution;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ContiguousSet;
+import com.google.common.collect.DiscreteDomain;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Range;
+import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.asoem.greyfish.utils.collect.BitSets;
 import org.asoem.greyfish.utils.collect.BitString;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 
+import javax.annotation.Nullable;
 import java.util.BitSet;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -70,33 +78,21 @@ public final class Recombinations {
 
     @VisibleForTesting
     static class NPointCrossover implements Recombination<BitString> {
-        private final Function<? super Integer, ? extends BitString> crossoverPointSampling;
+        private final Function<? super Integer, ? extends Iterable<Integer>> crossoverPointSampling;
 
         @VisibleForTesting
         NPointCrossover(final int n, final RandomGenerator rng) {
-            this(new Function<Integer, BitString>() {
+            this(new Function<Integer, Iterable<Integer>>() {
                 @Override
-                public BitString apply(final Integer input) {
-                    final UniformIntegerDistribution indexDistribution =
-                            new UniformIntegerDistribution(rng, 0, input - 1);
-
-                    final BitSet bitSet = new BitSet();
-                    int cardinality = 0;
-                    while (cardinality != n) {
-                        final int index = indexDistribution.sample();
-                        final boolean b = bitSet.get(index);
-                        if (!b) {
-                            bitSet.set(index);
-                            ++cardinality;
-                        }
-                    }
-                    return BitString.forBitSet(bitSet, input);
+                public Iterable<Integer> apply(final Integer bitStringLength) {
+                    return RandomGenerators.sampleUnique(ContiguousSet.create(Range.closedOpen(0, bitStringLength), DiscreteDomain.integers()), n, rng
+                    );
                 }
             });
         }
 
         @VisibleForTesting
-        NPointCrossover(final Function<? super Integer, ? extends BitString> crossoverPointSampling) {
+        NPointCrossover(final Function<? super Integer, ? extends Iterable<Integer>> crossoverPointSampling) {
             this.crossoverPointSampling = checkNotNull(crossoverPointSampling);
         }
 
@@ -109,25 +105,23 @@ public final class Recombinations {
 
             final int length = bitString1.size();
 
-            final BitSet bitSet1 = BitSet.valueOf(bitString1.toLongArray());
-            final BitSet bitSet2 = BitSet.valueOf(bitString2.toLongArray());
+            final BitSet bitSet1 = BitSets.create(bitString1);
+            final BitSet bitSet2 = BitSets.create(bitString2);
 
             boolean state = false;
 
-            final BitString crossoverPoints = checkNotNull(crossoverPointSampling.apply(length));
+            final Iterable<Integer> crossoverPoints = checkNotNull(crossoverPointSampling.apply(length));
 
             int lastCrossoverPoint = 0;
-            for (Integer i : crossoverPoints.setBits()) {
+            for (Integer i : crossoverPoints) {
                 if (state) {
-                    copyRange(bitSet1, bitString2, lastCrossoverPoint, i);
-                    copyRange(bitSet2, bitString1, lastCrossoverPoint, i);
+                    BitSets.swap(bitSet1, lastCrossoverPoint, bitSet2, lastCrossoverPoint, i - lastCrossoverPoint);
                 }
                 state = !state;
                 lastCrossoverPoint = i;
             }
             if (state) {
-                copyRange(bitSet1, bitString2, lastCrossoverPoint, length);
-                copyRange(bitSet2, bitString1, lastCrossoverPoint, length);
+                BitSets.swap(bitSet1, lastCrossoverPoint, bitSet2, lastCrossoverPoint, length - lastCrossoverPoint);
             }
 
             final BitString recombinedBitString1 = BitString.forBitSet(bitSet1, length);
@@ -135,31 +129,36 @@ public final class Recombinations {
 
             return RegularRecombinationProduct.of(recombinedBitString1, recombinedBitString2);
         }
-
-        private void copyRange(final BitSet bitSet1, final BitString bitString2,
-                               final int from, final int to) {
-            for (int i = from; i < to; i++) {
-                bitSet1.set(i, bitString2.get(i));
-            }
-        }
     }
 
     @VisibleForTesting
     static class UniformCrossover implements Recombination<BitString> {
-        private final Function<? super Integer, ? extends BitString> crossoverPointSampling;
+        private final Function<? super Integer, ? extends Iterable<Integer>> crossoverPointSampling;
 
         @VisibleForTesting
         UniformCrossover(final RandomGenerator rng, final double p) {
-            this(new Function<Integer, BitString>() {
+            this(new Function<Integer, Iterable<Integer>>() {
                 @Override
-                public BitString apply(final Integer input) {
-                    return BitString.random(input, rng, p);
+                public Iterable<Integer> apply(final Integer bitStringLength) {
+                    if (bitStringLength * p < 0.01) {
+                        return RandomGenerators.sampleUnique(ContiguousSet.create(Range.closedOpen(0, bitStringLength), DiscreteDomain.integers()), new BinomialDistribution(rng, bitStringLength, p).sample(), rng
+                        );
+                    } else {
+                        return Iterables.filter(
+                                ContiguousSet.create(Range.closedOpen(0, bitStringLength), DiscreteDomain.integers()),
+                                new Predicate<Integer>() {
+                                    @Override
+                                    public boolean apply(@Nullable final Integer input) {
+                                        return p < rng.nextFloat();
+                                    }
+                                });
+                    }
                 }
             });
         }
 
         @VisibleForTesting
-        UniformCrossover(final Function<? super Integer, ? extends BitString> crossoverPointSampling) {
+        UniformCrossover(final Function<? super Integer, ? extends Iterable<Integer>> crossoverPointSampling) {
             this.crossoverPointSampling = checkNotNull(crossoverPointSampling);
         }
 
@@ -172,14 +171,13 @@ public final class Recombinations {
 
             final int length = bitString1.size();
 
-            final BitSet bitSet1 = BitSet.valueOf(bitString1.toLongArray());
-            final BitSet bitSet2 = BitSet.valueOf(bitString2.toLongArray());
+            final BitSet bitSet1 = BitSets.create(bitString1);
+            final BitSet bitSet2 = BitSets.create(bitString2);
 
-            final BitString crossoverPoints = checkNotNull(crossoverPointSampling.apply(length));
+            final Iterable<Integer> crossoverPoints = checkNotNull(crossoverPointSampling.apply(length));
 
-            for (Integer i : crossoverPoints.setBits()) {
-                bitSet1.set(i, bitString2.get(i));
-                bitSet2.set(i, bitString1.get(i));
+            for (Integer i : crossoverPoints) {
+                BitSets.swap(bitSet1, i, bitSet2, i, 1);
             }
 
             final BitString recombinedBitString1 = BitString.forBitSet(bitSet1, length);

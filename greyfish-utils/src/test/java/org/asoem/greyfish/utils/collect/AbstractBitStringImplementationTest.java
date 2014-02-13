@@ -11,7 +11,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-public abstract class AbstractBitSequenceImplementationTest {
+public abstract class AbstractBitStringImplementationTest {
     @Test
     public void testToString() throws Exception {
         // given
@@ -126,7 +126,7 @@ public abstract class AbstractBitSequenceImplementationTest {
         final BitString subSequence = originalSequence.subSequence(3, 7);
 
         // then
-        assertThat(subSequence, is(instanceOf(BitString.BitStringView.class)));
+        assertThat(subSequence, is(instanceOf(BitString.SubString.class)));
         assertThat(subSequence, is(equalTo(BitString.parse("1000"))));
         assertThat(subSequence.cardinality(), is(1));
         assertThat(subSequence.size(), is(4));
@@ -220,7 +220,7 @@ public abstract class AbstractBitSequenceImplementationTest {
         final BitString sequence1 = createSequence(bitString);
 
         // when
-        final Iterable<Integer> indexes = sequence1.setBits();
+        final Iterable<Integer> indexes = sequence1.asIndices();
 
         // then
         assertThat(indexes, contains(1, 4, 6));

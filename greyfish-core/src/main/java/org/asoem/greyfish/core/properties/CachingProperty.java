@@ -23,7 +23,7 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
 
     private final Callback<? super CachingProperty<A, T, C>, ? extends T> valueCallback;
 
-    private final Callback<? super CachingProperty<A, T, C>, ? extends Boolean> expirationCallback;
+    private final Callback<? super CachingProperty<A, T, C>, Boolean> expirationCallback;
 
     private final SingleElementCache<T> valueCache;
 
@@ -115,7 +115,7 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
     private abstract static class AbstractBuilder<T, A extends Agent<? extends BasicSimulationContext<?, A>>, P extends CachingProperty<A, T, C>, B extends AbstractBuilder<T, A, P, B, C>, C extends AgentContext<A>> extends AbstractAgentProperty.AbstractBuilder<P, B> implements Serializable {
         private Callback<? super CachingProperty<A, T, C>, ? extends T> valueCallback;
 
-        private Callback<? super CachingProperty<A, T, C>, ? extends Boolean> expirationCallback = CachingProperty.expiresAtBirth();
+        private Callback<? super CachingProperty<A, T, C>, Boolean> expirationCallback = CachingProperty.expiresAtBirth();
 
         protected AbstractBuilder() {
         }
@@ -130,7 +130,7 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
             return self();
         }
 
-        public B expires(final Callback<? super CachingProperty<A, T, C>, ? extends Boolean> expirationCallback) {
+        public B expires(final Callback<? super CachingProperty<A, T, C>, Boolean> expirationCallback) {
             this.expirationCallback = checkNotNull(expirationCallback);
             return self();
         }

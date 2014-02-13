@@ -1,6 +1,6 @@
 package org.asoem.greyfish.utils.collect;
 
-public class CombinedSequenceTest extends AbstractBitSequenceImplementationTest {
+public class CombinedStringTest extends AbstractBitStringImplementationTest {
     @Override
     protected BitString createSequence(final String bitString) {
         return new BitString.CombinedString(

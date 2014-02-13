@@ -70,7 +70,7 @@ public class ExperimentIT {
                     // sample agents for new getSimulation
                     initialAgents.clear();
                     final Iterable<BasicAgent> sampledAgents =
-                            sample(rng(), copyOf(simulation.getActiveAgents()), 30);
+                            sample(copyOf(simulation.getActiveAgents()), 30, rng());
                     Iterables.addAll(initialAgents, sampledAgents);
                 }
             }
@@ -159,7 +159,7 @@ public class ExperimentIT {
                     for (BasicSimulation simulation : simulations) {
                         // sample agents for new getSimulation
                         final Iterable<BasicAgent> sampledAgents =
-                                sample(rng(), copyOf(simulation.getActiveAgents()), 30);
+                                sample(copyOf(simulation.getActiveAgents()), 30, rng());
 
                         Iterables.addAll(initialAgents, sampledAgents);
                     }

@@ -9,9 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
- * User: christoph
- * Date: 29.05.13
- * Time: 15:29
+ * User: christoph Date: 29.05.13 Time: 15:29
  */
 public class BitSetsTest {
     @Test
@@ -55,5 +53,19 @@ public class BitSetsTest {
 
         // then
         assertThat(parse, is(equalTo(new BitSet(0))));
+    }
+
+    @Test
+    public void testSwap() throws Exception {
+        // given
+        final BitSet bitSet1 = BitSets.create(0b010010010L);
+        final BitSet bitSet2 = BitSets.create(0b100101100L);
+
+        // when
+        BitSets.swap(bitSet1, 5, bitSet2, 2, 2);
+
+        // then
+        assertThat(bitSet1, is(equalTo(BitSets.create(0b011110010L))));
+        assertThat(bitSet2, is(equalTo(BitSets.create(0b100100000L))));
     }
 }

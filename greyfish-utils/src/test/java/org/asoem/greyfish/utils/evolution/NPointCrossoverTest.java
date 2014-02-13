@@ -1,6 +1,7 @@
 package org.asoem.greyfish.utils.evolution;
 
 import com.google.common.base.Functions;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.utils.collect.BitString;
 import org.junit.Test;
@@ -19,7 +20,7 @@ public class NPointCrossoverTest {
         final BitString bitString2 = BitString.parse("001111");
 
         Recombinations.NPointCrossover crossover =
-                new Recombinations.NPointCrossover(Functions.constant(BitString.parse("000100")));
+                new Recombinations.NPointCrossover(Functions.constant(ImmutableList.of(2)));
 
         // when
         final RecombinationProduct<BitString> recombined = crossover.recombine(bitString1, bitString2);
