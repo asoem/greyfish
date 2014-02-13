@@ -13,7 +13,7 @@ repositories {
 dependencies {
     compile 'org.codehaus.jsr166-mirror:jsr166y:1.7.0',
             'org.apache.commons:commons-math3:3.2',
-            'com.google.guava:guava:15.0',
+            'com.google.guava:guava:16.0.1',
             'com.google.code.findbugs:jsr305:2.0.1'
 
     testCompile "org.hamcrest:hamcrest-library:1.3",

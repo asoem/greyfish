@@ -17,7 +17,7 @@ startScripts.applicationName 'greyfish'
 dependencies {
     compile 'com.google.inject:guice:3.0',
             'org.slf4j:slf4j-api:1.7.5',
-            'com.google.guava:guava:15.0',
+            'com.google.guava:guava:16.0.1',
             'com.google.code.findbugs:jsr305:2.0.1',
             'net.sf.jopt-simple:jopt-simple:4.3'
 
