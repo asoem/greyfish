@@ -3,6 +3,7 @@ package org.asoem.greyfish.utils.base;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
+import org.asoem.greyfish.utils.collect.Sampling;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 
 import javax.annotation.Nullable;
@@ -218,7 +219,7 @@ public final class Callbacks {
 
         @Override
         public T apply(final Object caller, final Map<String, ?> args) {
-            return RandomGenerators.sample(RandomGenerators.rng(), e1, e2);
+            return Sampling.sample(RandomGenerators.rng(), e1, e2);
         }
     }
 

@@ -11,7 +11,7 @@ import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.utils.collect.BitSets;
 import org.asoem.greyfish.utils.collect.BitString;
-import org.asoem.greyfish.utils.math.RandomGenerators;
+import org.asoem.greyfish.utils.collect.Sampling;
 
 import javax.annotation.Nullable;
 import java.util.BitSet;
@@ -85,7 +85,7 @@ public final class Recombinations {
             this(new Function<Integer, Iterable<Integer>>() {
                 @Override
                 public Iterable<Integer> apply(final Integer bitStringLength) {
-                    return RandomGenerators.sampleUnique(ContiguousSet.create(Range.closedOpen(0, bitStringLength), DiscreteDomain.integers()), n, rng
+                    return Sampling.sampleUnique(ContiguousSet.create(Range.closedOpen(0, bitStringLength), DiscreteDomain.integers()), n, rng
                     );
                 }
             });
@@ -141,7 +141,7 @@ public final class Recombinations {
                 @Override
                 public Iterable<Integer> apply(final Integer bitStringLength) {
                     if (bitStringLength * p < 0.01) {
-                        return RandomGenerators.sampleUnique(ContiguousSet.create(Range.closedOpen(0, bitStringLength), DiscreteDomain.integers()), new BinomialDistribution(rng, bitStringLength, p).sample(), rng
+                        return Sampling.sampleUnique(ContiguousSet.create(Range.closedOpen(0, bitStringLength), DiscreteDomain.integers()), new BinomialDistribution(rng, bitStringLength, p).sample(), rng
                         );
                     } else {
                         return Iterables.filter(

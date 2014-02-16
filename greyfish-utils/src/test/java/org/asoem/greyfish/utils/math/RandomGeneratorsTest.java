@@ -4,6 +4,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.*;
 import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.asoem.greyfish.utils.collect.Sampling;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
@@ -27,7 +28,7 @@ public class RandomGeneratorsTest {
         final RandomGenerator rng = mock(RandomGenerator.class);
 
         // when
-        RandomGenerators.sample(elements, rng);
+        Sampling.sample(elements, rng);
 
         // then
         fail();
@@ -40,7 +41,7 @@ public class RandomGeneratorsTest {
         final RandomGenerator rng = mock(RandomGenerator.class);
 
         // when
-        final Integer sample = RandomGenerators.sample(elements, rng);
+        final Integer sample = Sampling.sample(elements, rng);
 
         // then
         assertThat(sample, is(equalTo(42)));
@@ -55,7 +56,7 @@ public class RandomGeneratorsTest {
         final Collection<Integer> elements = ImmutableList.of(42, 4, 543, 65, 34, 2);
 
         // when
-        final Integer sample = RandomGenerators.sample(elements, rng);
+        final Integer sample = Sampling.sample(elements, rng);
 
         // then
         assertThat(sample, is(equalTo(34)));
@@ -69,7 +70,7 @@ public class RandomGeneratorsTest {
         final RandomGenerator rng = mock(RandomGenerator.class);
 
         // when
-        RandomGenerators.sample(elements, sampleSize, rng);
+        Sampling.sample(elements, sampleSize, rng);
 
         // then
         fail();
@@ -83,7 +84,7 @@ public class RandomGeneratorsTest {
         final int sampleSize = 5;
 
         // when
-        final Collection<Integer> sample = RandomGenerators.sample(elements, sampleSize, rng);
+        final Collection<Integer> sample = Sampling.sample(elements, sampleSize, rng);
 
         // then
         assertThat(sample, is(equalTo((Object) ImmutableList.of(42, 42, 42, 42, 42))));
@@ -99,7 +100,7 @@ public class RandomGeneratorsTest {
         final int sampleSize = 5;
 
         // when
-        final Collection<Integer> sample = RandomGenerators.sample(elements, sampleSize, rng);
+        final Collection<Integer> sample = Sampling.sample(elements, sampleSize, rng);
 
         // then
         assertThat(sample, contains(7, 2, 6, 5, 5));
@@ -113,7 +114,7 @@ public class RandomGeneratorsTest {
         final RandomGenerator rng = RandomGenerators.rng();
 
         // when
-        final Iterable<Integer> sampled = RandomGenerators.sampleUnique(integers, 3, rng);
+        final Iterable<Integer> sampled = Sampling.sampleUnique(integers, 3, rng);
 
         // then
         assertThat(sampled, is(Matchers.<Integer>iterableWithSize(3)));

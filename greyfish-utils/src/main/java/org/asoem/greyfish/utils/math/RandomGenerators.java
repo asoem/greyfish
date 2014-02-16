@@ -1,20 +1,14 @@
 package org.asoem.greyfish.utils.math;
 
-import com.google.common.base.Function;
 import com.google.common.base.Supplier;
-import com.google.common.collect.*;
 import org.apache.commons.math3.distribution.BinomialDistribution;
-import org.apache.commons.math3.distribution.UniformIntegerDistribution;
-import org.apache.commons.math3.exception.MathIllegalArgumentException;
-import org.apache.commons.math3.exception.NumberIsTooLargeException;
-import org.apache.commons.math3.exception.util.LocalizedFormats;
-import org.apache.commons.math3.random.RandomAdaptor;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.SynchronizedRandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 
 import java.io.Serializable;
-import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -58,19 +52,6 @@ public final class RandomGenerators {
     }
 
     /**
-     * Randomly sample one element out of {@code e1} and {@code e2}.
-     *
-     * @param rng the generator to use for sampling
-     * @param e1  the first element to sample from
-     * @param e2  the second element to sample from
-     * @param <S> the type of the elements to sample
-     * @return {@code e1} or {@code e2}
-     */
-    public static <S> S sample(final RandomGenerator rng, final S e1, final S e2) {
-        return rng.nextBoolean() ? e1 : e2;
-    }
-
-    /**
      * Get a random value in the range [{@code minIncl}, {@code maxExcl}).
      *
      * @param rng     the generator to use
@@ -81,152 +62,9 @@ public final class RandomGenerators {
     public static int nextInt(final RandomGenerator rng, final int minIncl, final int maxExcl) {
         checkNotNull(rng);
         checkArgument(maxExcl >= minIncl);
-        return new UniformIntegerDistribution(rng, minIncl, maxExcl - 1).sample();
+        return minIncl + rng.nextInt(maxExcl - minIncl);
     }
 
-    /**
-     * Randomly sample one element from given {@code elements} using {@code rng}.
-     *
-     * @param elements the elements to sample
-     * @param rng      the random number generator to use
-     * @return the sampled element
-     */
-    public static <T> T sample(final Collection<? extends T> elements, final RandomGenerator rng) {
-        checkNotNull(rng);
-        checkNotNull(elements);
-        switch (elements.size()) {
-            case 0:
-                throw new IllegalArgumentException("Cannot sample element from empty collection");
-            case 1:
-                return Iterables.getOnlyElement(elements);
-            default:
-                return Iterables.get(elements, new UniformIntegerDistribution(rng, 0, elements.size() - 1).sample());
-        }
-    }
-
-    /**
-     * <p>Randomly sample {@code n} elements from given {@code collection} without replacement.
-     *
-     * @param collection the collection to sample from
-     * @param n          the number of elements to sample
-     * @param rng        the random number generator to use
-     * @return an unmodifiable iterable containing randomly but not repeatedly selected elements of the collection
-     */
-    public static <T> Iterable<T> sampleUnique(final Collection<? extends T> collection, final int n,
-                                               final RandomGenerator rng) {
-        checkNotNull(rng);
-        checkNotNull(collection);
-        checkArgument(!collection.isEmpty(),
-                "Cannot sample element from empty collection");
-        checkArgument(n <= collection.size(),
-                "Cannot sample {} unique elements from collection of size {}", n, collection.size());
-
-        if (n == 0) {
-            return ImmutableList.of();
-        } else if (n / (double) collection.size() < 0.1) {
-            return sampleUniqueUsingIndexHash(collection, n, rng);
-        } else {
-            return sampleUniqueUsingShuffle(collection, n, rng);
-        }
-    }
-
-    private static <T> Iterable<T> sampleUniqueUsingIndexHash(final Collection<? extends T> collection,
-                                                              final int n, final RandomGenerator rng) {
-        final UniformIntegerDistribution distribution = new UniformIntegerDistribution(rng, 0, collection.size() - 1);
-        final LinkedHashSet<Integer> indexSet = Sets.newLinkedHashSet();
-        while (indexSet.size() != n) {
-            indexSet.add(distribution.sample());
-        }
-
-        if (collection instanceof List && collection instanceof RandomAccess) {
-            @SuppressWarnings("unchecked") // checked by instanceof
-            final List<T> list = (List<T>) collection;
-            return selectRandomAccess(list, indexSet);
-        } else {
-            return selectIterative(collection, indexSet);
-        }
-    }
-
-    private static <T> Iterable<T> sampleUniqueUsingShuffle(final Iterable<? extends T> elements, final int n,
-                                                            final RandomGenerator rng) {
-        final List<T> in = Lists.newArrayList(elements);
-        Collections.shuffle(in, new RandomAdaptor(rng));
-        return in.subList(0, n);
-    }
-
-
-    private static <T> Iterable<T> selectRandomAccess(final List<T> elements, final Set<Integer> indexes) {
-        return Iterables.transform(indexes, new Function<Integer, T>() {
-            @Override
-            public T apply(final Integer input) {
-                return elements.get(input);
-            }
-        });
-    }
-
-    private static <T> FluentIterable<T> selectIterative(final Iterable<? extends T> elements,
-                                                         final Set<Integer> indexes) {
-        return new FluentIterable<T>() {
-            @Override
-            public Iterator<T> iterator() {
-                return new AbstractIterator<T>() {
-                    private Iterator<? extends T> it = elements.iterator();
-                    private int index = 0;
-
-                    @Override
-                    protected T computeNext() {
-                        while (it.hasNext()) {
-                            final T next = it.next();
-                            if (indexes.contains(index++)) {
-                                return next;
-                            }
-                        }
-                        return endOfData();
-                    }
-                };
-            }
-        };
-    }
-
-    /**
-     * Randomly sample {@code n} elements from given {@code elements} using {@code rng}.
-     *
-     * @param elements the elements to sample
-     * @param n        the number of elements to sample
-     * @param rng      the random number generator to use
-     * @return the collection of sampled elements
-     */
-    public static <T> Collection<T> sample(final Collection<? extends T> elements, final int n,
-                                           final RandomGenerator rng) {
-        checkNotNull(rng);
-        checkNotNull(elements);
-
-        if (n == 0) {
-            return ImmutableList.of();
-        }
-
-        switch (elements.size()) {
-            case 0:
-                throw new IllegalArgumentException("Cannot sample element from empty list");
-            case 1:
-                final T onlyElement = Iterables.getOnlyElement(elements);
-                final ImmutableList.Builder<T> builder = ImmutableList.builder();
-                for (int i = 0; i < n; i++) {
-                    builder.add(onlyElement);
-                }
-                return builder.build();
-            default:
-                final UniformIntegerDistribution distribution =
-                        new UniformIntegerDistribution(rng, 0, elements.size() - 1);
-                final int[] randomIndexes = distribution.sample(n);
-                assert randomIndexes.length == n;
-                final List<T> list = new ArrayList<>(n);
-                for (int randomIndex : randomIndexes) {
-                    list.add(Iterables.get(elements, randomIndex));
-                }
-                return ImmutableList.copyOf(list);
-        }
-    }
 
     /**
      * Generates a random value for the normal distribution with the mean equal to {@code mu} and standard deviation
@@ -237,15 +75,9 @@ public final class RandomGenerators {
      * @return a random value for the given normal distribution
      */
     public static double rnorm(final RandomGenerator rng, final double mu, final double sigma) {
-        checkNotNull(rng);
-        checkArgument(sigma > 0, "Sigma must be strictly positive, was: %s", sigma);
-        final double gaussian = rng.nextGaussian();
-        final double v = sigma * gaussian + mu;
-        if (Double.isNaN(v)) { // this shouldn't happen, but it does
-            return rnorm(rng, mu, sigma);
-        } else {
-            return v;
-        }
+        final NormalDistribution normalDistribution =
+                new NormalDistribution(rng, mu, sigma, NormalDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
+        return normalDistribution.sample();
     }
 
     /**
@@ -254,35 +86,11 @@ public final class RandomGenerators {
      * @param rng   the random generator to use
      * @param lower the lower bound
      * @param upper the upper bound
-     * @return a uniformly distributed random value from the open interval (lower,upper)
+     * @return a uniformly distributed random value from the interval [lower,upper)
      */
     public static double nextDouble(final RandomGenerator rng, final double lower, final double upper) {
-        return nextDouble(rng, lower, upper, true);
-    }
-
-    private static double nextDouble(final RandomGenerator rng, final double lower,
-                                     final double upper, final boolean lowerInclusive) {
-
-        if (lower >= upper) {
-            throw new NumberIsTooLargeException(LocalizedFormats.LOWER_BOUND_NOT_BELOW_UPPER_BOUND,
-                    lower, upper, false);
-        }
-
-        if (Double.isInfinite(lower) || Double.isInfinite(upper)) {
-            throw new MathIllegalArgumentException(LocalizedFormats.INFINITE_BOUND);
-        }
-
-        if (Double.isNaN(lower) || Double.isNaN(upper)) {
-            throw new MathIllegalArgumentException(LocalizedFormats.NAN_NOT_ALLOWED);
-        }
-
-        // ensure nextDouble() isn't 0.0
-        double u = rng.nextDouble();
-        while (!lowerInclusive && u <= 0.0) {
-            u = rng.nextDouble();
-        }
-
-        return u * upper + (1.0 - u) * lower;
+        final UniformRealDistribution distribution = new UniformRealDistribution(rng, lower, upper);
+        return distribution.sample();
     }
 
     /**

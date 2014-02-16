@@ -18,7 +18,7 @@ public class ImmutableFunctionalList4AT extends ImmutableFunctionalListAT {
         final ImmutableList<String> immutableList = ImmutableList.copyOf(functionalList);
         final int predicateCount = 10000;
         final Iterable<Predicate<String>> predicates = Iterables.transform(
-                RandomGenerators.sample(immutableList, predicateCount, RandomGenerators.rng()),
+                Sampling.sample(immutableList, predicateCount, RandomGenerators.rng()),
                 new Function<String, Predicate<String>>() {
                     @Nullable
                     @Override

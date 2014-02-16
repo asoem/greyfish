@@ -117,7 +117,7 @@ public final class ElementSelectionStrategies {
                 case 0:
                     return Collections.emptyList();
                 default:
-                    return RandomGenerators.sample(elements, k, RandomGenerators.rng());
+                    return Sampling.sample(elements, k, RandomGenerators.rng());
             }
         }
     }
