@@ -13,9 +13,7 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph Date: 17.02.12 Time: 12:14
- */
+
 public class CommonsJEXLEvaluator implements Evaluator, Serializable {
 
     private static final JexlEngine JEXL_ENGINE = new JexlEngine();

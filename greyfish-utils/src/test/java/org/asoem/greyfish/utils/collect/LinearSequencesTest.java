@@ -12,9 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 
-/**
- * User: christoph Date: 31.01.13 Time: 11:52
- */
+
 public class LinearSequencesTest {
 
     @Test

@@ -13,9 +13,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph Date: 31.01.13 Time: 11:37
- */
+
 public class LinearSequences {
     private LinearSequences() {
     }

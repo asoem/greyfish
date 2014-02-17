@@ -11,9 +11,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph Date: 13.09.11 Time: 14:09
- */
+
 public class GreyfishExpression extends AbstractExpression implements Serializable {
 
     private static final Pattern DOLLAR_FUNCTION_PATTERN = Pattern.compile("\\$\\(([^\\)]+)\\)");

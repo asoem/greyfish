@@ -1,8 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
-/**
- * User: christoph Date: 18.10.11 Time: 16:26
- */
+
 public class ImmutableObject2D implements Object2D {
 
     private final Point2D anchorPoint;

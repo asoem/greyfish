@@ -8,9 +8,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-/**
- * User: christoph Date: 29.05.13 Time: 15:29
- */
+
 public class BitSetsTest {
     @Test
     public void testParse() throws Exception {

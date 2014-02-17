@@ -9,9 +9,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 
-/**
- * User: christoph Date: 17.02.12 Time: 16:10
- */
+
 public class ConvertingEvaluationResult implements EvaluationResult {
 
     @Nullable

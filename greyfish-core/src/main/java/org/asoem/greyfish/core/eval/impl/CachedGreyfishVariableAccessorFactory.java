@@ -7,9 +7,7 @@ import org.asoem.greyfish.core.eval.VariableResolutionException;
 
 import java.util.Map;
 
-/**
- * User: christoph Date: 16.09.11 Time: 15:24
- */
+
 public class CachedGreyfishVariableAccessorFactory implements GreyfishVariableAccessorFactory {
 
     private final GreyfishVariableAccessorFactory delegate;

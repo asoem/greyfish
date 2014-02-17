@@ -11,9 +11,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph Date: 15.05.12 Time: 12:13
- */
+
 public class GreyfishExpressionCallback<C, T> implements Callback<C, T>, Serializable {
 
     private final GreyfishExpression expression;

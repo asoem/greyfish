@@ -4,9 +4,7 @@ import com.google.common.base.Objects;
 
 import javax.annotation.Nullable;
 
-/**
- * User: christoph Date: 26.10.11 Time: 13:05
- */
+
 public abstract class AbstractVariableResolver implements VariableResolver {
 
     private VariableResolver nextVariableResolver;

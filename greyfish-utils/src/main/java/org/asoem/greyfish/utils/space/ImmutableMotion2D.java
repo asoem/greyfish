@@ -4,9 +4,7 @@ import com.google.common.base.Objects;
 
 import java.io.Serializable;
 
-/**
- * User: christoph Date: 20.10.11 Time: 15:37
- */
+
 public class ImmutableMotion2D implements Motion2D, Serializable {
 
     private final double translation;

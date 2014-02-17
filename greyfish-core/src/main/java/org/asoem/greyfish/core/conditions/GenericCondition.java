@@ -12,9 +12,7 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-/**
- * User: christoph Date: 04.05.12 Time: 11:47
- */
+
 public class GenericCondition<A extends Agent<?>> extends LeafCondition<A> implements Serializable {
 
     private final Callback<? super GenericCondition<A>, Boolean> callback;

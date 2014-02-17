@@ -4,7 +4,6 @@ import com.google.common.base.Joiner;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Object2D;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +54,6 @@ final class ConsoleLogger implements SimulationLogger {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
     }
 }

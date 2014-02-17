@@ -1,8 +1,6 @@
 package org.asoem.greyfish.core.actions;
 
-/**
- * User: christoph Date: 21.02.12 Time: 18:34
- */
+
 public class SexualReproductionTest {
 
     /**

@@ -24,9 +24,7 @@ import java.util.regex.Pattern;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.asoem.greyfish.utils.math.RandomGenerators.rng;
 
-/**
- * User: christoph Date: 22.02.12 Time: 12:16
- */
+
 public class EvaluatingMarkovChain<S> implements MarkovChain<S> {
 
     private static final Logger logger = LoggerFactory.getLogger(ImmutableMarkovChain.class);

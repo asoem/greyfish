@@ -98,7 +98,7 @@ final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable 
             final StringBuilder stringBuilder = new StringBuilder();
             CharStreams.copy(new InputSupplier<InputStreamReader>() {
                 @Override
-                public InputStreamReader getInput() throws IOException {
+                public InputStreamReader getInput() {
                     return new InputStreamReader(
                             checkNotNull(getClass().getResourceAsStream(
                                     "/h2/h2_add_indices.sql")));
@@ -127,7 +127,7 @@ final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable 
         try {
             CharStreams.copy(new InputSupplier<InputStreamReader>() {
                 @Override
-                public InputStreamReader getInput() throws IOException {
+                public InputStreamReader getInput() {
                     final InputStream inputStream = checkNotNull(
                             getClass().getResourceAsStream(
                                     "/h2/h2_create_database.sql"));

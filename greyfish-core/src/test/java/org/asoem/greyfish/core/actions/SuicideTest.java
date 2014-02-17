@@ -13,9 +13,7 @@ import static org.asoem.greyfish.core.test.GreyfishMatchers.has;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-/**
- * User: christoph Date: 16.10.12 Time: 17:40
- */
+
 public class SuicideTest {
     @Test
     public void testSerialization() throws Exception {

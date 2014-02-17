@@ -10,9 +10,7 @@ import java.sql.Connection;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-/**
- * User: christoph Date: 06.09.13 Time: 11:19
- */
+
 public class GreyfishH2ConnectionManagerTest {
 
     @Rule

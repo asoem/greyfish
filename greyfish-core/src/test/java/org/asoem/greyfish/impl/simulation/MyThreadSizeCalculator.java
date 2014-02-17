@@ -19,10 +19,7 @@ public class MyThreadSizeCalculator extends PoolSizeCalculator {
         }
     });
 
-    public static void main(String[] args) throws InterruptedException,
-            InstantiationException,
-            IllegalAccessException,
-            ClassNotFoundException {
+    public static void main(String[] args) {
         MyThreadSizeCalculator calculator = new MyThreadSizeCalculator();
         calculator.calculateBoundaries(new BigDecimal(1.0),
                 new BigDecimal(100000));

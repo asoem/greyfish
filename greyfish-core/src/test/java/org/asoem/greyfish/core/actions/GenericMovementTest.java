@@ -10,9 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-/**
- * User: christoph Date: 16.10.12 Time: 19:29
- */
+
 public class GenericMovementTest {
     @Test
     public void testSerialization() throws Exception {

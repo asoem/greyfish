@@ -1,8 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
-/**
- * User: christoph Date: 03.03.11 Time: 11:29
- */
+
 public class MutableObject2D implements Object2D {
 
     private MutablePoint2D anchorPoint = new MutablePoint2D();

@@ -13,9 +13,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph Date: 15.05.12 Time: 16:13
- */
+
 public final class Callbacks {
 
     private Callbacks() {

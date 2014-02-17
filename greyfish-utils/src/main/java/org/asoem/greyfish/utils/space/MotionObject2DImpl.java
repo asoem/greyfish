@@ -1,8 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
-/**
- * User: christoph Date: 03.07.12 Time: 12:36
- */
+
 public class MotionObject2DImpl extends ForwardingObject2D implements Object2D, Moving2D {
 
     private final boolean collision;

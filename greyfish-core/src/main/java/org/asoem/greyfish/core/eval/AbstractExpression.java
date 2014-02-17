@@ -3,9 +3,7 @@ package org.asoem.greyfish.core.eval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * User: christoph Date: 31.10.12 Time: 10:16
- */
+
 public abstract class AbstractExpression implements Expression {
     private static final Logger logger = LoggerFactory.getLogger(AbstractExpression.class);
 
@@ -26,3 +24,4 @@ public abstract class AbstractExpression implements Expression {
         return getClass().getSimpleName() + "{" + getEvaluator() + " evaluating '" + getExpression() + "'}";
     }
 }
+

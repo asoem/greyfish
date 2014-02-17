@@ -5,9 +5,7 @@ import com.google.inject.Inject;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 
-/**
- * User: christoph Date: 24.02.12 Time: 16:25
- */
+
 public class AvatarTest {
 
     @Inject

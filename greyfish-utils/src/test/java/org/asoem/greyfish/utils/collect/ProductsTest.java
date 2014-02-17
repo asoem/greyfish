@@ -15,9 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 
-/**
- * User: christoph Date: 10.02.13 Time: 14:20
- */
+
 public class ProductsTest {
     @Test
     public void testZip() throws Exception {

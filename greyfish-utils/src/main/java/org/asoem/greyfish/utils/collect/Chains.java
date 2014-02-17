@@ -9,9 +9,7 @@ import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph Date: 03.11.11 Time: 08:55
- */
+
 public final class Chains {
 
     private Chains() {
