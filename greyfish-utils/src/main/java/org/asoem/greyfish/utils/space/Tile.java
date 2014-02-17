@@ -1,10 +1,6 @@
 package org.asoem.greyfish.utils.space;
 
-/**
- * User: christoph
- * Date: 29.02.12
- * Time: 18:44
- */
+
 public interface Tile {
     /**
      * @return the x

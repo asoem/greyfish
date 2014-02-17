@@ -16,11 +16,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 
-/**
- * User: christoph
- * Date: 16.09.11
- * Time: 16:13
- */
+
 @RunWith(MockitoJUnitRunner.class)
 public class GreyfishExpressionTest {
 
@@ -43,7 +39,7 @@ public class GreyfishExpressionTest {
         final EvaluationResult evaluationResult = mock(EvaluationResult.class);
         final Evaluator evaluator = mock(Evaluator.class);
         given(evaluator.evaluate(any(VariableResolver.class))).willReturn(evaluationResult);
-        given(evaluationResult.asDouble()).willReturn(5.0);     
+        given(evaluationResult.asDouble()).willReturn(5.0);
 
         // when
         final GreyfishExpression expression = new GreyfishExpression("", new EvaluatorFactory() {

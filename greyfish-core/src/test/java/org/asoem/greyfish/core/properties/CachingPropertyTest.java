@@ -14,11 +14,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * User: christoph
- * Date: 05.04.13
- * Time: 15:26
- */
+
 public class CachingPropertyTest {
     @SuppressWarnings("unchecked")
     @Test

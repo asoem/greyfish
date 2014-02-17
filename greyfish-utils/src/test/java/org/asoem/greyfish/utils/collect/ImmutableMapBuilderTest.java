@@ -11,11 +11,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * User: christoph
- * Date: 08.10.11
- * Time: 09:42
- */
+
 public class ImmutableMapBuilderTest {
 
     @Test
@@ -24,7 +20,7 @@ public class ImmutableMapBuilderTest {
         final ImmutableMapBuilder<String, Integer> builder = ImmutableMapBuilder.newInstance();
 
         // when
-        final Map<String,Integer> map = builder.putAll(ImmutableList.<String>of("A","B"), Functions.<String>identity(), new Function<String, Integer>() {
+        final Map<String, Integer> map = builder.putAll(ImmutableList.<String>of("A", "B"), Functions.<String>identity(), new Function<String, Integer>() {
             @Override
             public Integer apply(@Nullable final String s) {
                 return 1;

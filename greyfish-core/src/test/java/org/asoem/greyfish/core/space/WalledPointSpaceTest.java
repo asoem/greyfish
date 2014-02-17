@@ -14,11 +14,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.mock;
 
-/**
- * User: christoph
- * Date: 08.10.11
- * Time: 16:42
- */
+
 public class WalledPointSpaceTest {
 
     @Inject

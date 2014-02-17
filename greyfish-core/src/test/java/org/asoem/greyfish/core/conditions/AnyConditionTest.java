@@ -16,11 +16,7 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.withSettings;
 
-/**
- * User: christoph
- * Date: 02.11.12
- * Time: 14:57
- */
+
 public class AnyConditionTest {
 
     @Test

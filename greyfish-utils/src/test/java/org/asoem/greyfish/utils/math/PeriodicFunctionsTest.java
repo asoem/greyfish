@@ -12,16 +12,12 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-/**
- * User: christoph
- * Date: 21.01.13
- * Time: 14:25
- */
+
 public class PeriodicFunctionsTest {
     @Test
     public void testTriangleWave() throws Exception {
         final UnivariateFunction wave = PeriodicFunctions.triangleWave(1.0, 0.0);
-        
+
         final List<Double> generated = Lists.newArrayList();
         BigDecimal x = BigDecimal.valueOf(-1.0);
         while (x.doubleValue() <= 1.0) {

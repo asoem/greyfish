@@ -5,11 +5,7 @@ import com.google.common.collect.ForwardingObject;
 import javax.annotation.Nullable;
 import javax.script.Bindings;
 
-/**
- * User: christoph
- * Date: 22.09.11
- * Time: 17:06
- */
+
 public abstract class ForwardingVariableResolver extends ForwardingObject implements VariableResolver {
 
     @Override

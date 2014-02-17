@@ -6,11 +6,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
-/**
- * User: christoph
- * Date: 11.12.12
- * Time: 11:59
- */
+
 public class GreyfishMatchers {
 
     private GreyfishMatchers() {}
@@ -29,7 +25,7 @@ public class GreyfishMatchers {
         };
     }
 
-    public static <I,O> TransformingTypeSafeMatcher<I, O> has(final String description, final Function<I, O> transformation, final Matcher<? super O> transformMatcher) {
+    public static <I, O> TransformingTypeSafeMatcher<I, O> has(final String description, final Function<I, O> transformation, final Matcher<? super O> transformMatcher) {
         return new TransformingTypeSafeMatcher<I, O>(description, transformation, transformMatcher);
     }
 }

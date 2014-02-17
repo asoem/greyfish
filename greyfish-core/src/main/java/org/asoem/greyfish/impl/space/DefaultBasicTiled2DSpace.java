@@ -7,11 +7,7 @@ import org.asoem.greyfish.utils.space.Tile;
 import org.asoem.greyfish.utils.space.TileDirection;
 import org.asoem.greyfish.utils.space.TwoDimTreeFactory;
 
-/**
- * User: christoph
- * Date: 14.11.12
- * Time: 14:39
- */
+
 public class DefaultBasicTiled2DSpace extends ForwardingSpace2D<Basic2DAgent, Point2D> implements BasicTiled2DSpace {
     private final TiledSpace<Basic2DAgent, Point2D, WalledTile> space;
 

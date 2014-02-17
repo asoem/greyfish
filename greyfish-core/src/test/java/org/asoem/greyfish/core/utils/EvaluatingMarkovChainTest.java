@@ -11,11 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.is;
 
-/**
- * User: christoph
- * Date: 22.02.12
- * Time: 13:36
- */
+
 @RunWith(MockitoJUnitRunner.class)
 public class EvaluatingMarkovChainTest {
 
@@ -55,5 +51,5 @@ public class EvaluatingMarkovChainTest {
         final String endState = chain.apply(chain.apply("A"));
         MatcherAssert.assertThat(endState, is("C"));
     }
-    
+
 }

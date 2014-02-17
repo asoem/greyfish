@@ -6,11 +6,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-/**
- * User: christoph
- * Date: 29.02.12
- * Time: 10:42
- */
+
 public class ImmutableLocation2DTest {
 
     @Test

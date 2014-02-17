@@ -6,11 +6,7 @@ import org.asoem.greyfish.core.eval.GreyfishExpressionFactory;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.utils.persistence.Persister;
 
-/**
- * User: christoph
- * Date: 22.02.12
- * Time: 14:53
- */
+
 public class MarkovGeneTest {
     @Inject
     private Persister persister;

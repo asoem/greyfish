@@ -10,11 +10,7 @@ import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-/**
- * User: christoph
- * Date: 24.07.13
- * Time: 16:33
- */
+
 public class ModelParameterTypeListenerTest {
 
     @Test

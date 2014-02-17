@@ -5,11 +5,7 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-/**
- * User: christoph
- * Date: 08.02.12
- * Time: 13:11
- */
+
 public class ImmutableMarkovChainTest {
 
     @Test
@@ -18,11 +14,11 @@ public class ImmutableMarkovChainTest {
                 .put("A", "B", 1)
                 .put("B", "C", 1)
                 .build();
-        
-        final String initialState = "A"; 
-        
+
+        final String initialState = "A";
+
         final String endState = chain.apply(chain.apply(chain.apply(initialState)));
-        
+
         assertThat(endState, is("C"));
     }
 

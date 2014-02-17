@@ -13,20 +13,16 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph
- * Date: 21.02.12
- * Time: 18:37
- */
+
 public final class Persisters {
 
     private Persisters() {}
 
     /**
-     * Create a copy of the given object {@code o} by serializing it with the given {@code Persister}.
-     * What copy means in this context, dependents fully on the {@code Persister} implementation.
+     * Create a copy of the given object {@code o} by serializing it with the given {@code Persister}. What copy means
+     * in this context, dependents fully on the {@code Persister} implementation.
      *
-     * @param o the object you wish to copy
+     * @param o         the object you wish to copy
      * @param persister the {@code Persister} to use for the serialization process
      * @return a copy of {@code o}
      * @throws Exception if some errors occur during the serialization process
@@ -73,10 +69,11 @@ public final class Persisters {
 
     /**
      * Create a copy of the given object {@code o} through serialization unsing the given {@code persister}.
-     * @param o the object to copy
+     *
+     * @param o         the object to copy
      * @param persister the persister to use for serialization and deserialization.
-     * @param clazz the class to cast the deserialized object to
-     * @param <T> the type of {@code o}
+     * @param clazz     the class to cast the deserialized object to
+     * @param <T>       the type of {@code o}
      * @return a copy of {@code o}, as implemented by the given {@code persister}
      * @throws IOException
      * @throws ClassNotFoundException

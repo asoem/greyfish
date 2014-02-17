@@ -16,11 +16,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
-/**
- * User: christoph
- * Date: 03.04.12
- * Time: 12:50
- */
+
 public class RecursiveActionsTest {
 
     private final ForkJoinPool forkJoinPool = new ForkJoinPool();

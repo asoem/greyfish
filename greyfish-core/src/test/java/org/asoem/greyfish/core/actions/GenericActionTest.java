@@ -9,11 +9,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-/**
- * User: christoph
- * Date: 22.02.12
- * Time: 18:08
- */
+
 public class GenericActionTest {
     @Test
     public void testPersistence() throws Exception {

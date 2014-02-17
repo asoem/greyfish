@@ -6,11 +6,7 @@ import javax.script.Bindings;
 import javax.script.SimpleBindings;
 import java.util.Map;
 
-/**
- * User: christoph
- * Date: 20.04.11
- * Time: 14:22
- */
+
 public final class VariableResolvers {
 
     private VariableResolvers() {}

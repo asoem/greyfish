@@ -4,11 +4,7 @@ import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Tile;
 import org.asoem.greyfish.utils.space.TileDirection;
 
-/**
- * User: christoph
- * Date: 30.08.12
- * Time: 09:39
- */
+
 public abstract class ForwardingTiledSpace<O, P extends Object2D, T extends Tile> extends ForwardingSpace2D<O, P> implements TiledSpace<O, P, T> {
 
     @Override

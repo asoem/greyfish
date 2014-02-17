@@ -5,11 +5,7 @@ import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
 
-/**
- * User: christoph
- * Date: 02.03.12
- * Time: 18:18
- */
+
 public class Geometry2DTest {
     @Test
     public void testNoIntersectionWithAdjacentFP() throws Exception {

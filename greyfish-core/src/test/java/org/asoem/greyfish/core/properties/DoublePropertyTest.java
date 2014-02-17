@@ -9,11 +9,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-/**
- * User: christoph
- * Date: 22.02.12
- * Time: 17:09
- */
+
 public class DoublePropertyTest {
 
     @Test
@@ -25,10 +21,10 @@ public class DoublePropertyTest {
                 .upperBound(7.0)
                 .initialValue(4.0)
                 .build();
-        
+
         // when
         final DoubleProperty<Basic2DAgent, Basic2DAgentContext> persistent = Persisters.copyAsync(doubleProperty, Persisters.javaSerialization());
-        
+
         // then
         MatcherAssert.assertThat(persistent, is(equalTo(doubleProperty)));
     }

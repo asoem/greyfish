@@ -11,11 +11,7 @@ import static org.asoem.greyfish.utils.base.Callbacks.constant;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-/**
- * User: christoph
- * Date: 22.02.12
- * Time: 16:49
- */
+
 public class DoubleGeneTest {
 
     @Test

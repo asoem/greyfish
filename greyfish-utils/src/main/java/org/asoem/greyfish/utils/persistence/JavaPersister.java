@@ -9,11 +9,7 @@ import java.io.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * User: christoph
- * Date: 10.10.12
- * Time: 19:45
- */
+
 public enum JavaPersister implements Persister {
     INSTANCE;
 

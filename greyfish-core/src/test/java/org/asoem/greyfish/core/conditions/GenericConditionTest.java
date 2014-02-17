@@ -15,11 +15,7 @@ import static org.asoem.greyfish.core.test.GreyfishMatchers.has;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-/**
- * User: christoph
- * Date: 05.11.12
- * Time: 09:58
- */
+
 public class GenericConditionTest {
 
     /*

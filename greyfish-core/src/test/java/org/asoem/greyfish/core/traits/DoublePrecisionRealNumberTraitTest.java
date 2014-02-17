@@ -10,11 +10,7 @@ import org.junit.Test;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-/**
- * User: christoph
- * Date: 16.10.12
- * Time: 14:05
- */
+
 public class DoublePrecisionRealNumberTraitTest {
     @Test
     public void testSerialization() throws Exception {

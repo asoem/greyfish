@@ -7,11 +7,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 
-/**
- * User: christoph
- * Date: 17.02.12
- * Time: 17:01
- */
 public class ConvertingEvaluationResultTest {
     @Test
     public void testDoubleAsDouble() throws Exception {

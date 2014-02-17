@@ -8,11 +8,7 @@ import org.asoem.greyfish.utils.space.Object2D;
 import java.util.Collection;
 import java.util.Map;
 
-/**
- * User: christoph
- * Date: 09.11.12
- * Time: 14:41
- */
+
 public abstract class ForwardingSpace2D<O, P extends Object2D> extends ForwardingObject implements Space2D<O, P> {
     @Override
     protected abstract Space2D<O, P> delegate();

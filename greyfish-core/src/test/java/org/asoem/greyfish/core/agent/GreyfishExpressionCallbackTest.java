@@ -12,11 +12,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-/**
- * User: christoph
- * Date: 04.07.12
- * Time: 15:19
- */
+
 public class GreyfishExpressionCallbackTest {
 
     @Inject
