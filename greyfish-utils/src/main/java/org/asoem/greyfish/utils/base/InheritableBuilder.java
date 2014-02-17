@@ -29,7 +29,7 @@ public abstract class InheritableBuilder<T, B extends Builder<T>> implements Bui
 
     private void verify() {
         @Nullable Verification toVerify = this.verification;
-        while (verification != null) {
+        while (toVerify != null) {
             toVerify.verify();
             toVerify = toVerify.next;
         }
