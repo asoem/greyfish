@@ -16,7 +16,6 @@ import java.sql.PreparedStatement;
 import java.util.concurrent.TimeUnit;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 public class JDBCLoggerTest {

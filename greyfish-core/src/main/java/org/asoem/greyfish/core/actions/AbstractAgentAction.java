@@ -10,7 +10,7 @@ public abstract class AbstractAgentAction<C>
     }
 
     @Override
-    public <T> T tell(final C context, final Object message, final Class<T> replyType) {
+    public final <T> T tell(final C context, final Object message, final Class<T> replyType) {
         throw new UnsupportedOperationException("Not implemented");
     }
 }

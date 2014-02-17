@@ -10,17 +10,17 @@ public abstract class Abstract2DSimulation<A extends SpatialAgent<A, ?, ?, ?>, Z
         extends AbstractSimulation<A> implements SpatialSimulation2D<A, Z> {
 
     @Override
-    public Iterable<A> findNeighbours(final A agent, final double distance) {
+    public final Iterable<A> findNeighbours(final A agent, final double distance) {
         return getSpace().getVisibleNeighbours(agent, distance);
     }
 
     @Override
-    public Iterable<A> getActiveAgents() {
+    public final Iterable<A> getActiveAgents() {
         return getSpace().getObjects();
     }
 
     @Override
-    public int countAgents() {
+    public final int countAgents() {
         return getSpace().countObjects();
     }
 

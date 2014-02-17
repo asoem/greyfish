@@ -82,29 +82,40 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
         protected E lowerBound;
         protected E initialValue;
 
-        public T upperBound(final E upperBound) {
+        protected AbstractBuilder(final AbstractRangeElementProperty<?, ?, ?> property) {
+            super(property);
+            initVerification();
+        }
+
+        protected AbstractBuilder() {
+            initVerification();
+        }
+
+        public final T upperBound(final E upperBound) {
             this.upperBound = checkNotNull(upperBound);
             return self();
         }
 
-        public T lowerBound(final E lowerBound) {
+        public final T lowerBound(final E lowerBound) {
             this.lowerBound = checkNotNull(lowerBound);
             return self();
         }
 
-        public T initialValue(final E initialValue) {
+        public final T initialValue(final E initialValue) {
             this.initialValue = checkNotNull(initialValue);
             return self();
         }
 
-        @Override
-        protected void checkBuilder() {
-            super.checkBuilder();
-
-            checkState(lowerBound != null);
-            checkState(upperBound != null);
-            checkState(initialValue != null);
-            checkState(Ordering.<E>natural().isOrdered(ImmutableList.of(lowerBound, initialValue, upperBound)));
+        private void initVerification() {
+            addVerification(new Verification() {
+                @Override
+                protected void verify() {
+                    checkState(lowerBound != null);
+                    checkState(upperBound != null);
+                    checkState(initialValue != null);
+                    checkState(Ordering.<E>natural().isOrdered(ImmutableList.of(lowerBound, initialValue, upperBound)));
+                }
+            });
         }
     }
 

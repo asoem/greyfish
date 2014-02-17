@@ -83,9 +83,20 @@ public abstract class AbstractAgentComponent<C> implements AgentComponent<C> {
 
         protected AbstractBuilder(final AbstractAgentComponent<?> component) {
             this.name = component.name;
+            initVerification();
         }
 
         protected AbstractBuilder() {
+            initVerification();
+        }
+
+        private void initVerification() {
+            addVerification(new Verification() {
+                @Override
+                protected void verify() {
+                    checkState(name != null, "No name was defined");
+                }
+            });
         }
 
         public final B name(final String name) {
@@ -96,7 +107,6 @@ public abstract class AbstractAgentComponent<C> implements AgentComponent<C> {
         @Override
         protected void checkBuilder() {
             super.checkBuilder();
-            checkState(name != null, "No name was defined");
         }
     }
 }

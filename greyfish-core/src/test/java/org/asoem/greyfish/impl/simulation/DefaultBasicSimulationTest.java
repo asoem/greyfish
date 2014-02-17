@@ -6,14 +6,15 @@ import com.google.common.eventbus.EventBus;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.impl.agent.BasicAgent;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.concurrent.Executors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -147,15 +148,15 @@ public class DefaultBasicSimulationTest {
         simulation.nextStep();
 
         // then
-        verify(eventPublisherMock).post(argThat(isA(AgentAddedEvent.class)));
-        verify(eventPublisherMock).post(argThat(isA(TimeChangedEvent.class)));
+        verify(eventPublisherMock).post(argThat(Matchers.isA(AgentAddedEvent.class)));
+        verify(eventPublisherMock).post(argThat(Matchers.isA(TimeChangedEvent.class)));
 
         // and when
         simulation.enqueueRemoval(agentMock);
         simulation.nextStep();
 
         // then
-        verify(eventPublisherMock).post(argThat(isA(AgentRemovedEvent.class)));
-        verify(eventPublisherMock, times(2)).post(argThat(isA(TimeChangedEvent.class)));
+        verify(eventPublisherMock).post(argThat(Matchers.isA(AgentRemovedEvent.class)));
+        verify(eventPublisherMock, times(2)).post(argThat(Matchers.isA(TimeChangedEvent.class)));
     }
 }

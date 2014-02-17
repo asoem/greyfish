@@ -105,7 +105,7 @@ public abstract class AbstractAgent<
             final ComponentMessage request = (ComponentMessage) message;
             return ask(request, replyType);
         } else if (message instanceof ACLMessage) {
-            final ACLMessage aclMessage = (ACLMessage) message;
+            final ACLMessage<A> aclMessage = (ACLMessage<A>) message;
             receive(aclMessage);
             return replyType.cast(null);
         } else if (message instanceof RequestAllTraitValues) {
