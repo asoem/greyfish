@@ -231,6 +231,13 @@ public abstract class BitString extends AbstractList<Boolean> {
         return new BitSetString(BitSets.parse(s), s.length());
     }
 
+    /**
+     * Create a random bit string of given {@code length}.
+     *
+     * @param length the length of the bit string
+     * @param rng    the random number generator to use
+     * @return a new bit string of given length.
+     */
     public static BitString random(final int length, final RandomGenerator rng) {
         checkNotNull(rng);
         checkArgument(length >= 0);
@@ -243,7 +250,7 @@ public abstract class BitString extends AbstractList<Boolean> {
         for (int i = 0; i < longs.length; i++) {
             longs[i] = rng.nextLong();
         }
-        longs[longs.length - 1] = longs[longs.length - 1] & (~0L >>> (longs.length * 64 - length));
+        longs[longs.length - 1] &= (~0L >>> (longs.length * 64 - length));
         return new BitSetString(BitSet.valueOf(longs), length);
     }
 
