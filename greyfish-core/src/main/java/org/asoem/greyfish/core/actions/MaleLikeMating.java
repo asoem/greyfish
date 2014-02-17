@@ -149,7 +149,12 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends Contract
         private static final long serialVersionUID = 0;
     }
 
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?, ?>, C extends MaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> implements Serializable {
+    protected abstract static class AbstractBuilder<
+            A extends SpatialAgent<A, ?, ?, ?>,
+            C extends MaleLikeMating<A>,
+            B extends AbstractBuilder<A, C, B>>
+            extends ContractNetParticipantAction.AbstractBuilder<A, C, B>
+            implements Serializable {
         private String ontology = "mate";
         private Callback<? super MaleLikeMating<A>, Double> matingProbabilityExpression = Callbacks.constant(1.0);
         private int matingCount;
@@ -161,25 +166,30 @@ public class MaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends Contract
             this.matingProbabilityExpression = maleLikeMating.matingProbability;
             this.matingCount = maleLikeMating.matingCount;
             this.proposalSent = maleLikeMating.proposalSent;
+            initVerification();
         }
 
         protected AbstractBuilder() {
+            initVerification();
         }
 
-        public B matingProbability(final Callback<? super MaleLikeMating<A>, Double> matingProbability) {
+        private void initVerification() {
+            addVerification(new Verification() {
+                @Override
+                protected void verify() {
+                    checkState(!Strings.isNullOrEmpty(ontology));
+                }
+            });
+        }
+
+        public final B matingProbability(final Callback<? super MaleLikeMating<A>, Double> matingProbability) {
             this.matingProbabilityExpression = checkNotNull(matingProbability);
             return self();
         }
 
-        public B ontology(final String ontology) {
+        public final B ontology(final String ontology) {
             this.ontology = checkNotNull(ontology);
             return self();
-        }
-
-        @Override
-        protected void checkBuilder() {
-            super.checkBuilder();
-            checkState(!Strings.isNullOrEmpty(ontology));
         }
     }
 }

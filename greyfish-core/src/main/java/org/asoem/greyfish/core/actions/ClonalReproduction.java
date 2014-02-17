@@ -18,12 +18,13 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.*;
 
-public abstract class ClonalReproduction<A extends Agent<? extends BasicSimulationContext<?, A>>, C extends AgentContext<A>> extends BaseAgentAction<A, C> {
+public abstract class ClonalReproduction<A extends Agent<? extends BasicSimulationContext<?, A>>,
+        C extends AgentContext<A>> extends BaseAgentAction<A, C> {
 
     private Callback<? super ClonalReproduction<A, C>, Integer> clutchSize;
 
     @Override
-    protected ActionState proceed(final C context) {
+    protected final ActionState proceed(final C context) {
         final int nClones = Callbacks.call(this.clutchSize, this);
         for (int i = 0; i < nClones; i++) {
 
@@ -62,11 +63,11 @@ public abstract class ClonalReproduction<A extends Agent<? extends BasicSimulati
         this.clutchSize = builder.nClones;
     }
 
-    public Callback<? super ClonalReproduction<A, C>, Integer> getClutchSize() {
+    public final Callback<? super ClonalReproduction<A, C>, Integer> getClutchSize() {
         return clutchSize;
     }
 
-    public void setClutchSize(final Callback<? super ClonalReproduction<A, C>, Integer> clutchSize) {
+    public final void setClutchSize(final Callback<? super ClonalReproduction<A, C>, Integer> clutchSize) {
         this.clutchSize = clutchSize;
     }
 
@@ -89,6 +90,16 @@ public abstract class ClonalReproduction<A extends Agent<? extends BasicSimulati
         private Callback<? super ClonalReproduction<A, AC>, Integer> nClones;
         private Callback<? super ClonalReproduction<A, AC>, Void> offspringInitializer = Callbacks.emptyCallback();
 
+        protected AbstractBuilder() {
+            addVerification(new Verification() {
+                @Override
+                protected void verify() {
+                    checkState(nClones != null);
+                    checkState(offspringInitializer != null);
+                }
+            });
+        }
+
         public B nClones(final int n) {
             checkArgument(n >= 0);
             return nClones(Callbacks.constant(n));
@@ -102,12 +113,6 @@ public abstract class ClonalReproduction<A extends Agent<? extends BasicSimulati
         public B offspringInitializer(final Callback<? super ClonalReproduction<A, AC>, Void> projectionFactory) {
             this.offspringInitializer = checkNotNull(projectionFactory);
             return self();
-        }
-
-        @Override
-        protected void checkBuilder() {
-            checkState(nClones != null);
-            checkState(offspringInitializer != null);
         }
     }
 }

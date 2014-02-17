@@ -121,27 +121,32 @@ public class ResourceProvisionAction<A extends Agent<?>> extends ContractNetPart
         }
     }
 
-    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends ResourceProvisionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
+    protected abstract static class AbstractBuilder<
+            A extends Agent<?>,
+            C extends ResourceProvisionAction<A>,
+            B extends AbstractBuilder<A, C, B>>
+            extends ContractNetParticipantAction.AbstractBuilder<A, C, B> {
         private String ontology;
         private Callback<? super ResourceProvisionAction<A>, Double> provides;
 
-        public B ontology(final String ontology) {
+        protected AbstractBuilder() {
+            addVerification(new Verification() {
+                @Override
+                protected void verify() {
+                    checkState(ontology != null, "The messageType is mandatory");
+                    checkState(provides != null, "You must define what this resource should provide");
+                }
+            });
+        }
+
+        public final B ontology(final String ontology) {
             this.ontology = checkNotNull(ontology);
             return self();
         }
 
-        public B provides(final Callback<? super ResourceProvisionAction<A>, Double> expression) {
+        public final B provides(final Callback<? super ResourceProvisionAction<A>, Double> expression) {
             this.provides = checkNotNull(expression);
             return self();
         }
-
-        @Override
-        protected void checkBuilder() {
-            checkState(ontology != null, "The messageType is mandatory");
-            checkState(provides != null, "You must define what this resource should provide");
-            super.checkBuilder();
-        }
-
-
     }
 }

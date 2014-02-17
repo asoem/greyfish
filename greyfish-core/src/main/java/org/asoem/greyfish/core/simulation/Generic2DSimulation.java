@@ -441,7 +441,14 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
         }
     }
 
-    protected abstract static class Basic2DSimulationBuilder<B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>, S extends Generic2DSimulation<A, X, Z, P>, X extends SpatialSimulation2D<A, Z>, A extends SpatialAgent<A, ?, P, ?>, Z extends Space2D<A, P>, P extends Object2D> extends InheritableBuilder<S, B> {
+    protected abstract static class Basic2DSimulationBuilder<
+            B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>,
+            S extends Generic2DSimulation<A, X, Z, P>,
+            X extends SpatialSimulation2D<A, Z>,
+            A extends SpatialAgent<A, ?, P, ?>,
+            Z extends Space2D<A, P>,
+            P extends Object2D>
+            extends InheritableBuilder<S, B> {
 
         private LoadingKeyedObjectPool<PrototypeGroup, A> agentPool;
         private int parallelizationThreshold = 1000;
@@ -453,14 +460,15 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
         public Basic2DSimulationBuilder(final Z space, final Set<A> prototypes) {
             this.space = checkNotNull(space);
             this.prototypes = checkNotNull(prototypes);
-        }
-
-        @Override
-        protected void checkBuilder() {
-            checkState(agentPool != null, "No AgentPool has been defined");
-            checkState(!prototypes.contains(null), "Prototypes contains null");
-            checkState(space.isEmpty(), "Space is not empty");
-            checkState(executionService != null, "The execution service must not be null");
+            addVerification(new Verification() {
+                @Override
+                protected void verify() {
+                    checkState(agentPool != null, "No AgentPool has been defined");
+                    checkState(!prototypes.contains(null), "Prototypes contains null");
+                    checkState(space.isEmpty(), "Space is not empty");
+                    checkState(executionService != null, "The execution service must not be null");
+                }
+            });
         }
 
         /**

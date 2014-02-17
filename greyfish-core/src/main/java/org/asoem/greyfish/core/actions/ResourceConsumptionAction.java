@@ -142,7 +142,7 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?, ?>> exten
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?, ?>, C extends ResourceConsumptionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
+    protected abstract static class AbstractBuilder<A extends SpatialAgent<A, ?, ?, ?>, C extends ResourceConsumptionAction<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
 
         private String ontology = "food";
         private Callback<? super ResourceConsumptionAction<A>, Double> requestAmount = Callbacks.constant(1.0);
@@ -150,34 +150,29 @@ public class ResourceConsumptionAction<A extends SpatialAgent<A, ?, ?, ?>> exten
         private Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization = Callbacks.emptyCallback();
         private Callback<? super ResourceConsumptionAction<A>, ?> classification = Callbacks.constant(0.42);
 
-        public B ontology(final String parameterMessageType) {
+        public final B ontology(final String parameterMessageType) {
             this.ontology = checkNotNull(parameterMessageType);
             return self();
         }
 
-        public B requestAmount(final Callback<? super ResourceConsumptionAction<A>, Double> amountPerRequest) {
+        public final B requestAmount(final Callback<? super ResourceConsumptionAction<A>, Double> amountPerRequest) {
             this.requestAmount = amountPerRequest;
             return self();
         }
 
-        public B interactionRadius(final Callback<? super ResourceConsumptionAction<A>, Double> sensorRange) {
+        public final B interactionRadius(final Callback<? super ResourceConsumptionAction<A>, Double> sensorRange) {
             this.interactionRadius = sensorRange;
             return self();
         }
 
-        public B uptakeUtilization(final Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization) {
+        public final B uptakeUtilization(final Callback<? super ResourceConsumptionAction<A>, Void> uptakeUtilization) {
             this.uptakeUtilization = checkNotNull(uptakeUtilization);
             return self();
         }
 
-        public B classification(final Callback<? super ResourceConsumptionAction<A>, Object> classification) {
+        public final B classification(final Callback<? super ResourceConsumptionAction<A>, Object> classification) {
             this.classification = checkNotNull(classification);
             return self();
-        }
-
-        @Override
-        protected void checkBuilder() {
-            super.checkBuilder();
         }
     }
 }

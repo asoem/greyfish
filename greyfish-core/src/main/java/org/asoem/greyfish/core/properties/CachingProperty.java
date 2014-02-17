@@ -118,11 +118,22 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
         private Callback<? super CachingProperty<A, T, C>, Boolean> expirationCallback = CachingProperty.expiresAtBirth();
 
         protected AbstractBuilder() {
+            initVerification();
         }
 
         protected AbstractBuilder(final CachingProperty<A, T, C> simulationStepProperty) {
             super(simulationStepProperty);
             this.valueCallback = simulationStepProperty.valueCallback;
+            initVerification();
+        }
+
+        private void initVerification() {
+            addVerification(new Verification() {
+                @Override
+                protected void verify() {
+                    checkState(valueCallback != null, "No valueCallback has been defined");
+                }
+            });
         }
 
         public B value(final Callback<? super CachingProperty<A, T, C>, ? extends T> valueCallback) {
@@ -133,11 +144,6 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
         public B expires(final Callback<? super CachingProperty<A, T, C>, Boolean> expirationCallback) {
             this.expirationCallback = checkNotNull(expirationCallback);
             return self();
-        }
-
-        @Override
-        protected void checkBuilder() {
-            checkState(this.valueCallback != null, "No valueCallback has been defined");
         }
     }
 

@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.isEmpty;
 import static org.asoem.greyfish.utils.base.Callbacks.call;
 
@@ -154,10 +155,21 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends 
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?, ?>, C extends FemaleLikeMating<A>, B extends AbstractBuilder<A, C, B>> extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
+    protected static abstract class AbstractBuilder<A extends SpatialAgent<A, ?, ?, ?>,
+            C extends FemaleLikeMating<A>, B extends AbstractBuilder<A, C, B>>
+            extends ContractNetInitiatorAction.AbstractBuilder<A, C, B> {
         protected String ontology = "mate";
         protected Callback<? super FemaleLikeMating<A>, Double> sensorRange = Callbacks.constant(1.0);
         protected Callback<? super FemaleLikeMating<A>, Double> matingProbability = Callbacks.constant(1.0);
+
+        protected AbstractBuilder() {
+            addVerification(new Verification() {
+                @Override
+                protected void verify() {
+                    checkState(!Strings.isNullOrEmpty(ontology));
+                }
+            });
+        }
 
         /**
          * Set the callback function will determine the mating probability. The possible mate ({@code Agent }) is passed
@@ -179,14 +191,6 @@ public final class FemaleLikeMating<A extends SpatialAgent<A, ?, ?, ?>> extends 
         public final B interactionRadius(final Callback<? super FemaleLikeMating<A>, Double> callback) {
             this.sensorRange = callback;
             return self();
-        }
-
-        @Override
-        protected final void checkBuilder() {
-            super.checkBuilder();
-            if (Strings.isNullOrEmpty(ontology)) {
-                logger.warn(FemaleLikeMating.class.getSimpleName() + ": ontology is invalid '" + ontology + "'");
-            }
         }
     }
 }

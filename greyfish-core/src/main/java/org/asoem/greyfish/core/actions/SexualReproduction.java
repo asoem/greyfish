@@ -157,44 +157,54 @@ public abstract class SexualReproduction<A extends Agent<?>> extends BaseAgentAc
      * private static final long serialVersionUID = 0; }
      */
     @SuppressWarnings("UnusedDeclaration")
-    protected static abstract class AbstractBuilder<A extends Agent<?>, C extends SexualReproduction<A>, B extends AbstractBuilder<A, C, B>> extends BaseAgentAction.AbstractBuilder<A, C, B, AgentContext<A>> implements Serializable {
+    protected abstract static class AbstractBuilder<
+            A extends Agent<?>, C extends SexualReproduction<A>,
+            B extends AbstractBuilder<A, C, B>>
+            extends BaseAgentAction.AbstractBuilder<A, C, B, AgentContext<A>>
+            implements Serializable {
         private Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage;
-        private Callback<? super SexualReproduction<A>, Integer> clutchSize = Callbacks.constant(1);
-        private ElementSelectionStrategy<Chromosome> spermSelectionStrategy = ElementSelectionStrategies.randomSelection();
+        private Callback<? super SexualReproduction<A>, Integer> clutchSize =
+                Callbacks.constant(1);
+        private ElementSelectionStrategy<Chromosome> spermSelectionStrategy =
+                ElementSelectionStrategies.randomSelection();
         private Callback<? super SexualReproduction<A>, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
 
-        public B spermSupplier(final Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage) {
+        protected AbstractBuilder() {
+            addVerification(new Verification() {
+                @Override
+                protected void verify() {
+                    checkState(spermStorage != null);
+                    checkState(clutchSize != null);
+                    checkState(spermSelectionStrategy != null);
+                    checkState(spermFitnessEvaluator != null);
+                }
+            });
+        }
+
+        public final B spermSupplier(
+                final Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage) {
             this.spermStorage = checkNotNull(spermStorage);
             return self();
         }
 
-        public B clutchSize(final int nOffspring) {
+        public final B clutchSize(final int nOffspring) {
             checkArgument(nOffspring >= 0);
             return clutchSize(Callbacks.constant(nOffspring));
         }
 
-        public B clutchSize(final Callback<? super SexualReproduction<A>, Integer> nOffspring) {
+        public final B clutchSize(final Callback<? super SexualReproduction<A>, Integer> nOffspring) {
             this.clutchSize = checkNotNull(nOffspring);
             return self();
         }
 
-        public B spermSelectionStrategy(final ElementSelectionStrategy<Chromosome> selectionStrategy) {
+        public final B spermSelectionStrategy(final ElementSelectionStrategy<Chromosome> selectionStrategy) {
             this.spermSelectionStrategy = checkNotNull(selectionStrategy);
             return self();
         }
 
-        public B spermFitnessCallback(final Callback<? super SexualReproduction<A>, Double> callback) {
+        public final B spermFitnessCallback(final Callback<? super SexualReproduction<A>, Double> callback) {
             this.spermFitnessEvaluator = checkNotNull(callback);
             return self();
-        }
-
-        @Override
-        protected void checkBuilder() {
-            super.checkBuilder();
-            checkState(spermStorage != null);
-            checkState(clutchSize != null);
-            checkState(spermSelectionStrategy != null);
-            checkState(spermFitnessEvaluator != null);
         }
     }
 }
