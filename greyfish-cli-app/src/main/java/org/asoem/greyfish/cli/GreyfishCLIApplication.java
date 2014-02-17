@@ -4,6 +4,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.SubscriberExceptionContext;
+import com.google.common.eventbus.SubscriberExceptionHandler;
 import com.google.common.io.Closer;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -213,7 +215,14 @@ public final class GreyfishCLIApplication {
                             return new Well19937c();
                         }
                     });
-            final EventBus eventBus = new EventBus();
+            final EventBus eventBus = new EventBus(new SubscriberExceptionHandler() {
+                @Override
+                public void handleException(final Throwable exception, final SubscriberExceptionContext context) {
+                    throw new AssertionError("The EventBus could not dispatch event: "
+                            + context.getSubscriber() + " to " + context.getSubscriberMethod(),
+                            exception.getCause());
+                }
+            });
             final Module coreModule = new CoreModule(randomGenerator, eventBus);
 
             final Injector injector = Guice.createInjector(
