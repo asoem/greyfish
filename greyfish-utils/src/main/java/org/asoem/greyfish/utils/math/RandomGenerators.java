@@ -1,12 +1,15 @@
 package org.asoem.greyfish.utils.math;
 
 import com.google.common.base.Supplier;
+import com.google.common.primitives.Doubles;
 import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.SynchronizedRandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
@@ -17,6 +20,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * A collection of common functions using a {@link RandomGenerator}.
  */
 public final class RandomGenerators {
+
+    private static final Logger logger = LoggerFactory.getLogger(RandomGenerators.class);
 
     /**
      * Prevent instantiation of this class.
@@ -73,11 +78,33 @@ public final class RandomGenerators {
      * @param mu    the mean of the distribution
      * @param sigma the standard deviation of the distribution
      * @return a random value for the given normal distribution
+     * @deprecated Use {@link #nextNormal(org.apache.commons.math3.random.RandomGenerator, double, double)}
      */
+    @Deprecated
     public static double rnorm(final RandomGenerator rng, final double mu, final double sigma) {
+        return nextNormal(rng, mu, sigma);
+    }
+
+    /**
+     * Generates a random value for the normal distribution with the mean equal to {@code mu} and standard deviation
+     * equal to {@code sigma}.
+     *
+     * @param mu    the mean of the distribution
+     * @param sigma the standard deviation of the distribution
+     * @return a random value for the given normal distribution
+     */
+    public static double nextNormal(final RandomGenerator rng, final double mu, final double sigma) {
         final NormalDistribution normalDistribution =
                 new NormalDistribution(rng, mu, sigma, NormalDistribution.DEFAULT_INVERSE_ABSOLUTE_ACCURACY);
-        return normalDistribution.sample();
+        while (true) {
+            final double sample = normalDistribution.sample();
+            if (!Doubles.isFinite(sample)) {
+                logger.warn("Discarding non finite sample from normal distribution (mu={}, sigma={}): {}",
+                        mu, sigma, sample);
+                continue;
+            }
+            return sample;
+        }
     }
 
     /**
