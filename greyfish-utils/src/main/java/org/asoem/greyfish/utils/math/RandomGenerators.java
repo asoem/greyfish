@@ -148,17 +148,17 @@ public final class RandomGenerators {
         return new ThreadLocalRandomGenerator(generatorSupplier);
     }
 
-    private static class ThreadLocalRandomGenerator extends ForwardingRandomGenerator {
+    private static class ThreadLocalRandomGenerator extends ForwardingRandomGenerator implements Serializable {
 
-        private final ThreadLocal<RandomGenerator> localRandom = new ThreadLocal<RandomGenerator>() {
+        private final transient ThreadLocal<RandomGenerator> localRandom = new ThreadLocal<RandomGenerator>() {
             @Override
             protected RandomGenerator initialValue() {
                 return generatorSupplier.get();
             }
         };
-        private final Supplier<RandomGenerator> generatorSupplier;
+        private final Supplier<? extends RandomGenerator> generatorSupplier;
 
-        public ThreadLocalRandomGenerator(final Supplier<RandomGenerator> generatorSupplier) {
+        public ThreadLocalRandomGenerator(final Supplier<? extends RandomGenerator> generatorSupplier) {
             this.generatorSupplier = generatorSupplier;
         }
 
@@ -166,5 +166,7 @@ public final class RandomGenerators {
         protected RandomGenerator delegate() {
             return localRandom.get();
         }
+
+        private static final long serialVersionUID = 0;
     }
 }
