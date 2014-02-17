@@ -103,10 +103,5 @@ public abstract class AbstractAgentComponent<C> implements AgentComponent<C> {
             this.name = name;
             return self();
         }
-
-        @Override
-        protected void checkBuilder() {
-            super.checkBuilder();
-        }
     }
 }

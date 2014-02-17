@@ -74,15 +74,15 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
     /**
      * @return this components optional {@code Agent}
      */
-    public final Optional<A> agent() {
+    public Optional<A> agent() {
         return Optional.fromNullable(agent);
     }
 
-    public final void setAgent(@Nullable final A agent) {
+    public void setAgent(@Nullable final A agent) {
         this.agent = agent;
     }
 
-    public static class Builder<T, A extends Agent<? extends BasicSimulationContext<?, A>>, C extends AgentContext<A>> extends CachingProperty.AbstractBuilder<T, A, CachingProperty<A, T, C>, Builder<T, A, C>, C> implements Serializable {
+    public static final class Builder<T, A extends Agent<? extends BasicSimulationContext<?, A>>, C extends AgentContext<A>> extends CachingProperty.AbstractBuilder<T, A, CachingProperty<A, T, C>, Builder<T, A, C>, C> implements Serializable {
 
         private Builder() {
         }

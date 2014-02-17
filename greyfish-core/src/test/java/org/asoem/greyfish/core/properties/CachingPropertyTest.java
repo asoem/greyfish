@@ -22,6 +22,7 @@ public class CachingPropertyTest {
         final Callback<CachingProperty<Basic2DAgent, Object, Basic2DAgentContext>, Object> function = mock(Callback.class);
         given(function.apply(any(CachingProperty.class), any(Map.class))).willReturn(mock(Object.class));
         final CachingProperty<Basic2DAgent, Object, Basic2DAgentContext> lifetimeProperty = CachingProperty.<Object, Basic2DAgent, Basic2DAgentContext>builder()
+                .name("")
                 .value(function)
                 .expires(CachingProperty.expiresAtBirth())
                 .build();
@@ -48,6 +49,7 @@ public class CachingPropertyTest {
         final Callback<CachingProperty<Basic2DAgent, Object, Basic2DAgentContext>, Object> function = mock(Callback.class);
         given(function.apply(any(CachingProperty.class), any(Map.class))).willReturn(mock(Object.class));
         final CachingProperty<Basic2DAgent, Object, Basic2DAgentContext> lifetimeProperty = CachingProperty.<Object, Basic2DAgent, Basic2DAgentContext>builder()
+                .name("")
                 .value(function)
                 .expires(CachingProperty.expiresEveryStep())
                 .build();
