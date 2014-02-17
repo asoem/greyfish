@@ -14,7 +14,7 @@ import java.io.Serializable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 
-public class CommonsJEXLEvaluator implements Evaluator, Serializable {
+public final class CommonsJEXLEvaluator implements Evaluator, Serializable {
 
     private static final JexlEngine JEXL_ENGINE = new JexlEngine();
 
