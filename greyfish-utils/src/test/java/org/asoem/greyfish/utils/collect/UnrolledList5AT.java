@@ -10,11 +10,11 @@ import org.junit.Test;
 
 import javax.annotation.Nullable;
 
-public class ImmutableFunctionalList4AT extends ImmutableFunctionalListAT {
+public class UnrolledList5AT extends UnrolledListAT {
     @Test
     public void testFindFirst() throws Exception {
         final int runs = 1000;
-        final FunctionalList<String> functionalList = new UnrolledList5<>(ImmutableList.of("a", "b", "c", "d"));
+        final FunctionalList<String> functionalList = new UnrolledList5<>(ImmutableList.of("a", "b", "c", "d", "e"));
         final ImmutableList<String> immutableList = ImmutableList.copyOf(functionalList);
         final int predicateCount = 10000;
         final Iterable<Predicate<String>> predicates = Iterables.transform(

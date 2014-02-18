@@ -1,8 +1,8 @@
 package org.asoem.greyfish.utils.collect;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.Iterables;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.asoem.greyfish.utils.math.RandomGenerators;
@@ -13,8 +13,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.asoem.greyfish.utils.math.SignificanceLevel.SIGNIFICANT;
 
-abstract class ImmutableFunctionalListAT {
-    protected static void executeRandomized(final int runs, final RandomGenerator rng, final Runnable runnable1, final Runnable runnable2) {
+abstract class UnrolledListAT {
+    protected static void executeRandomized(
+            final int runs, final RandomGenerator rng, final Runnable runnable1, final Runnable runnable2) {
         for (int i = 0; i < runs; i++) {
             if (rng.nextBoolean()) {
                 runnable1.run();
@@ -26,15 +27,26 @@ abstract class ImmutableFunctionalListAT {
         }
     }
 
-    protected static <T> long measureFindFirstArray(final List<T> list, final Iterable<? extends Predicate<? super T>> predicates) {
+    protected static <T> long measureFindFirstIterative(
+            final List<T> list, final Iterable<? extends Predicate<? super T>> predicates) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         for (Predicate<? super T> predicate : predicates) {
-            Iterables.tryFind(list, predicate);
+            findFirstIterative(list, predicate);
         }
         return stopwatch.elapsed(TimeUnit.MICROSECONDS);
     }
 
-    protected static <T> long measureFindFirstUnrolled(final FunctionalList<T> list, final Iterable<? extends Predicate<? super T>> predicates) {
+    private static <T> Optional<T> findFirstIterative(final List<T> list, final Predicate<? super T> predicate) {
+        for (T t : list) {
+            if (predicate.apply(t)) {
+                return Optional.of(t);
+            }
+        }
+        return Optional.absent();
+    }
+
+    protected static <T> long measureFindFirstUnrolled(
+            final FunctionalList<T> list, final Iterable<? extends Predicate<? super T>> predicates) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         for (Predicate<? super T> predicate : predicates) {
             list.findFirst(predicate);
@@ -42,7 +54,9 @@ abstract class ImmutableFunctionalListAT {
         return stopwatch.elapsed(TimeUnit.MICROSECONDS);
     }
 
-    protected static void testFindFirst(final int runs, final List<String> controlList, final FunctionalList<String> functionalList, final Iterable<Predicate<String>> predicates) {
+    protected static void testFindFirst(
+            final int runs, final List<String> controlList, final FunctionalList<String> functionalList,
+            final Iterable<Predicate<String>> predicates) {
         // given
         final DescriptiveStatistics statisticsFunctional = new DescriptiveStatistics();
         final DescriptiveStatistics statisticsControl = new DescriptiveStatistics();
@@ -50,7 +64,7 @@ abstract class ImmutableFunctionalListAT {
         final Runnable runnable1 = new Runnable() {
             @Override
             public void run() {
-                statisticsControl.addValue(measureFindFirstArray(controlList, predicates));
+                statisticsControl.addValue(measureFindFirstIterative(controlList, predicates));
             }
         };
 
@@ -61,31 +75,22 @@ abstract class ImmutableFunctionalListAT {
             }
         };
 
-        // when
-        executeRandomized(runs, RandomGenerators.rng(), runnable1, runnable2);
+        // burn in phase
+        executeRandomized(1000, RandomGenerators.rng(),
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        measureFindFirstIterative(controlList, predicates);
+                    }
+                },
 
-        // then
-        Statistics.assertSignificantDecrease(statisticsControl, statisticsFunctional, SIGNIFICANT.getAlpha());
-    }
-
-    protected static void testFindFirst(final int runs, final FunctionalList<String> controlList, final FunctionalList<String> functionalList, final Iterable<Predicate<String>> predicates) {
-        // given
-        final DescriptiveStatistics statisticsFunctional = new DescriptiveStatistics();
-        final DescriptiveStatistics statisticsControl = new DescriptiveStatistics();
-
-        final Runnable runnable1 = new Runnable() {
-            @Override
-            public void run() {
-                statisticsControl.addValue(measureFindFirstUnrolled(controlList, predicates));
-            }
-        };
-
-        final Runnable runnable2 = new Runnable() {
-            @Override
-            public void run() {
-                statisticsFunctional.addValue(measureFindFirstUnrolled(functionalList, predicates));
-            }
-        };
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        measureFindFirstUnrolled(functionalList, predicates);
+                    }
+                }
+        );
 
         // when
         executeRandomized(runs, RandomGenerators.rng(), runnable1, runnable2);

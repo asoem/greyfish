@@ -9,18 +9,16 @@ import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
 
-public class ImmutableFunctionalList6AT extends ImmutableFunctionalListAT {
+public class UnrolledList1AT extends UnrolledListAT {
     @Test
     public void testFindFirst() throws Exception {
         final int runs = 1000;
-        final FunctionalList<String> functionalList = new UnrolledList6<>(ImmutableList.of("a", "b", "c", "d", "e", "f"));
+        final FunctionalList<String> functionalList = new UnrolledList1<>("a");
         final ImmutableList<String> immutableList = ImmutableList.copyOf(functionalList);
         final int predicateCount = 10000;
-        final Collection<String> toFind = Sampling.sample(immutableList, predicateCount, RandomGenerators.rng());
         final Iterable<Predicate<String>> predicates = Iterables.transform(
-                toFind,
+                Sampling.sample(immutableList, predicateCount, RandomGenerators.rng()),
                 new Function<String, Predicate<String>>() {
                     @Nullable
                     @Override

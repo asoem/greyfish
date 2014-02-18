@@ -31,6 +31,8 @@ public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<
                 return new UnrolledList5<>(list);
             case 6:
                 return new UnrolledList6<>(list);
+            case 7:
+                return new UnrolledList7<>(list);
             default:
                 return new ImmutableFunctionalListN<>(list);
         }
@@ -66,6 +68,11 @@ public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<
 
     public static <E> FunctionalList<E> of(final E e0, final E e1, final E e2, final E e3, final E e4, final E e5) {
         return new UnrolledList6<>(ImmutableList.of(e0, e1, e2, e3, e4, e5));
+    }
+
+    public static <E> FunctionalList<E> of(final E e0, final E e1, final E e2, final E e3, final E e4, final E e5,
+                                           final E e6) {
+        return new UnrolledList6<>(ImmutableList.of(e0, e1, e2, e3, e4, e5, e6));
     }
 
     private static class ImmutableFunctionalListN<E> extends DelegatingImmutableFunctionalList<E> {

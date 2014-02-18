@@ -34,20 +34,30 @@ final class UnrolledList6<E> extends DelegatingImmutableFunctionalList<E> implem
     @Override
     public Optional<E> findFirst(final Predicate<? super E> predicate) {
         checkNotNull(predicate, "Predicate is null");
-        if (predicate.apply(delegate.get(0))) {
-            return Optional.of(delegate.get(0));
-        } else if (predicate.apply(delegate.get(1))) {
-            return Optional.of(delegate.get(1));
-        } else if (predicate.apply(delegate.get(2))) {
-            return Optional.of(delegate.get(2));
-        } else if (predicate.apply(delegate.get(3))) {
-            return Optional.of(delegate.get(3));
-        } else if (predicate.apply(delegate.get(4))) {
-            return Optional.of(delegate.get(4));
-        } else if (predicate.apply(delegate.get(5))) {
-            return Optional.of(delegate.get(5));
-        } else {
-            return Optional.absent();
+        final E e0 = delegate.get(0);
+        if (predicate.apply(e0)) {
+            return Optional.of(e0);
         }
+        final E e1 = delegate.get(1);
+        if (predicate.apply(e1)) {
+            return Optional.of(e1);
+        }
+        final E e2 = delegate.get(2);
+        if (predicate.apply(e2)) {
+            return Optional.of(e2);
+        }
+        final E e3 = delegate.get(3);
+        if (predicate.apply(e3)) {
+            return Optional.of(e3);
+        }
+        final E e4 = delegate.get(4);
+        if (predicate.apply(e4)) {
+            return Optional.of(e4);
+        }
+        final E e5 = delegate.get(5);
+        if (predicate.apply(e5)) {
+            return Optional.of(e5);
+        }
+        return Optional.absent();
     }
 }
