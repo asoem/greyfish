@@ -83,7 +83,6 @@ public abstract class AbstractRangeElementProperty<E extends Number & Comparable
         protected E initialValue;
 
         protected AbstractBuilder(final AbstractRangeElementProperty<?, ?, ?> property) {
-            super(property);
             initVerification();
         }
 

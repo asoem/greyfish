@@ -96,7 +96,7 @@ public abstract class AbstractAgent<
         if (trait == null) {
             throw new UnsupportedOperationException("Could not find trait with name = " + traitName);
         }
-        return replyType.cast(trait.tell(agentContext(), message, replyType));
+        return replyType.cast(trait.ask(agentContext(), message, replyType));
     }
 
     @Override

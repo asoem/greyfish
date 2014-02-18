@@ -99,7 +99,7 @@ public abstract class AbstractCondition<A extends Agent<?>> implements ActionCon
     }
 
     @Override
-    public <T> T tell(final A context, final Object message, final Class<T> replyType) {
+    public <T> T ask(final A context, final Object message, final Class<T> replyType) {
         throw new UnsupportedOperationException();
     }
 }

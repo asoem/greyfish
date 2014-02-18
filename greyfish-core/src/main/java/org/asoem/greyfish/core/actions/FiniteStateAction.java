@@ -11,7 +11,7 @@ public abstract class FiniteStateAction<A extends Agent<?>> extends BaseAgentAct
 
     private static final Logger logger = LoggerFactory.getLogger(FiniteStateAction.class);
 
-    private int statefulExecutionCount;
+    private int statefulExecutionCount = 0;
     private Object nextStateKey = initialState();
     private boolean endStateReached = false;
 

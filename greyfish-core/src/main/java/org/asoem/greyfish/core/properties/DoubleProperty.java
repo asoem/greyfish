@@ -62,13 +62,13 @@ public class DoubleProperty<A extends Agent<?>, C> extends AbstractRangeElementP
     }
 
     @Override
-    public <T> T tell(final C context, final Object message, final Class<T> replyType) {
+    public <T> T ask(final C context, final Object message, final Class<T> replyType) {
         if (message instanceof Add) {
             Add add = (Add) message;
             add(add.toAdd);
             return null;
         } else {
-            return super.tell(context, message, replyType);
+            return super.ask(context, message, replyType);
         }
     }
 

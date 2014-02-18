@@ -148,7 +148,6 @@ public class DoublePrecisionRealNumberTrait<A extends Agent<?>, C extends AgentC
         private double value;
 
         protected AbstractBuilder(final DoublePrecisionRealNumberTrait<A, AC> quantitativeTrait) {
-            super(quantitativeTrait);
             this.initializationKernel = quantitativeTrait.initializationKernel;
             this.mutationKernel = quantitativeTrait.mutationKernel;
             this.segregationKernel = quantitativeTrait.segregationKernel;

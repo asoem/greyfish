@@ -128,7 +128,6 @@ public class ContextualTrait<A extends Agent<? extends BasicSimulationContext<?,
         }
 
         protected AbstractBuilder(final ContextualTrait<A, T> simulationStepProperty) {
-            super(simulationStepProperty);
             this.valueCallback = simulationStepProperty.valueCallback;
             initVerification();
         }

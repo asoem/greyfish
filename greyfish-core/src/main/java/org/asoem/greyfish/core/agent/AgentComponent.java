@@ -1,6 +1,5 @@
 package org.asoem.greyfish.core.agent;
 
-
 import java.io.Serializable;
 
 public interface AgentComponent<C> extends AgentNode, Serializable {
@@ -10,5 +9,5 @@ public interface AgentComponent<C> extends AgentNode, Serializable {
      */
     String getName();
 
-    <T> T tell(C context, Object message, Class<T> replyType);
+    <T> T ask(C context, Object message, Class<T> replyType);
 }

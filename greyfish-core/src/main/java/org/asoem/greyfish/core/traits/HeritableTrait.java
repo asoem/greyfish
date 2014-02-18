@@ -146,7 +146,6 @@ public class HeritableTrait<A extends Agent<?>, T, C extends AgentContext<A>> ex
         private TypeToken<T> typeToken;
 
         protected AbstractBuilder(final HeritableTrait<A, T, AC> quantitativeTrait) {
-            super(quantitativeTrait);
             this.initializationKernel = quantitativeTrait.initializationKernel;
             this.mutationKernel = quantitativeTrait.mutationKernel;
             this.segregationKernel = quantitativeTrait.segregationKernel;

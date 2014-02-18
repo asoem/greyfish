@@ -122,7 +122,6 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
         }
 
         protected AbstractBuilder(final CachingProperty<A, T, C> simulationStepProperty) {
-            super(simulationStepProperty);
             this.valueCallback = simulationStepProperty.valueCallback;
             initVerification();
         }

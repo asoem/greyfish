@@ -39,7 +39,7 @@ public abstract class AbstractAgentTrait<C, T> extends AbstractAgentProperty<C, 
     }
 
     @Override
-    public <R> R tell(final C context, final Object message, final Class<R> replyType) {
+    public <R> R ask(final C context, final Object message, final Class<R> replyType) {
         if (message instanceof TraitMutateValueRequest) {
             final TraitMutateValueRequest mutateRequest = (TraitMutateValueRequest) message;
             final T value = (T) mutateRequest.getValue();
@@ -49,7 +49,7 @@ public abstract class AbstractAgentTrait<C, T> extends AbstractAgentProperty<C, 
             final Product2<T, T> transform = transform(context, traitRecombineRequest.getValue1(), traitRecombineRequest.getValue2());
             return replyType.cast(transform);
         } else {
-            return super.tell(context, message, replyType);
+            return super.ask(context, message, replyType);
         }
     }
 }

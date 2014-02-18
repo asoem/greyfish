@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.actions;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import org.asoem.greyfish.core.actions.utils.ActionState;
-import org.asoem.greyfish.core.agent.AbstractAgentComponent;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.AgentNode;
 import org.asoem.greyfish.core.conditions.ActionCondition;
@@ -22,9 +21,10 @@ import static org.asoem.greyfish.core.actions.utils.ActionState.*;
  * @param <A> the type of the agent
  */
 public abstract class BaseAgentAction<A extends Agent<?>, C extends AgentContext<A>>
-        extends AbstractAgentComponent<C>
         implements AgentAction<C> {
 
+    @Nullable
+    private String name;
     @Nullable
     private ActionCondition<A> condition;
     private ActionState actionState;
@@ -38,9 +38,8 @@ public abstract class BaseAgentAction<A extends Agent<?>, C extends AgentContext
 
     protected BaseAgentAction(final AbstractBuilder<A, ? extends BaseAgentAction<A, C>,
             ? extends AbstractBuilder<A, ?, ?, C>, C> builder) {
-        super(builder);
         this.setActionState(builder.actionState);
-
+        this.name = builder.name;
         setCondition(builder.condition);
     }
 
@@ -111,7 +110,6 @@ public abstract class BaseAgentAction<A extends Agent<?>, C extends AgentContext
 
     @Override
     public void initialize() {
-        super.initialize();
         reset();
         if (condition != null) {
             condition.initialize();
@@ -150,9 +148,13 @@ public abstract class BaseAgentAction<A extends Agent<?>, C extends AgentContext
         return agent;
     }
 
-    @Override
-    public <T> T tell(final C context, final Object message, final Class<T> replyType) {
+    public <T> T ask(final C context, final Object message, final Class<T> replyType) {
         throw new IllegalArgumentException();
+    }
+
+    @Override
+    public final String getName() {
+        return name;
     }
 
     @SuppressWarnings("UnusedDeclaration")
@@ -161,8 +163,9 @@ public abstract class BaseAgentAction<A extends Agent<?>, C extends AgentContext
             T extends BaseAgentAction<A, C>,
             B extends AbstractBuilder<A, T, B, C>,
             C extends AgentContext<A>>
-            extends AbstractAgentComponent.AbstractBuilder<T, B>
+            extends org.asoem.greyfish.utils.base.InheritableBuilder<T, B>
             implements Serializable {
+        protected String name;
         private ActionCondition<A> condition;
         private int successCount;
         private ActionState actionState = INITIAL;
@@ -171,7 +174,6 @@ public abstract class BaseAgentAction<A extends Agent<?>, C extends AgentContext
         }
 
         protected AbstractBuilder(final BaseAgentAction<A, C> action) {
-            super(action);
             this.condition = action.condition;
             this.actionState = action.getActionState();
         }
@@ -181,5 +183,9 @@ public abstract class BaseAgentAction<A extends Agent<?>, C extends AgentContext
             return self();
         }
 
+        public final B name(final String name) {
+            this.name = name;
+            return self();
+        }
     }
 }
