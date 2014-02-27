@@ -23,7 +23,7 @@ import org.asoem.greyfish.impl.agent.DefaultBasicAgent;
 import org.asoem.greyfish.impl.agent.TraitMutateValueRequest;
 import org.asoem.greyfish.impl.simulation.BasicSimulation;
 import org.asoem.greyfish.impl.simulation.DefaultBasicSimulation;
-import org.asoem.greyfish.utils.collect.Sampling;
+import org.asoem.greyfish.utils.collect.Samplings;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.junit.Test;
 
@@ -70,7 +70,7 @@ public class ExperimentIT {
                     // sample agents for new getSimulation
                     initialAgents.clear();
                     final Iterable<BasicAgent> sampledAgents =
-                            Sampling.sample(copyOf(simulation.getActiveAgents()), 30, rng());
+                            Samplings.randomWithReplacement(rng()).sample(copyOf(simulation.getActiveAgents()), 30);
                     Iterables.addAll(initialAgents, sampledAgents);
                 }
             }
@@ -159,7 +159,7 @@ public class ExperimentIT {
                     for (BasicSimulation simulation : simulations) {
                         // sample agents for new getSimulation
                         final Iterable<BasicAgent> sampledAgents =
-                                Sampling.sample(copyOf(simulation.getActiveAgents()), 30, rng());
+                                Samplings.randomWithReplacement(rng()).sample(copyOf(simulation.getActiveAgents()), 30);
 
                         Iterables.addAll(initialAgents, sampledAgents);
                     }

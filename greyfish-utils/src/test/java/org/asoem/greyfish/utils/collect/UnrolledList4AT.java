@@ -18,7 +18,7 @@ public class UnrolledList4AT extends UnrolledListAT {
         final ImmutableList<String> immutableList = ImmutableList.copyOf(functionalList);
         final int predicateCount = 10000;
         final Iterable<Predicate<String>> predicates = Iterables.transform(
-                Sampling.sample(immutableList, predicateCount, RandomGenerators.rng()),
+                Samplings.randomWithReplacement(RandomGenerators.rng()).sample(immutableList, predicateCount),
                 new Function<String, Predicate<String>>() {
                     @Nullable
                     @Override

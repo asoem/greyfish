@@ -278,7 +278,7 @@ public abstract class BitString extends AbstractList<Boolean> {
             if ((double) n / length < 1.0 / 32) { // < 1 bit per word?
                 final ContiguousSet<Integer> indexRange =
                         ContiguousSet.create(Range.closedOpen(0, length), DiscreteDomain.integers());
-                final Iterable<Integer> uniqueIndexSample = Sampling.sampleUnique(indexRange, n, rng);
+                final Iterable<Integer> uniqueIndexSample = Samplings.randomWithoutReplacement(rng).sample(indexRange, n);
                 return new IndexSetString(ImmutableSortedSet.copyOf(uniqueIndexSample), length);
             } else {
                 final BitSet bs = new BitSet(length);

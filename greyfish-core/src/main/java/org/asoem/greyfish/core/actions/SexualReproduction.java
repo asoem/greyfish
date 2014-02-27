@@ -7,8 +7,9 @@ import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.collect.ElementSelectionStrategies;
-import org.asoem.greyfish.utils.collect.ElementSelectionStrategy;
+import org.asoem.greyfish.utils.collect.Sampling;
+import org.asoem.greyfish.utils.collect.Samplings;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,7 @@ public abstract class SexualReproduction<A extends Agent<?>> extends BaseAgentAc
 
     private Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermSupplier;
     private Callback<? super SexualReproduction<A>, Integer> clutchSize;
-    private ElementSelectionStrategy<Chromosome> spermSelectionStrategy;
+    private Sampling<? super Chromosome> spermSelectionStrategy;
     private Callback<? super SexualReproduction<A>, Double> spermFitnessEvaluator;
     private int offspringCount;
 
@@ -54,7 +55,7 @@ public abstract class SexualReproduction<A extends Agent<?>> extends BaseAgentAc
         final int eggCount = call(clutchSize, this);
         logger.info("{}: Producing {} offspring ", context.agent(), eggCount);
 
-        for (final Chromosome sperm : spermSelectionStrategy.pick(chromosomes, eggCount)) {
+        for (final Chromosome sperm : spermSelectionStrategy.sample(chromosomes, eggCount)) {
 
             /*
             final Set<Integer> parents = sperm.getParents();
@@ -165,8 +166,8 @@ public abstract class SexualReproduction<A extends Agent<?>> extends BaseAgentAc
         private Callback<? super SexualReproduction<A>, ? extends List<? extends Chromosome>> spermStorage;
         private Callback<? super SexualReproduction<A>, Integer> clutchSize =
                 Callbacks.constant(1);
-        private ElementSelectionStrategy<Chromosome> spermSelectionStrategy =
-                ElementSelectionStrategies.randomSelection();
+        private Sampling<? super Chromosome> spermSelectionStrategy =
+                Samplings.randomWithReplacement(RandomGenerators.rng());
         private Callback<? super SexualReproduction<A>, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
 
         protected AbstractBuilder() {
@@ -197,7 +198,7 @@ public abstract class SexualReproduction<A extends Agent<?>> extends BaseAgentAc
             return self();
         }
 
-        public final B spermSelectionStrategy(final ElementSelectionStrategy<Chromosome> selectionStrategy) {
+        public final B spermSelectionStrategy(final Sampling<? super Chromosome> selectionStrategy) {
             this.spermSelectionStrategy = checkNotNull(selectionStrategy);
             return self();
         }

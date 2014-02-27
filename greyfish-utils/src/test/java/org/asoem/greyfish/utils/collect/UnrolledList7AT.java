@@ -9,7 +9,6 @@ import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
 
 public class UnrolledList7AT extends UnrolledListAT {
     @Test
@@ -18,7 +17,7 @@ public class UnrolledList7AT extends UnrolledListAT {
         final FunctionalList<String> functionalList = new UnrolledList7<>(ImmutableList.of("a", "b", "c", "d", "e", "f", "g"));
         final ImmutableList<String> immutableList = ImmutableList.copyOf(functionalList);
         final int predicateCount = 10000;
-        final Collection<String> toFind = Sampling.sample(immutableList, predicateCount, RandomGenerators.rng());
+        final Iterable<String> toFind = Samplings.randomWithReplacement(RandomGenerators.rng()).sample(immutableList, predicateCount);
         final Iterable<Predicate<String>> predicates = Iterables.transform(
                 toFind,
                 new Function<String, Predicate<String>>() {
