@@ -5,6 +5,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.name.Named;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,20 +30,24 @@ public class ModelParametersTest {
         assertThat(instance.aString, is(equalTo("test")));
         assertThat(instance.anInt, is(equalTo(42)));
         assertThat(instance.aDouble, is(equalTo(56.3)));
+        assertThat(instance.namedDouble, is(equalTo(56.3)));
     }
 
     private static class InjectableClass {
         private final String aString;
         private final int anInt;
         private final Double aDouble;
+        private final Double namedDouble;
 
         @Inject
         private InjectableClass(@ModelParameter("a") String aString,
                                 @ModelParameter("b") int anInt,
-                                @ModelParameter("c") Double aDouble) {
+                                @ModelParameter("c") Double aDouble,
+                                @Named("c") Double namedDouble) {
             this.aString = aString;
             this.anInt = anInt;
             this.aDouble = aDouble;
+            this.namedDouble = namedDouble;
         }
     }
 }
