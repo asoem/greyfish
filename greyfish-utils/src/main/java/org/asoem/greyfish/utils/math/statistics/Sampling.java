@@ -1,4 +1,4 @@
-package org.asoem.greyfish.utils.collect;
+package org.asoem.greyfish.utils.math.statistics;
 
 import java.util.Collection;
 

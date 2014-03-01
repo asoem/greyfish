@@ -1,7 +1,9 @@
-package org.asoem.greyfish.utils.collect;
+package org.asoem.greyfish.utils.math.statistics;
 
 import com.google.common.base.Function;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.asoem.greyfish.utils.collect.FunctionalList;
+import org.asoem.greyfish.utils.collect.ImmutableFunctionalList;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 

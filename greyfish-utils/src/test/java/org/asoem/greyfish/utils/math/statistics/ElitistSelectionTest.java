@@ -1,5 +1,8 @@
-package org.asoem.greyfish.utils.collect;
+package org.asoem.greyfish.utils.math.statistics;
 
+import com.google.common.collect.Ordering;
+import org.asoem.greyfish.utils.collect.FunctionalList;
+import org.asoem.greyfish.utils.collect.ImmutableFunctionalList;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
@@ -9,7 +12,7 @@ public class ElitistSelectionTest {
     @Test
     public void testSample() throws Exception {
         // given
-        final Sampling<Comparable<?>> sampling = Samplings.ElitistSelection.INSTANCE;
+        final Sampling<Comparable<?>> sampling = new Samplings.ElitistSelection<>(Ordering.natural());
         final FunctionalList<Integer> integers = ImmutableFunctionalList.of(1, 4, 5, 0, 3);
 
         // when

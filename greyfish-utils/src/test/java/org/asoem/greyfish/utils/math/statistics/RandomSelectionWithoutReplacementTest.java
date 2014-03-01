@@ -1,5 +1,5 @@
 
-package org.asoem.greyfish.utils.collect;
+package org.asoem.greyfish.utils.math.statistics;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;

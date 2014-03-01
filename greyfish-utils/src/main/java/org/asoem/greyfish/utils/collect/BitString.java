@@ -7,6 +7,7 @@ import com.google.common.collect.*;
 import com.google.common.primitives.Longs;
 import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.asoem.greyfish.utils.math.statistics.Samplings;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -278,7 +279,7 @@ public abstract class BitString extends AbstractList<Boolean> {
             if ((double) n / length < 1.0 / 32) { // < 1 bit per word?
                 final ContiguousSet<Integer> indexRange =
                         ContiguousSet.create(Range.closedOpen(0, length), DiscreteDomain.integers());
-                final Iterable<Integer> uniqueIndexSample = Samplings.randomWithoutReplacement(rng).sample(indexRange, n);
+                final Iterable<Integer> uniqueIndexSample = Samplings.random(rng).withoutReplacement().sample(indexRange, n);
                 return new IndexSetString(ImmutableSortedSet.copyOf(uniqueIndexSample), length);
             } else {
                 final BitSet bs = new BitSet(length);

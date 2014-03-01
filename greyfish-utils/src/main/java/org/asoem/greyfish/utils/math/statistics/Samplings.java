@@ -1,4 +1,4 @@
-package org.asoem.greyfish.utils.collect;
+package org.asoem.greyfish.utils.math.statistics;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -6,6 +6,8 @@ import com.google.common.collect.*;
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.asoem.greyfish.utils.collect.Product2;
+import org.asoem.greyfish.utils.collect.Tuple2;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 
 import javax.annotation.Nullable;
@@ -25,7 +27,8 @@ public final class Samplings {
 
     /**
      * A selection scheme which samples elements proportionate to their fitness defined by the given {@code
-     * fitnessFunction}. <p>This scheme is also known as stochastic sampling with replacement.</p>
+     * fitnessFunction}. <p>This scheme is also known as stochastic sampling with replacement and therefore equivalent
+     * to {@code Samplings.stochastic(fitnessFunction, rng).withReplacement()}.</p>
      *
      * @param fitnessFunction the function to compute the fitness of the elements
      * @param rng             the random generator
@@ -33,7 +36,22 @@ public final class Samplings {
      */
     public static <E> Sampling<E> rouletteWheelSelection(
             final Function<E, Double> fitnessFunction, final RandomGenerator rng) {
-        return new RouletteWheelSelection<>(fitnessFunction, rng);
+        return stochastic(fitnessFunction, rng).withReplacement();
+    }
+
+    public static <E> ReplacementVariants<E> stochastic(
+            final Function<E, Double> fitnessFunction, final RandomGenerator rng) {
+        return new ReplacementVariants<E>() {
+            @Override
+            public Sampling<E> withReplacement() {
+                return new RouletteWheelSelection<>(fitnessFunction, rng);
+            }
+
+            @Override
+            public Sampling<E> withoutReplacement() {
+                throw new UnsupportedOperationException("Not implemented");
+            }
+        };
     }
 
     /**
@@ -43,28 +61,40 @@ public final class Samplings {
      * @return the strategy to select the k "best" elements of a collection
      */
     public static Sampling<Comparable<?>> elitistSelection() {
-        return ElitistSelection.INSTANCE;
+        return elitistSelection(Ordering.natural());
+    }
+
+    public static <T> Sampling<T> elitistSelection(final Ordering<? super T> ordering) {
+        return new ElitistSelection<>(ordering);
     }
 
     @VisibleForTesting
-    enum ElitistSelection implements Sampling<Comparable<?>> {
-        INSTANCE;
+    static class ElitistSelection<E> implements Sampling<E> {
+
+        private final Ordering<? super E> ordering;
+
+        public ElitistSelection(final Ordering<? super E> ordering) {
+            this.ordering = ordering;
+        }
 
         @Override
-        public <T extends Comparable<?>> Iterable<T> sample(final Collection<? extends T> elements, final int k) {
-            return Ordering.natural().greatestOf(Collections.unmodifiableCollection(elements), k);
+        public <T extends E> Iterable<T> sample(final Collection<? extends T> elements, final int k) {
+            return ordering.greatestOf(Collections.unmodifiableCollection(elements), k);
         }
     }
 
-    /**
-     * A the selection strategy for which the {@link Sampling#sample(java.util.Collection, int)} method returns {@code
-     * k} random elements out of {@code n} elements.
-     *
-     * @param rng the random generator to use
-     * @return a strategy to select k random elements
-     */
-    public static Sampling<Object> randomWithReplacement(final RandomGenerator rng) {
-        return new RandomSelectionWithReplacement(rng);
+    public static ReplacementVariants<Object> random(final RandomGenerator rng) {
+        return new ReplacementVariants<Object>() {
+            @Override
+            public Sampling<Object> withReplacement() {
+                return new RandomSelectionWithReplacement(rng);
+            }
+
+            @Override
+            public Sampling<Object> withoutReplacement() {
+                return new RandomSelectionWithoutReplacement(rng);
+            }
+        };
     }
 
     @VisibleForTesting
@@ -108,10 +138,6 @@ public final class Samplings {
         }
     }
 
-    public static Sampling<Object> randomWithoutReplacement(final RandomGenerator rng) {
-        return new RandomSelectionWithoutReplacement(rng);
-    }
-
     /**
      * A the selection strategy for which the {@link Sampling#sample(java.util.Collection, int)} method returns {@code
      * k} times the the best element, which is the one with the highest value defined by the elements {@code compare}
@@ -120,37 +146,26 @@ public final class Samplings {
      * @return the strategy to get the "best" element of a collection
      */
     public static Sampling<Comparable<?>> bestSelection() {
-        return BestSelection.INSTANCE;
+        return bestSelection(Ordering.natural());
+    }
+
+    public static <T> Sampling<T> bestSelection(final Ordering<? super T> ordering) {
+        return new BestSelection<T>(ordering);
     }
 
     @VisibleForTesting
-    enum BestSelection implements Sampling<Comparable<?>> {
-        INSTANCE;
+    static class BestSelection<T> implements Sampling<T> {
 
-        @Override
-        public <T extends Comparable<?>> Iterable<T> sample(final Collection<? extends T> elements, final int k) {
-            final T best = Ordering.natural().max(elements);
-            return new OneForAllList<>(best, k);
+        private final Ordering<? super T> ordering;
+
+        BestSelection(final Ordering<? super T> ordering) {
+            this.ordering = ordering;
         }
 
-        private static class OneForAllList<T extends Comparable<?>> extends AbstractList<T> {
-            private final T element;
-            private final int k;
-
-            private OneForAllList(final T element, final int k) {
-                this.element = element;
-                this.k = k;
-            }
-
-            @Override
-            public T get(final int index) {
-                return element;
-            }
-
-            @Override
-            public int size() {
-                return k;
-            }
+        @Override
+        public <E extends T> Iterable<E> sample(final Collection<? extends E> elements, final int k) {
+            final E best = ordering.max(elements);
+            return Iterables.limit(Iterables.cycle(best), k);
         }
     }
 
@@ -181,7 +196,7 @@ public final class Samplings {
             }
 
             if (cumulativeFitness == 0.0) {
-                return randomWithReplacement(RandomGenerators.rng()).sample(elements, k);
+                return random(RandomGenerators.rng()).withReplacement().sample(elements, k);
             }
 
             final Double finalCumulativeFitness = cumulativeFitness;

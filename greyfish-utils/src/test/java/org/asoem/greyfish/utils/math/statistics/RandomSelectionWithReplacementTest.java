@@ -1,4 +1,4 @@
-package org.asoem.greyfish.utils.collect;
+package org.asoem.greyfish.utils.math.statistics;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.math3.random.JDKRandomGenerator;

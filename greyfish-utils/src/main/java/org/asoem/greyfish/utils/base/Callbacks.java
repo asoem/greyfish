@@ -5,8 +5,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
-import org.asoem.greyfish.utils.collect.Samplings;
 import org.asoem.greyfish.utils.math.RandomGenerators;
+import org.asoem.greyfish.utils.math.statistics.Samplings;
 
 import javax.annotation.Nullable;
 import java.io.Serializable;
@@ -219,7 +219,7 @@ public final class Callbacks {
 
         @Override
         public T apply(final Object caller, final Map<String, ?> args) {
-            return Iterables.getOnlyElement(Samplings.randomWithReplacement(RandomGenerators.rng()).sample(ImmutableList.of(e1, e2), 1));
+            return Iterables.getOnlyElement(Samplings.random(RandomGenerators.rng()).withReplacement().sample(ImmutableList.of(e1, e2), 1));
         }
     }
 

@@ -7,9 +7,9 @@ import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
 import org.asoem.greyfish.utils.base.Tagged;
-import org.asoem.greyfish.utils.collect.Sampling;
-import org.asoem.greyfish.utils.collect.Samplings;
 import org.asoem.greyfish.utils.math.RandomGenerators;
+import org.asoem.greyfish.utils.math.statistics.Sampling;
+import org.asoem.greyfish.utils.math.statistics.Samplings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,7 +167,7 @@ public abstract class SexualReproduction<A extends Agent<?>> extends BaseAgentAc
         private Callback<? super SexualReproduction<A>, Integer> clutchSize =
                 Callbacks.constant(1);
         private Sampling<? super Chromosome> spermSelectionStrategy =
-                Samplings.randomWithReplacement(RandomGenerators.rng());
+                Samplings.random(RandomGenerators.rng()).withReplacement();
         private Callback<? super SexualReproduction<A>, Double> spermFitnessEvaluator = Callbacks.constant(1.0);
 
         protected AbstractBuilder() {

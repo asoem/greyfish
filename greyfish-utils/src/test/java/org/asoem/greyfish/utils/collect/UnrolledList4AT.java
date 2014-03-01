@@ -6,6 +6,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.utils.math.RandomGenerators;
+import org.asoem.greyfish.utils.math.statistics.Samplings;
 import org.junit.Test;
 
 import javax.annotation.Nullable;
@@ -18,7 +19,7 @@ public class UnrolledList4AT extends UnrolledListAT {
         final ImmutableList<String> immutableList = ImmutableList.copyOf(functionalList);
         final int predicateCount = 10000;
         final Iterable<Predicate<String>> predicates = Iterables.transform(
-                Samplings.randomWithReplacement(RandomGenerators.rng()).sample(immutableList, predicateCount),
+                Samplings.random(RandomGenerators.rng()).withReplacement().sample(immutableList, predicateCount),
                 new Function<String, Predicate<String>>() {
                     @Nullable
                     @Override

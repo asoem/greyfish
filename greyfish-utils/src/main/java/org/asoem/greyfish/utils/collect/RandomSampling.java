@@ -16,7 +16,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * @deprecated Use {@link org.asoem.greyfish.utils.collect.Samplings}
+ * @deprecated Use {@link org.asoem.greyfish.utils.math.statistics.Samplings}
  */
 @Deprecated
 public class RandomSampling {
@@ -31,7 +31,7 @@ public class RandomSampling {
      * @param e2  the second element to sample from
      * @param <S> the type of the elements to sample
      * @return {@code e1} or {@code e2}
-     * @deprecated Use {@link org.asoem.greyfish.utils.collect.Samplings#randomWithReplacement(org.apache.commons.math3.random.RandomGenerator)}
+     * @deprecated Use {@link org.asoem.greyfish.utils.math.statistics.Samplings#randomWithReplacement(org.apache.commons.math3.random.RandomGenerator)}
      */
     @Deprecated
     public static <S> S sample(final RandomGenerator rng, final S e1, final S e2) {
@@ -44,7 +44,7 @@ public class RandomSampling {
      * @param elements the elements to sample
      * @param rng      the random number generator to use
      * @return the sampled element
-     * @deprecated Use {@link org.asoem.greyfish.utils.collect.Samplings#randomWithReplacement(org.apache.commons.math3.random.RandomGenerator)}
+     * @deprecated Use {@link org.asoem.greyfish.utils.math.statistics.Samplings#randomWithReplacement(org.apache.commons.math3.random.RandomGenerator)}
      */
     @Deprecated
     public static <T> T sample(final Collection<? extends T> elements, final RandomGenerator rng) {
@@ -67,7 +67,7 @@ public class RandomSampling {
      * @param n          the number of elements to sample
      * @param rng        the random number generator to use
      * @return an unmodifiable iterable containing randomly but not repeatedly selected elements of the collection
-     * @deprecated Use {@link org.asoem.greyfish.utils.collect.Samplings#randomWithoutReplacement(org.apache.commons.math3.random.RandomGenerator)}
+     * @deprecated Use {@link org.asoem.greyfish.utils.math.statistics.Samplings#randomWithoutReplacement(org.apache.commons.math3.random.RandomGenerator)}
      */
     @Deprecated
     public static <T> Iterable<T> sampleUnique(final Collection<? extends T> collection, final int n,
@@ -119,7 +119,7 @@ public class RandomSampling {
      * @param n        the number of elements to sample
      * @param rng      the random number generator to use
      * @return the collection of sampled elements
-     * @deprecated Use {@link org.asoem.greyfish.utils.collect.Samplings#randomWithReplacement(org.apache.commons.math3.random.RandomGenerator)}
+     * @deprecated Use {@link org.asoem.greyfish.utils.math.statistics.Samplings#randomWithReplacement(org.apache.commons.math3.random.RandomGenerator)}
      */
     @Deprecated
     public static <T> Collection<T> sample(final Collection<? extends T> elements, final int n,
