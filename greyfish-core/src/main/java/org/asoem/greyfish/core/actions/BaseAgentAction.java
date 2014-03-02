@@ -176,6 +176,7 @@ public abstract class BaseAgentAction<A extends Agent<?>, C extends AgentContext
         protected AbstractBuilder(final BaseAgentAction<A, C> action) {
             this.condition = action.condition;
             this.actionState = action.getActionState();
+            this.name = action.name;
         }
 
         public final B executedIf(final ActionCondition<A> condition) {
