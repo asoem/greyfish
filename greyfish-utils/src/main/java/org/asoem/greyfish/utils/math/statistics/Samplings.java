@@ -3,7 +3,9 @@ package org.asoem.greyfish.utils.math.statistics;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.*;
+import com.google.common.primitives.Doubles;
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
+import org.apache.commons.math3.exception.NotFiniteNumberException;
 import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.utils.collect.Product2;
@@ -30,17 +32,18 @@ public final class Samplings {
      * fitnessFunction}. <p>This scheme is also known as stochastic sampling with replacement and therefore equivalent
      * to {@code Samplings.stochastic(fitnessFunction, rng).withReplacement()}.</p>
      *
+     *
      * @param fitnessFunction the function to compute the fitness of the elements
      * @param rng             the random generator
      * @return the strategy to select k elements by using a roulette wheel
      */
     public static <E> Sampling<E> rouletteWheelSelection(
-            final Function<E, Double> fitnessFunction, final RandomGenerator rng) {
+            final Function<? super E, Double> fitnessFunction, final RandomGenerator rng) {
         return stochastic(fitnessFunction, rng).withReplacement();
     }
 
     public static <E> ReplacementVariants<E> stochastic(
-            final Function<E, Double> fitnessFunction, final RandomGenerator rng) {
+            final Function<? super E, Double> fitnessFunction, final RandomGenerator rng) {
         return new ReplacementVariants<E>() {
             @Override
             public Sampling<E> withReplacement() {
@@ -139,18 +142,18 @@ public final class Samplings {
     }
 
     /**
-     * A the selection strategy for which the {@link Sampling#sample(java.util.Collection, int)} method returns {@code
-     * k} times the the best element, which is the one with the highest value defined by the elements {@code compare}
-     * method.
+     * This sampling scheme returns {@code k} times the the best element, which is the one with the highest rank defined
+     * by the natural ordering of the elements.
      *
-     * @return the strategy to get the "best" element of a collection
+     * @return a sampling scheme returning the "best" element of a collection
+     * @see com.google.common.collect.Ordering#natural()
      */
     public static Sampling<Comparable<?>> bestSelection() {
         return bestSelection(Ordering.natural());
     }
 
     public static <T> Sampling<T> bestSelection(final Ordering<? super T> ordering) {
-        return new BestSelection<T>(ordering);
+        return new BestSelection<>(ordering);
     }
 
     @VisibleForTesting
@@ -165,7 +168,7 @@ public final class Samplings {
         @Override
         public <E extends T> Iterable<E> sample(final Collection<? extends E> elements, final int k) {
             final E best = ordering.max(elements);
-            return Iterables.limit(Iterables.cycle(best), k);
+            return Collections.nCopies(k, best);
         }
     }
 
@@ -191,12 +194,15 @@ public final class Samplings {
             final List<Product2<T, Double>> elementFitnessTupleList = Lists.newArrayList();
             for (T element : elements) {
                 final Double fitness = checkNotNull(function.apply(element));
+                if (!Doubles.isFinite(fitness)) {
+                    throw new NotFiniteNumberException(fitness);
+                }
                 elementFitnessTupleList.add(Tuple2.of(element, fitness));
                 cumulativeFitness += fitness;
             }
 
             if (cumulativeFitness == 0.0) {
-                return random(RandomGenerators.rng()).withReplacement().sample(elements, k);
+                return random(rng).withReplacement().sample(elements, k);
             }
 
             final Double finalCumulativeFitness = cumulativeFitness;
@@ -215,7 +221,8 @@ public final class Samplings {
                                     return element.first();
                                 }
                             }
-                            throw new AssertionError();
+                            throw new AssertionError(String.format("Out of elements for cf=%s, rand=%s, sum=%s",
+                                    finalCumulativeFitness, rand, sum));
                         }
                     };
                 }
@@ -238,7 +245,7 @@ public final class Samplings {
             checkArgument(!elements.isEmpty(),
                     "Cannot sample element from empty collection");
             checkArgument(k <= elements.size(),
-                    "Cannot sample {} unique elements from collection of size {}", k, elements.size());
+                    "Cannot sample %s elements without replacement from a collection of size %s", k, elements.size());
 
             if (k == 0) {
                 return ImmutableList.of();
