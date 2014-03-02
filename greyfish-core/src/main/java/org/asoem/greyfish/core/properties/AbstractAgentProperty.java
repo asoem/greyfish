@@ -39,6 +39,29 @@ public abstract class AbstractAgentProperty<C, T>
     public void initialize() {
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final AbstractAgentProperty that = (AbstractAgentProperty) o;
+
+        if (!name.equals(that.name)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
     /**
      * Get all children of this node. <p>This default implementation simple returns an empty list but other
      * implementations might overwrite this method, if they add nodes to the tree.</p>
