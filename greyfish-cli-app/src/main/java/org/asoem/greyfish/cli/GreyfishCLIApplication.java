@@ -220,9 +220,9 @@ public final class GreyfishCLIApplication {
             final EventBus eventBus = new EventBus(new SubscriberExceptionHandler() {
                 @Override
                 public void handleException(final Throwable exception, final SubscriberExceptionContext context) {
-                    throw new AssertionError("The EventBus could not dispatch event: "
+                    context.getEventBus().post(new AssertionError("The EventBus could not dispatch event: "
                             + context.getSubscriber() + " to " + context.getSubscriberMethod(),
-                            exception.getCause());
+                            exception.getCause()));
                 }
             });
             final Module coreModule = new CoreModule(randomGenerator, eventBus);
@@ -242,20 +242,16 @@ public final class GreyfishCLIApplication {
 
                 monitorService.addListener(new Service.Listener() {
                     @Override
-                    public void starting() {
-                    }
+                    public void starting() {}
 
                     @Override
-                    public void running() {
-                    }
+                    public void running() {}
 
                     @Override
-                    public void stopping(final Service.State from) {
-                    }
+                    public void stopping(final Service.State from) {}
 
                     @Override
-                    public void terminated(final Service.State from) {
-                    }
+                    public void terminated(final Service.State from) {}
 
                     @Override
                     public void failed(final Service.State from, final Throwable failure) {
@@ -263,30 +259,9 @@ public final class GreyfishCLIApplication {
                     }
                 }, MoreExecutors.sameThreadExecutor());
 
-                experimentExecutionService.addListener(new Service.Listener() {
-                    @Override
-                    public void starting() {
-                        monitorService.startAsync().awaitRunning();
-                    }
-
-                    @Override
-                    public void running() {
-                    }
-
-                    @Override
-                    public void stopping(final Service.State from) {
-                    }
-
-                    @Override
-                    public void terminated(final Service.State from) {
-                        monitorService.stopAsync();
-                    }
-
-                    @Override
-                    public void failed(final Service.State from, final Throwable failure) {
-                        monitorService.stopAsync();
-                    }
-                }, MoreExecutors.sameThreadExecutor());
+                experimentExecutionService.addListener(
+                        new MonitorServiceController(monitorService),
+                        MoreExecutors.sameThreadExecutor());
             }
 
             // start getSimulation
@@ -398,6 +373,35 @@ public final class GreyfishCLIApplication {
             throw new IOError(e);
         } catch (UnsupportedOperationException e) {
             return Optional.absent();
+        }
+    }
+
+    private static class MonitorServiceController extends Service.Listener {
+        private final ExperimentMonitorService monitorService;
+
+        public MonitorServiceController(final ExperimentMonitorService monitorService) {this.monitorService = monitorService;}
+
+        @Override
+        public void starting() {
+            monitorService.startAsync().awaitRunning();
+        }
+
+        @Override
+        public void running() {
+        }
+
+        @Override
+        public void stopping(final Service.State from) {
+        }
+
+        @Override
+        public void terminated(final Service.State from) {
+            monitorService.stopAsync();
+        }
+
+        @Override
+        public void failed(final Service.State from, final Throwable failure) {
+            monitorService.stopAsync();
         }
     }
 }

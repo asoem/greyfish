@@ -1,5 +1,7 @@
 package org.asoem.greyfish.cli;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractExecutionThreadService;
 import com.google.inject.Inject;
 import org.asoem.greyfish.core.model.Experiment;
@@ -12,8 +14,9 @@ final class ExperimentExecutionService extends AbstractExecutionThreadService {
     private final Experiment experiment;
 
     @Inject
-    private ExperimentExecutionService(final Experiment experiment) {
+    private ExperimentExecutionService(final Experiment experiment, final EventBus eventBus) {
         this.experiment = experiment;
+        eventBus.register(this);
     }
 
     @Override
@@ -23,5 +26,10 @@ final class ExperimentExecutionService extends AbstractExecutionThreadService {
 
     public Experiment getExperiment() {
         return experiment;
+    }
+
+    @Subscribe
+    public void eventBusExceptionHandler(final Throwable throwable) {
+        stopAsync();
     }
 }
