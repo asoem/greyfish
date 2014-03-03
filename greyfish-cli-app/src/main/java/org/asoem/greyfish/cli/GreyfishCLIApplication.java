@@ -25,6 +25,7 @@ import org.asoem.greyfish.core.io.SimulationLogger;
 import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.model.Experiment;
 import org.asoem.greyfish.core.model.ModelParameterTypeListener;
+import org.asoem.greyfish.core.model.ModelParameters;
 import org.asoem.greyfish.utils.Resources;
 import org.asoem.greyfish.utils.collect.Product2;
 import org.asoem.greyfish.utils.math.RandomGenerators;
@@ -150,6 +151,7 @@ public final class GreyfishCLIApplication {
                         properties.put(modelParameterOption.key, modelParameterOption.value);
                     }
                     bindListener(Matchers.any(), new ModelParameterTypeListener(properties));
+                    ModelParameters.bind(binder(), properties);
                 }
 
                 bind(Boolean.class).annotatedWith(Names.named("quiet"))
