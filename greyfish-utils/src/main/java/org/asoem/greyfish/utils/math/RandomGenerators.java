@@ -53,6 +53,7 @@ public final class RandomGenerators {
      * @return {@code true} with probability {@code p}, {@code false} otherwise
      */
     public static boolean nextBoolean(final RandomGenerator rng, final double p) {
+        checkArgument(p >= 0 && p <= 1, "p out of range [0, 1]: %s", p);
         return new BinomialDistribution(rng, 1, p).sample() == 1;
     }
 
