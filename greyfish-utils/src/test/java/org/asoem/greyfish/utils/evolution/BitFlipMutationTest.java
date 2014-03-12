@@ -2,7 +2,6 @@ package org.asoem.greyfish.utils.evolution;
 
 import com.google.common.base.Functions;
 import org.asoem.greyfish.utils.collect.BitString;
-import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -21,18 +20,5 @@ public class BitFlipMutationTest {
 
         // then
         assertThat(mutated, is(equalTo(BitString.parse("0100"))));
-    }
-
-    @Test
-    public void testMutateImplicit() throws Exception {
-        // given
-        final Mutations.BitFlipMutation mutation =
-                new Mutations.BitFlipMutation(RandomGenerators.rng(), 0.5);
-
-        // when
-        final BitString mutated = mutation.mutate(BitString.zeros(4));
-
-        // then
-        assertThat(mutated, is(equalTo(BitString.ones(4))));
     }
 }
