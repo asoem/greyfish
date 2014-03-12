@@ -27,16 +27,17 @@ public abstract class AbstractBitStringImplementationTest {
 
     protected abstract BitString createSequence(String bitString);
 
+
     @Test
     public void testXor() throws Exception {
         // given
         final BitString bitString = createSequence("00000001");
 
         // when
-        final BitString mutated = bitString.xor(BitString.ones(bitString.size()));
+        final BitString mutated = bitString.xor(createSequence("00000011"));
 
         // then
-        assertThat(mutated.toString(), is(equalTo("11111110")));
+        assertThat(mutated.toString(), is(equalTo("00000010")));
     }
 
     @Test

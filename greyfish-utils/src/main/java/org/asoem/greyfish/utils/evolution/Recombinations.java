@@ -149,7 +149,7 @@ public final class Recombinations {
                                 new Predicate<Integer>() {
                                     @Override
                                     public boolean apply(@Nullable final Integer input) {
-                                        return p < rng.nextFloat();
+                                        return p > rng.nextFloat();
                                     }
                                 });
                     }

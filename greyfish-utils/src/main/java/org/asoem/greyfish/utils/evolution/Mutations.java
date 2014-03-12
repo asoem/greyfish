@@ -32,11 +32,12 @@ public final class Mutations {
     static class BitFlipMutation implements Mutation<BitString> {
         private final Function<? super Integer, ? extends BitString> mutationTemplateFactory;
 
-        private BitFlipMutation(final RandomGenerator rng, final double p) {
+        @VisibleForTesting
+        BitFlipMutation(final RandomGenerator rng, final double p) {
             this(new Function<Integer, BitString>() {
                 @Override
-                public BitString apply(final Integer input) {
-                    return BitString.random(input, rng, p);
+                public BitString apply(final Integer size) {
+                    return BitString.random(size, rng, p);
                 }
             });
         }

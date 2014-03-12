@@ -284,7 +284,7 @@ public abstract class BitString extends AbstractList<Boolean> {
             } else {
                 final BitSet bs = new BitSet(length);
                 for (int i = 0; i < length; i++) {
-                    if (p < rng.nextFloat()) {
+                    if (p > rng.nextFloat()) {
                         bs.set(i);
                     }
                 }
