@@ -85,7 +85,8 @@ public final class Recombinations {
             this(new Function<Integer, Iterable<Integer>>() {
                 @Override
                 public Iterable<Integer> apply(final Integer bitStringLength) {
-                    return Samplings.random(rng).withoutReplacement().sample(ContiguousSet.create(Range.closedOpen(0, bitStringLength), DiscreteDomain.integers()), n
+                    return Samplings.random(rng).withoutReplacement().sample(
+                            ContiguousSet.create(Range.closedOpen(0, bitStringLength), DiscreteDomain.integers()), n
                     );
                 }
             });
@@ -141,7 +142,9 @@ public final class Recombinations {
                 @Override
                 public Iterable<Integer> apply(final Integer bitStringLength) {
                     if (bitStringLength * p < 0.01) {
-                        return Samplings.random(rng).withoutReplacement().sample(ContiguousSet.create(Range.closedOpen(0, bitStringLength), DiscreteDomain.integers()), new BinomialDistribution(rng, bitStringLength, p).sample()
+                        return Samplings.random(rng).withoutReplacement().sample(
+                                ContiguousSet.create(Range.closedOpen(0, bitStringLength), DiscreteDomain.integers()),
+                                new BinomialDistribution(rng, bitStringLength, p).sample()
                         );
                     } else {
                         return Iterables.filter(
