@@ -10,6 +10,8 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 import java.io.Serializable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class AbstractIntegerDistribution implements IntegerDistribution, Serializable {
 
     /**
@@ -25,22 +27,11 @@ public abstract class AbstractIntegerDistribution implements IntegerDistribution
     private final RandomGenerator random;
 
     /**
-     * @deprecated As of 3.1, to be removed in 4.0. Please use {@link #AbstractIntegerDistribution(RandomGenerator)}
-     * instead.
-     */
-    @Deprecated
-    protected AbstractIntegerDistribution() {
-        // Legacy users are only allowed to access the deprecated "randomData".
-        // New users are forbidden to use this constructor.
-        random = null;
-    }
-
-    /**
      * @param rng Random number generator.
      * @since 3.1
      */
     protected AbstractIntegerDistribution(final RandomGenerator rng) {
-        random = rng;
+        random = checkNotNull(rng);
     }
 
     /**
