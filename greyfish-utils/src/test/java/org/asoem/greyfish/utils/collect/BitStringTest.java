@@ -23,7 +23,7 @@ public class BitStringTest {
     @Test
     public void testRandomSmallP() throws Exception {
         // given
-        final int length = 1000;
+        final int length = 100000;
         final double p = 1.0 / length;
 
         // when

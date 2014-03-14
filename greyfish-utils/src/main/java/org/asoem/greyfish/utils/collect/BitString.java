@@ -5,8 +5,8 @@ import com.google.common.base.*;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.*;
 import com.google.common.primitives.Longs;
-import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.asoem.greyfish.utils.math.distribution.BinomialDistribution;
 import org.asoem.greyfish.utils.math.statistics.Samplings;
 
 import javax.annotation.Nullable;
@@ -273,20 +273,21 @@ public abstract class BitString extends AbstractList<Boolean> {
         } else if (p == 1) {
             return ones(length);
         } else {
-            final BinomialDistribution binomialDistribution = new BinomialDistribution(rng, length, p);
+            final BinomialDistribution binomialDistribution =
+                    new BinomialDistribution(rng, length, p);
             final int n = binomialDistribution.sample();
 
+            final ContiguousSet<Integer> indexRange =
+                    ContiguousSet.create(Range.closedOpen(0, length), DiscreteDomain.integers());
+            final Iterable<Integer> uniqueIndexSample =
+                    Samplings.random(rng).withoutReplacement().sample(indexRange, n);
+
             if ((double) n / length < 1.0 / 32) { // < 1 bit per word?
-                final ContiguousSet<Integer> indexRange =
-                        ContiguousSet.create(Range.closedOpen(0, length), DiscreteDomain.integers());
-                final Iterable<Integer> uniqueIndexSample = Samplings.random(rng).withoutReplacement().sample(indexRange, n);
                 return new IndexSetString(ImmutableSortedSet.copyOf(uniqueIndexSample), length);
             } else {
                 final BitSet bs = new BitSet(length);
-                for (int i = 0; i < length; i++) {
-                    if (p > rng.nextFloat()) {
-                        bs.set(i);
-                    }
+                for (Integer index : uniqueIndexSample) {
+                    bs.set(index, true);
                 }
                 return new BitSetString(bs, length);
             }

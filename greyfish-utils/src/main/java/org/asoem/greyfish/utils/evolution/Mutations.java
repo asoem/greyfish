@@ -50,7 +50,8 @@ public final class Mutations {
         @Override
         public BitString mutate(final BitString input) {
             checkNotNull(input);
-            return input.xor(mutationTemplateFactory.apply(input.size()));
+            final BitString flipTemplate = mutationTemplateFactory.apply(input.size());
+            return input.xor(flipTemplate);
         }
     }
 }
