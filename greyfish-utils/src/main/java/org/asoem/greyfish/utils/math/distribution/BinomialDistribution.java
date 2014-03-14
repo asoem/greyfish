@@ -82,7 +82,8 @@ public final class BinomialDistribution extends AbstractIntegerDistribution {
      * {@inheritDoc}
      */
     public double probability(final int x) {
-        return new org.apache.commons.math3.distribution.BinomialDistribution(numberOfTrials, probabilityOfSuccess).probability(x);
+        return new org.apache.commons.math3.distribution.BinomialDistribution(numberOfTrials, probabilityOfSuccess)
+                .probability(x);
     }
 
     /**
