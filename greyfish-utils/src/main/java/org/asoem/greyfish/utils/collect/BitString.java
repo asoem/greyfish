@@ -259,6 +259,15 @@ public abstract class BitString extends AbstractList<Boolean> {
         return EmptyString.INSTANCE;
     }
 
+    /**
+     * Create a random bit string of given {@code length} where each bit is set with probability {@code p}, and not set
+     * with probability {@code 1-p}.
+     *
+     * @param length the length of the bit string
+     * @param rng    the random number generator to use
+     * @param p      the probability for each bit in the new bit string to hold the value 1
+     * @return a new bit string
+     */
     public static BitString random(final int length, final RandomGenerator rng, final double p) {
         checkNotNull(rng);
         checkArgument(p >= 0 && p <= 1);
