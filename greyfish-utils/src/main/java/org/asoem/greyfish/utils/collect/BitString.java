@@ -5,8 +5,8 @@ import com.google.common.base.*;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.*;
 import com.google.common.primitives.Longs;
+import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
-import org.asoem.greyfish.utils.math.distribution.BinomialDistribution;
 import org.asoem.greyfish.utils.math.statistics.Samplings;
 
 import javax.annotation.Nullable;
