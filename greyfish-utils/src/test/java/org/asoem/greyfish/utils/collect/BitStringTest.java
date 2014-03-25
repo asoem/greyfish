@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Longs;
 import org.apache.commons.math3.distribution.BinomialDistribution;
+import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.stat.inference.ChiSquareTest;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.asoem.greyfish.utils.math.SignificanceLevel;
@@ -19,6 +20,34 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class BitStringTest {
+
+    @Test
+    public void testRandomP1() throws Exception {
+        // given
+        final int length = 100;
+        final RandomGenerator rng = RandomGenerators.rng();
+        final int p = 1;
+
+        // when
+        final BitString random = BitString.random(length, rng, p);
+
+        // then
+        assertThat(random.cardinality(), is(length));
+    }
+
+    @Test
+    public void testRandomP0() throws Exception {
+        // given
+        final int length = 100;
+        final RandomGenerator rng = RandomGenerators.rng();
+        final int p = 0;
+
+        // when
+        final BitString random = BitString.random(length, rng, p);
+
+        // then
+        assertThat(random.cardinality(), is(0));
+    }
 
     @Test
     public void testSampleRange() throws Exception {

@@ -277,29 +277,37 @@ public abstract class BitString extends AbstractList<Boolean> {
             return emptyBitSequence();
         }
 
+        final int n;
         if (p == 0) {
-            return zeros(length);
+            n = 0;
         } else if (p == 1) {
-            return ones(length);
+            n = length;
         } else {
             final BinomialDistribution binomialDistribution =
                     new BinomialDistribution(rng, length, p);
-            final int n = binomialDistribution.sample();
+            n = binomialDistribution.sample();
+        }
+        assert n >= 0 && n <= length : n;
 
-            final ContiguousSet<Integer> indexRange =
-                    ContiguousSet.create(Range.closedOpen(0, length), DiscreteDomain.integers());
-            final Iterable<Integer> uniqueIndexSample =
-                    Samplings.random(rng).withoutReplacement().sample(indexRange, n);
+        if (n == 0) {
+            return zeros(length);
+        } else if (n == length) {
+            return ones(length);
+        }
 
-            if ((double) n / length < 1.0 / 32) { // < 1 bit per word?
-                return new IndexSetString(ImmutableSortedSet.copyOf(uniqueIndexSample), length);
-            } else {
-                final BitSet bs = new BitSet(length);
-                for (Integer index : uniqueIndexSample) {
-                    bs.set(index, true);
-                }
-                return new BitSetString(bs, length);
+        final ContiguousSet<Integer> indexRange =
+                ContiguousSet.create(Range.closedOpen(0, length), DiscreteDomain.integers());
+        final Iterable<Integer> uniqueIndexSample =
+                Samplings.random(rng).withoutReplacement().sample(indexRange, n);
+
+        if ((double) n / length < 1.0 / 32) { // < 1 bit per word?
+            return new IndexSetString(ImmutableSortedSet.copyOf(uniqueIndexSample), length);
+        } else {
+            final BitSet bs = new BitSet(length);
+            for (Integer index : uniqueIndexSample) {
+                bs.set(index, true);
             }
+            return new BitSetString(bs, length);
         }
     }
 
