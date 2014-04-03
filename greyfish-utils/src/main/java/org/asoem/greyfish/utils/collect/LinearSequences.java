@@ -68,11 +68,20 @@ public class LinearSequences {
         }
     }
 
-    public static <E> int hammingDistance(final List<E> a, final List<E> b) {
-        checkArgument(checkNotNull(a).size() == checkNotNull(b.size()));
-        final Iterable<Product2<E, E>> zipped = Products.zip(a, b);
+    /**
+     * Computes the <a href="https://en.wikipedia.org/wiki/Hamming_distance">hamming distance</a> between the two lists
+     * {@code first} and {@code second} which must be of equal length.
+     *
+     * @param first  the first list
+     * @param second the second list
+     * @return the number of positions where the elements in both lists are not {@link Object#equals equal}
+     * @throws java.lang.IllegalArgumentException is the lists are not of the same length
+     */
+    public static int hammingDistance(final List<?> first, final List<?> second) {
+        checkArgument(checkNotNull(first).size() == checkNotNull(second.size()));
+        final Iterable<Product2<Object, Object>> zipped = Products.zip(first, second);
         int sum = 0;
-        for (final Product2<E, E> el : zipped) {
+        for (final Product2<?, ?> el : zipped) {
             if (!el.first().equals(el.second())) {
                 ++sum;
             }
