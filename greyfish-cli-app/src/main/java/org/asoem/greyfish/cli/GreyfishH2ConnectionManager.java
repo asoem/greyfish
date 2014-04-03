@@ -1,15 +1,17 @@
 package org.asoem.greyfish.cli;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
-import com.google.common.io.CharStreams;
-import com.google.common.io.InputSupplier;
+import com.google.common.io.Resources;
 import org.asoem.greyfish.core.io.ConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -96,21 +98,11 @@ final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable 
         // TODO: Verify that the connection has been opened!
         try {
             final StringBuilder stringBuilder = new StringBuilder();
-            CharStreams.copy(new InputSupplier<InputStreamReader>() {
-                @Override
-                public InputStreamReader getInput() {
-                    return new InputStreamReader(
-                            checkNotNull(getClass().getResourceAsStream(
-                                    "/h2/h2_add_indices.sql")));
-                }
-            }, stringBuilder);
-            final Statement statement = get().createStatement();
-            try {
+            Resources.asCharSource(getClass().getResource("/h2/h2_add_indices.sql"), Charsets.UTF_8)
+                    .copyTo(stringBuilder);
+            try (Statement statement = get().createStatement()) {
                 statement.execute(stringBuilder.toString());
-            } finally {
-                statement.close();
             }
-
         } catch (Throwable e) {
             throw Throwables.propagate(e);
         } finally {
@@ -125,21 +117,11 @@ final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable 
     private void initDatabase(final Connection newConnection) {
         final StringBuilder stringBuilder = new StringBuilder();
         try {
-            CharStreams.copy(new InputSupplier<InputStreamReader>() {
-                @Override
-                public InputStreamReader getInput() {
-                    final InputStream inputStream = checkNotNull(
-                            getClass().getResourceAsStream(
-                                    "/h2/h2_create_database.sql"));
-                    return new InputStreamReader(inputStream);
-                }
-            }, stringBuilder);
+            Resources.asCharSource(getClass().getResource("/h2/h2_create_database.sql"), Charsets.UTF_8)
+                    .copyTo(stringBuilder);
 
-            final Statement statement = newConnection.createStatement();
-            try {
+            try (Statement statement = newConnection.createStatement()) {
                 statement.execute(stringBuilder.toString());
-            } finally {
-                statement.close();
             }
         } catch (Throwable e) {
             throw Throwables.propagate(e);
