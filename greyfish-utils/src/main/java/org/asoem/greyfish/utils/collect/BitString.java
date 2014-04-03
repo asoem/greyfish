@@ -45,6 +45,19 @@ public abstract class BitString extends AbstractList<Boolean> {
      */
     public abstract long[] toLongArray();
 
+    /**
+     * Computes the <a href="https://en.wikipedia.org/wiki/Hamming_distance">hamming distance</a> between this string
+     * and an {@code other} string which must be of equal length.
+     *
+     * @param other an other string
+     * @return the number of positions where the elements in both strings are not equal
+     * @throws java.lang.IllegalArgumentException is the lists are not of the same length
+     */
+    public final int hammingDistance(final BitString other) {
+        checkNotNull(other);
+        checkArgument(other.size() == size());
+        return xor(other).cardinality();
+    }
 
     /**
      * Creates a new bit sequence by performing a logical <b>AND</b> of this bit sequence with an {@code other} bit
