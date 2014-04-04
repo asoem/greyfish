@@ -1,4 +1,6 @@
-package org.asoem.greyfish.utils;
+package org.asoem.greyfish.utils.io;
+
+import org.asoem.greyfish.utils.base.ClassNotInstantiableError;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -14,6 +16,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class Resources {
 
     private Resources() {
+        throw new ClassNotInstantiableError();
     }
 
     /**
