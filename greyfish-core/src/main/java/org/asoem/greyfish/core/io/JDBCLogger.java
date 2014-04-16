@@ -12,8 +12,6 @@ import com.google.common.reflect.TypeToken;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
-import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.simulation.Simulation;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Point2D;
@@ -44,7 +42,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * handle the incoming events and therefore is threadsafe.
  */
 @ThreadSafe
-final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContext<?, A>, ?, ?>>
+final class JDBCLogger
         implements SimulationLogger {
 
     private static final Logger logger = LoggerFactory.getLogger(JDBCLogger.class);
@@ -150,7 +148,8 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
                             public PreparedStatement apply(@Nullable final String input) {
                                 return cache.getUnchecked(input);
                             }
-                        });
+                        }
+                );
                 preparedStatement.addBatch();
             }
             for (PreparedStatement preparedStatement : cache.asMap().values()) {
@@ -233,6 +232,14 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
                         currentStep, agentId, projection,
                         idForName(source), idForName(title), message);
         addQuery(insertEventOperation);
+    }
+
+    @Override
+    public void logAgentInteraction(final int sourceAgentId, final int targetAgentId,
+                                    final String type, final int simulationStep) {
+        final InsertInteractionQuery interactionQuery =
+                new InsertInteractionQuery(sourceAgentId, targetAgentId, type, simulationStep);
+        addQuery(interactionQuery);
     }
 
     @Override
@@ -507,6 +514,37 @@ final class JDBCLogger<A extends SpatialAgent<A, ? extends BasicSimulationContex
 
             preparedStatement.setInt(1, id);
             preparedStatement.setString(2, name);
+
+            return preparedStatement;
+        }
+    }
+
+    private static class InsertInteractionQuery implements BatchQuery {
+        private static final String SQL =
+                "INSERT INTO agent_interaction (type, source_id, target_id, simulation_step) VALUES (?, ?, ?, ?)";
+
+        private final int sourceAgentId;
+        private final int targetAgentId;
+        private final String type;
+        private final int simulationStep;
+
+        public InsertInteractionQuery(final int sourceAgentId, final int targetAgentId,
+                                      final String type, final int simulationStep) {
+            this.sourceAgentId = sourceAgentId;
+            this.targetAgentId = targetAgentId;
+            this.type = type;
+            this.simulationStep = simulationStep;
+        }
+
+        @Override
+        public PreparedStatement prepareStatement(
+                final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
+            final PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
+
+            preparedStatement.setString(1, type);
+            preparedStatement.setInt(2, sourceAgentId);
+            preparedStatement.setInt(3, targetAgentId);
+            preparedStatement.setInt(4, simulationStep);
 
             return preparedStatement;
         }

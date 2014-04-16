@@ -44,3 +44,10 @@ CREATE TABLE PROPERTIES (
 CREATE TABLE SIMULATION (
         id INT NOT NULL PRIMARY KEY,
         name VARCHAR(255) NOT NULL);
+
+CREATE TABLE AGENT_INTERACTION (
+        id INT NOT NULL PRIMARY KEY,
+        type VARCHAR(255) NOT NULL,
+        source_id INT NOT NULL,
+        target_id INT NOT NULL,
+        simulation_step INT NOT NULL)

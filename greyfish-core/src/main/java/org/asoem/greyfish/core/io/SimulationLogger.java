@@ -23,6 +23,8 @@ public interface SimulationLogger extends Closeable {
 
     void logAgentEvent(int currentStep, String source, String title, String message, int agentId, Object2D projection);
 
+    void logAgentInteraction(int sourceAgentId, int targetAgentId, String type, int simulationStep);
+
     /**
      * Log a property of type {@code marker}
      *

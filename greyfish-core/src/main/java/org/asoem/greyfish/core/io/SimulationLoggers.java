@@ -101,6 +101,13 @@ public final class SimulationLoggers {
         }
 
         @Override
+        public void logAgentInteraction(final int sourceAgentId, final int targetAgentId, final String type, final int simulationStep) {
+            synchronized (this) {
+                logger.logAgentInteraction(sourceAgentId, targetAgentId, type, simulationStep);
+            }
+        }
+
+        @Override
         public void logProperty(final String marker, final String key, final String value) {
             synchronized (this) {
                 logger.logProperty(marker, key, value);

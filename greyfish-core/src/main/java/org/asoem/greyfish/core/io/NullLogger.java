@@ -28,6 +28,11 @@ enum NullLogger implements SimulationLogger {
     }
 
     @Override
+    public void logAgentInteraction(final int sourceAgentId, final int targetAgentId, final String type, final int simulationStep) {
+        // empty
+    }
+
+    @Override
     public void logProperty(final String marker, final String key, final String value) {
         // empty
     }

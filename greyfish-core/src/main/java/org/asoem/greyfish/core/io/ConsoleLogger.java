@@ -48,6 +48,14 @@ final class ConsoleLogger implements SimulationLogger {
     }
 
     @Override
+    public void logAgentInteraction(final int sourceAgentId, final int targetAgentId,
+                                    final String type, final int simulationStep) {
+        final String message = String.format("Interaction: %d->%d (%s, %d)",
+                sourceAgentId, targetAgentId, type, simulationStep);
+        printStream.println(message);
+    }
+
+    @Override
     public void logProperty(final String marker, final String key, final String value) {
         final String message = String.format("%s: %s=%s", marker, key, value);
         printStream.println(message);
