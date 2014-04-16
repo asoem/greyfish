@@ -156,6 +156,7 @@ final class JDBCLogger
                 try {
                     preparedStatement.executeBatch();
                 } catch (SQLException e) {
+                    logger.error("Error while executing statement {}", preparedStatement, e);
                     throw Throwables.propagate(e);
                 }
             }
