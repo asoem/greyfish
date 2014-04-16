@@ -24,9 +24,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -51,7 +51,7 @@ final class JDBCLogger
     private final ConnectionManager connectionManager;
     private final Disruptor<BindEvent> disruptor;
     @VisibleForTesting
-    final List<BatchQuery> queries;
+    final Queue<BatchQuery> queries;
 
     private final AtomicInteger nameIdSequence = new AtomicInteger();
     private final Cache<String, Integer> nameIdCache = CacheBuilder.newBuilder()
@@ -88,7 +88,6 @@ final class JDBCLogger
 
                 if (queries.size() == commitThreshold) {
                     flush();
-                    queries.clear();
                 }
             }
         };
@@ -120,12 +119,12 @@ final class JDBCLogger
         } catch (Throwable t) {
             LoggerFactory.getLogger(JDBCLogger.class).error("Disruptor failed to start", t);
         }
-        queries = new ArrayList<>(commitThreshold);
+        queries = new ArrayDeque<>(commitThreshold);
     }
 
     /**
-     * Create sql statements for  all {@code #queries} using a connection from the {@link #connectionManager} and
-     * executes them as a batch. The {@link #queries} list is left unmodified.
+     * {@link java.util.Queue#poll() Polls} all {@code #queries}, create sql statements for them using a connection from
+     * the {@link #connectionManager} and executes these as a batch query.
      *
      * @throws SQLException
      */
@@ -140,7 +139,8 @@ final class JDBCLogger
                     }
                 });
         try {
-            for (BatchQuery query : this.queries) {
+            while (queries.size() > 0) {
+                final BatchQuery query = queries.poll();
                 final PreparedStatement preparedStatement = query.prepareStatement(
                         new Function<String, PreparedStatement>() {
                             @Nullable
@@ -152,10 +152,11 @@ final class JDBCLogger
                 );
                 preparedStatement.addBatch();
             }
+
             for (PreparedStatement preparedStatement : cache.asMap().values()) {
                 try {
                     preparedStatement.executeBatch();
-                } catch (SQLException e) {
+                } catch (Throwable e) {
                     logger.error("Error while executing statement {}", preparedStatement, e);
                     throw Throwables.propagate(e);
                 }
