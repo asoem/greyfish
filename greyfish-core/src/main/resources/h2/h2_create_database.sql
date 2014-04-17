@@ -47,7 +47,7 @@ CREATE TABLE SIMULATION (
 
 CREATE TABLE AGENT_INTERACTION (
         id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-        type VARCHAR(255) NOT NULL,
+        type_name_id INT NOT NULL,
         source_id INT NOT NULL,
         target_id INT NOT NULL,
         simulation_step INT NOT NULL)

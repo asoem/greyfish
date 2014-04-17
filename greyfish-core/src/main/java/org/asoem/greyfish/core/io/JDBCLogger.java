@@ -240,7 +240,7 @@ final class JDBCLogger
     public void logAgentInteraction(final int sourceAgentId, final int targetAgentId,
                                     final String type, final int simulationStep) {
         final InsertInteractionQuery interactionQuery =
-                new InsertInteractionQuery(sourceAgentId, targetAgentId, type, simulationStep);
+                new InsertInteractionQuery(sourceAgentId, targetAgentId, idForName(type), simulationStep);
         addQuery(interactionQuery);
     }
 
@@ -523,18 +523,18 @@ final class JDBCLogger
 
     private static class InsertInteractionQuery implements BatchQuery {
         private static final String SQL =
-                "INSERT INTO agent_interaction (type, source_id, target_id, simulation_step) VALUES (?, ?, ?, ?)";
+                "INSERT INTO agent_interaction (type_name_id, source_id, target_id, simulation_step) VALUES (?, ?, ?, ?)";
 
         private final int sourceAgentId;
         private final int targetAgentId;
-        private final String type;
+        private final int typeId;
         private final int simulationStep;
 
         public InsertInteractionQuery(final int sourceAgentId, final int targetAgentId,
-                                      final String type, final int simulationStep) {
+                                      final int typeId, final int simulationStep) {
             this.sourceAgentId = sourceAgentId;
             this.targetAgentId = targetAgentId;
-            this.type = type;
+            this.typeId = typeId;
             this.simulationStep = simulationStep;
         }
 
@@ -543,7 +543,7 @@ final class JDBCLogger
                 final Function<? super String, ? extends PreparedStatement> statementFactory) throws SQLException {
             final PreparedStatement preparedStatement = checkNotNull(statementFactory.apply(SQL));
 
-            preparedStatement.setString(1, type);
+            preparedStatement.setInt(1, typeId);
             preparedStatement.setInt(2, sourceAgentId);
             preparedStatement.setInt(3, targetAgentId);
             preparedStatement.setInt(4, simulationStep);
