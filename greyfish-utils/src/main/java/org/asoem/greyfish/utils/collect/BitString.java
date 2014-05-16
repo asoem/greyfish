@@ -332,13 +332,20 @@ public abstract class BitString extends AbstractList<Boolean> {
         return create(BitSet.valueOf(longs), length);
     }
 
-    public static BitString forIndices(final Iterable<Integer> indices, final int length) {
-        final Set<Integer> indexSet = ImmutableSortedSet.copyOf(indices);
-        if ((double) indexSet.size() / length < 1.0 / 32) {
-            return new IndexSetString(indexSet, length);
+    /**
+     * Create a new bit string of given {@code length} with bits set to one at given {@code indices}. The indices might
+     * be given
+     *
+     * @param indices the indices of the bits to set
+     * @param length  the length of the bit string to create
+     * @return a new bit string of given {@code length}
+     */
+    public static BitString forIndices(final Set<Integer> indices, final int length) {
+        if ((double) indices.size() / length < 1.0 / 32) {
+            return new IndexSetString(indices, length);
         } else {
             final BitSet bitSet = new BitSet(length);
-            for (Integer index : indexSet) {
+            for (Integer index : indices) {
                 bitSet.set(index);
             }
             return forBitSet(bitSet, length);
@@ -644,13 +651,16 @@ public abstract class BitString extends AbstractList<Boolean> {
         private final Set<Integer> indices;
         private final int length;
 
+        @SuppressWarnings("unchecked")
+            // safe cast
         IndexSetString(final Set<Integer> indices, final int length) {
             checkArgument(length >= 0);
-            checkNotNull(indices);
-            checkArgument(Ordering.natural().isOrdered(indices));
-            checkArgument(Ordering.natural().compare(Iterables.getFirst(indices, 0), 0) >= 0);
-            checkArgument(Ordering.natural().compare(Iterables.getLast(indices, 0), length) < 0);
-            this.indices = indices;
+            checkNotNull(indices, "indices");
+
+            final ImmutableSortedSet<Integer> sortedIndices = ImmutableSortedSet.copyOf(indices);
+            checkArgument(sortedIndices.first() >= 0 && sortedIndices.last() < length);
+
+            this.indices = sortedIndices;
             this.length = length;
         }
 
@@ -688,8 +698,8 @@ public abstract class BitString extends AbstractList<Boolean> {
         public BitString and(final BitString other) {
             if (other instanceof IndexSetString) {
                 return forIndices(
-                        Sets.intersection(indices, ((IndexSetString) other).indices),
-                        Math.max(size(), other.size()));
+                        Sets.intersection(indices, ((IndexSetString) other).indices), Math.max(size(), other.size())
+                );
             }
             return standardAnd(other);
         }
@@ -697,8 +707,8 @@ public abstract class BitString extends AbstractList<Boolean> {
         public BitString or(final BitString other) {
             if (other instanceof IndexSetString) {
                 return forIndices(
-                        Sets.union(indices, ((IndexSetString) other).indices),
-                        Math.max(size(), other.size()));
+                        Sets.union(indices, ((IndexSetString) other).indices), Math.max(size(), other.size())
+                );
             }
             return standardOr(other);
         }
@@ -707,7 +717,8 @@ public abstract class BitString extends AbstractList<Boolean> {
             if (other instanceof IndexSetString) {
                 return forIndices(
                         Sets.symmetricDifference(indices, ((IndexSetString) other).indices),
-                        Math.max(size(), other.size()));
+                        Math.max(size(), other.size())
+                );
             }
             return standardXor(other);
         }
