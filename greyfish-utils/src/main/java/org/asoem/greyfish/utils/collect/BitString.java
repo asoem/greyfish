@@ -290,6 +290,10 @@ public abstract class BitString extends AbstractList<Boolean> {
             return emptyBitSequence();
         }
 
+        if (p == 0.5) {
+            return random(length, rng); // faster
+        }
+
         final int n;
         if (p == 0) {
             n = 0;

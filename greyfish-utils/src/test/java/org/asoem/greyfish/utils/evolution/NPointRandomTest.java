@@ -27,8 +27,8 @@ public class NPointRandomTest {
     @Test
     public void testMutate() throws Exception {
         // given
-        final BitString input = BitString.parse("0000");
-        final ImmutableMap<Integer, Boolean> mutationMap = ImmutableMap.of(0, true);
+        final BitString input = BitString.parse("1000");
+        final ImmutableMap<Integer, Boolean> mutationMap = ImmutableMap.of(0, true, 3, false);
 
         // when
         final BitString mutation = Mutations.NPointRandom.mutate(input, mutationMap);

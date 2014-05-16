@@ -3,6 +3,7 @@ package org.asoem.greyfish.utils.evolution;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.*;
+import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.utils.collect.BitSets;
 import org.asoem.greyfish.utils.collect.BitString;
@@ -12,8 +13,7 @@ import javax.annotation.Nullable;
 import java.util.BitSet;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.*;
 
 /**
  * A utility class for accessing different implementations of {@link org.asoem.greyfish.utils.evolution.Mutation}.
@@ -62,6 +62,19 @@ public final class Mutations {
         }
     }
 
+    /**
+     * Create a new mutation function which sets each bit to a random value with probability {@code p}.
+     *
+     * @param rng the random generator to use.
+     * @param p   the number of mutations
+     * @return a new flip-bit mutation function
+     */
+    public static Mutation<BitString> randomMutation(final RandomGenerator rng, final double p) {
+        checkNotNull(rng);
+        checkArgument(p >= 0);
+        return new RandomMutation(rng, p);
+    }
+
     @VisibleForTesting
     static class RandomMutation implements Mutation<BitString> {
         private final RandomGenerator rng;
@@ -79,18 +92,12 @@ public final class Mutations {
         @Override
         public BitString mutate(final BitString input) {
             checkNotNull(input);
-            final BitString positionTemplate = BitString.random(input.size(), rng, p);
-            final BitString mutationTemplate = BitString.random(input.size(), rng, 0.5);
 
-            return mutate(input, positionTemplate, mutationTemplate);
-        }
+            final BinomialDistribution binomialDistribution =
+                    new BinomialDistribution(rng, input.size(), p);
+            final int n = binomialDistribution.sample();
 
-        @VisibleForTesting
-        static BitString mutate(final BitString input,
-                                final BitString positionTemplate,
-                                final BitString mutationTemplate) {
-            final BitString flippedZeros = input.or(positionTemplate.and(mutationTemplate));
-            return flippedZeros.and(positionTemplate.not().or(mutationTemplate));
+            return nPointRandom(rng, n).mutate(input);
         }
     }
 
@@ -146,11 +153,18 @@ public final class Mutations {
 
         @VisibleForTesting
         static BitString mutate(final BitString input, final Map<Integer, Boolean> mutationMap) {
+            if (mutationMap.isEmpty()) {
+                return input;
+            }
+
             final BitSet inputAsSet = BitSets.create(input);
             for (Map.Entry<Integer, Boolean> mutation : mutationMap.entrySet()) {
-                if (mutation.getValue()) {
-                    inputAsSet.set(mutation.getKey(), mutation.getValue());
-                }
+                final Integer index = mutation.getKey();
+                final Boolean value = mutation.getValue();
+
+                checkElementIndex(index, input.size());
+
+                inputAsSet.set(index, value);
             }
             return BitString.forBitSet(inputAsSet, input.size());
         }
