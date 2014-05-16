@@ -658,9 +658,7 @@ public abstract class BitString extends AbstractList<Boolean> {
             checkNotNull(indices, "indices");
 
             final ImmutableSortedSet<Integer> sortedIndices = ImmutableSortedSet.copyOf(indices);
-            if (!indices.isEmpty()) {
-                checkArgument(sortedIndices.first() >= 0 && sortedIndices.last() < length);
-            }
+            checkArgument(sortedIndices.isEmpty() || sortedIndices.first() >= 0 && sortedIndices.last() < length);
 
             this.indices = sortedIndices;
             this.length = length;
