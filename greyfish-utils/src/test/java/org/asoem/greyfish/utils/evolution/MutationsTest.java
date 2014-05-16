@@ -46,4 +46,28 @@ public class MutationsTest {
         // then
         fail();
     }
+
+    @Test
+    public void testNPointRandomPositiveN() throws Exception {
+        // given
+        final RandomGenerator rng = mock(RandomGenerator.class);
+
+        // when
+        final Mutation<BitString> bitStringMutation = Mutations.nPointRandom(rng, 0);
+
+        // then
+        assertThat(bitStringMutation, is(notNullValue()));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNPointRandomNegativeN() throws Exception {
+        // given
+        final RandomGenerator rng = mock(RandomGenerator.class);
+
+        // when
+        Mutations.nPointRandom(rng, -1);
+
+        // then
+        fail();
+    }
 }
