@@ -167,7 +167,7 @@ public final class GreyfishCLIApplication {
                 try {
                     final GreyfishH2ConnectionManager connectionSupplier =
                             GreyfishH2ConnectionManager.create(path);
-                    SimulationLogger jdbcLogger = SimulationLoggers.createJDBCLogger(
+                    final SimulationLogger jdbcLogger = SimulationLoggers.createJDBCLogger(
                             connectionSupplier, optionSet.valueOf(commitThresholdSpec));
 
                     closer.register(connectionSupplier);
@@ -286,7 +286,7 @@ public final class GreyfishCLIApplication {
             exitWithErrorMessage("Failed parsing options: ", e, true);
         } catch (Throwable e) {
             exitWithErrorMessage(String.format("Exception during simulation execution: %s\n"
-                    + "Check log file for a stack trace.",
+                            + "Check log file for a stack trace.",
                     e.getCause() != null ? e.getCause().getMessage() : e.getMessage()), e);
         }
 
@@ -379,7 +379,9 @@ public final class GreyfishCLIApplication {
     private static class MonitorServiceController extends Service.Listener {
         private final ExperimentMonitorService monitorService;
 
-        public MonitorServiceController(final ExperimentMonitorService monitorService) {this.monitorService = monitorService;}
+        public MonitorServiceController(final ExperimentMonitorService monitorService) {
+            this.monitorService = monitorService;
+        }
 
         @Override
         public void starting() {
