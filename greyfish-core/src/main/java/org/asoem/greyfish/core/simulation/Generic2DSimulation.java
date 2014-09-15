@@ -3,17 +3,18 @@ package org.asoem.greyfish.core.simulation;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.eventbus.EventBus;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.agent.SpatialAgent;
 import org.asoem.greyfish.core.space.ForwardingSpace2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.impl.simulation.AgentAddedEvent;
 import org.asoem.greyfish.utils.base.InheritableBuilder;
-import org.asoem.greyfish.utils.collect.LoadingKeyedObjectPool;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -41,19 +41,15 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
     private final List<NewAgentEvent<P, A>> addAgentMessages;
     private final List<RemoveAgentMessage<A>> removeAgentMessages;
     private final List<DeliverAgentMessageMessage<A>> deliverAgentMessageMessages;
-    private final LoadingKeyedObjectPool<PrototypeGroup, A> agentPool;
     private final ExecutorService executorService;
     private final ConcurrentMap<String, Object> snapshotValues;
     private final int parallelizationThreshold;
-    private final Set<A> prototypes;
     private final EventBus eventBus;
     private String title = "untitled";
     private SimulationState state;
 
-    protected Generic2DSimulation(final Basic2DSimulationBuilder<?, ?, S, A, Z, P> builder) {
-        this.prototypes = checkNotNull(builder.prototypes);
+    protected Generic2DSimulation(final Generic2DSimulationBuilder<?, ?, S, A, Z, P> builder) {
         this.parallelizationThreshold = builder.parallelizationThreshold;
-        this.agentPool = checkNotNull(builder.agentPool);
         this.space = new AgentSpace<>(checkNotNull(builder.space));
 
         this.addAgentMessages = checkNotNull(Collections.synchronizedList(Lists.<NewAgentEvent<P, A>>newArrayList()));
@@ -95,7 +91,6 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
     private void passivateAgentsInternal(final List<? extends A> agents) {
         for (final A agent : agents) {
             agent.deactivate();
-            releaseAgent(agent);
         }
         space.removeInactiveAgents();
     }
@@ -104,32 +99,6 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
     public final void removeAgent(final A agent) {
         checkNotNull(agent);
         removeAgentMessages.add(new RemoveAgentMessage<A>(agent));
-    }
-
-    private void releaseAgent(final A agent) {
-        try {
-            agentPool.release(agent.getPrototypeGroup(), agent);
-        } catch (Exception e) {
-            logger.error("Error in prototype pool", e);
-        }
-    }
-
-    @Override
-    public final int countAgents(final PrototypeGroup prototypeGroup) {
-        return space.count(prototypeGroup);
-    }
-
-    private A createClone(final PrototypeGroup prototypeGroup) {
-        checkNotNull(prototypeGroup);
-        try {
-            final A agent = agentPool.borrow(prototypeGroup);
-            checkNotNull(agent, "borrowObject in agentPool returned null");
-            agent.initialize();
-            return agent;
-        } catch (Exception e) {
-            logger.error("Couldn't borrow Agent from agentPool for prototypeGroup {}", prototypeGroup.getName(), e);
-            throw new AssertionError(e);
-        }
     }
 
     @Override
@@ -276,16 +245,6 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
         return title;
     }
 
-    @Override
-    public final Iterable<A> getAgents(final PrototypeGroup prototypeGroup) {
-        return space.getAgents(prototypeGroup);
-    }
-
-    @Override
-    public final int numberOfPopulations() {
-        return space.agentsByPopulation.size();
-    }
-
     private void setState(final SimulationState state) {
         logger.debug("Switching state: {} -> {}", this.state, state);
         this.state = state;
@@ -373,7 +332,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
             extends ForwardingSpace2D<T, P> {
 
         private final Z delegate;
-        private final Multimap<PrototypeGroup, T> agentsByPopulation;
+        private final List<T> agentsByPopulation;
         private final Predicate<T> inactiveAgentPredicate = new Predicate<T>() {
             @Override
             public boolean apply(final T input) {
@@ -385,17 +344,12 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
             assert delegate != null;
 
             this.delegate = delegate;
-            this.agentsByPopulation = LinkedListMultimap.create();
+            this.agentsByPopulation = Lists.newLinkedList();
         }
 
         @Override
         protected Z delegate() {
             return delegate;
-        }
-
-        public int count(final PrototypeGroup prototypeGroup) {
-            checkNotNull(prototypeGroup);
-            return agentsByPopulation.get(prototypeGroup).size();
         }
 
         @Override
@@ -404,7 +358,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
             checkNotNull(projection, "projection is null");
 
             if (super.insertObject(object, projection)) {
-                final boolean add = agentsByPopulation.get(object.getPrototypeGroup()).add(object);
+                final boolean add = agentsByPopulation.add(object);
                 object.setProjection(projection);
                 assert add : "Could not add " + object;
                 return true;
@@ -416,7 +370,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
         public boolean removeObject(final T agent) {
             checkNotNull(agent);
             if (super.removeObject(agent)) {
-                final boolean remove = agentsByPopulation.get(agent.getPrototypeGroup()).remove(agent);
+                final boolean remove = agentsByPopulation.remove(agent);
                 agent.setProjection(null);
                 assert remove : "Could not remove " + agent;
                 return true;
@@ -431,18 +385,14 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
 
         public void removeInactiveAgents() {
             if (super.removeIf(inactiveAgentPredicate)) {
-                Iterables.removeIf(agentsByPopulation.values(), inactiveAgentPredicate);
+                Iterables.removeIf(agentsByPopulation, inactiveAgentPredicate);
             }
         }
 
-        public Iterable<T> getAgents(final PrototypeGroup prototypeGroup) {
-            checkNotNull(prototypeGroup);
-            return agentsByPopulation.get(prototypeGroup);
-        }
     }
 
-    protected abstract static class Basic2DSimulationBuilder<
-            B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>,
+    protected abstract static class Generic2DSimulationBuilder<
+            B extends Generic2DSimulationBuilder<B, S, X, A, Z, P>,
             S extends Generic2DSimulation<A, X, Z, P>,
             X extends SpatialSimulation2D<A, Z>,
             A extends SpatialAgent<A, ?, P, ?>,
@@ -450,36 +400,20 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
             P extends Object2D>
             extends InheritableBuilder<S, B> {
 
-        private LoadingKeyedObjectPool<PrototypeGroup, A> agentPool;
         private int parallelizationThreshold = 1000;
         private final Z space;
-        private final Set<A> prototypes;
         private ExecutorService executionService = Executors.newCachedThreadPool();
         private EventBus eventPublisher = new EventBus();
 
-        public Basic2DSimulationBuilder(final Z space, final Set<A> prototypes) {
+        public Generic2DSimulationBuilder(final Z space) {
             this.space = checkNotNull(space);
-            this.prototypes = checkNotNull(prototypes);
             addVerification(new Verification() {
                 @Override
                 protected void verify() {
-                    checkState(agentPool != null, "No AgentPool has been defined");
-                    checkState(!prototypes.contains(null), "Prototypes contains null");
                     checkState(space.isEmpty(), "Space is not empty");
                     checkState(executionService != null, "The execution service must not be null");
                 }
             });
-        }
-
-        /**
-         * Set the agent pool to use for recycling objects of tye {@code A}.
-         *
-         * @param pool the pool to use for recycling
-         * @return this builder
-         */
-        public final B agentPool(final LoadingKeyedObjectPool<PrototypeGroup, A> pool) {
-            this.agentPool = checkNotNull(pool);
-            return self();
         }
 
         /**

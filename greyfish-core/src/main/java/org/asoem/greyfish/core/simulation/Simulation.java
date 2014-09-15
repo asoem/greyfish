@@ -3,19 +3,11 @@ package org.asoem.greyfish.core.simulation;
 import com.google.common.base.Predicate;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.PrototypeGroup;
 
 /**
  * A {@code Simulation} is an environment for interacting agents.
  */
 public interface Simulation<A extends Agent<?>> {
-    /**
-     * Get all active {@code Agent}s which are part of the given {@code prototypeGroup}.
-     *
-     * @param prototypeGroup The common prototypeGroup
-     * @return An iterable of all active {@code Agents} with prototypeGroup equal to {@code prototypeGroup}
-     */
-    Iterable<A> getAgents(PrototypeGroup prototypeGroup);
 
     /**
      * Get all agents in this simulation which satisfy the given {@code predicate}.
@@ -33,26 +25,11 @@ public interface Simulation<A extends Agent<?>> {
     Iterable<A> getActiveAgents();
 
     /**
-     * The number of registered populations which is equal to the number of register prototypes.
-     *
-     * @return The number of populations registered for this simulation
-     */
-    int numberOfPopulations();
-
-    /**
      * Count all active Agents.
      *
      * @return The number of active Agents
      */
     int countAgents();
-
-    /**
-     * Count all active agents with prototypeGroup equal to {@code prototypeGroup}.
-     *
-     * @param prototypeGroup the {@code PrototypeGroup} of the agents to count
-     * @return the number of all active agents with prototypeGroup equal to {@code prototypeGroup}
-     */
-    int countAgents(PrototypeGroup prototypeGroup);
 
     /**
      * @return the name of this simulation

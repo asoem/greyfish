@@ -10,13 +10,6 @@ import com.google.common.base.Optional;
 public interface Agent<C extends SimulationContext<?, ?>>
         extends AgentNode, Runnable {
 
-    /**
-     * Get the population
-     *
-     * @return the population
-     */
-    PrototypeGroup getPrototypeGroup();
-
 
     /**
      * Let the agent execute it's next action

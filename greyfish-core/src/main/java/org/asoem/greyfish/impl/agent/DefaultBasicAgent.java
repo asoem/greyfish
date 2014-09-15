@@ -29,7 +29,6 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimulationContext<BasicSimulation, BasicAgent>, BasicAgentContext>
         implements BasicAgent {
-    private final PrototypeGroup prototypeGroup;
     private final FunctionalList<AgentAction<? super BasicAgentContext>> actions;
     private final FunctionalList<AgentProperty<? super BasicAgentContext, ?>> properties;
     private final FunctionalCollection<ACLMessage<BasicAgent>> inBox;
@@ -59,11 +58,6 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         }
 
         @Override
-        public Iterable<BasicAgent> getAgents(final PrototypeGroup prototypeGroup) {
-            return getContext().get().getAgents(prototypeGroup);
-        }
-
-        @Override
         public void receive(final ACLMessage<BasicAgent> message) {
             ask(message, Void.class);
         }
@@ -81,7 +75,6 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
 
     private DefaultBasicAgent(final Builder builder) {
         checkNotNull(builder);
-        this.prototypeGroup = builder.prototypeGroup;
         this.actions = ImmutableFunctionalList.copyOf(builder.actions);
         this.properties = ImmutableFunctionalList.copyOf(builder.properties);
         this.inBox = builder.inBox;
@@ -104,11 +97,6 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
 
     public FunctionalList<AgentProperty<? super BasicAgentContext, ?>> getProperties() {
         return properties;
-    }
-
-    @Override
-    public PrototypeGroup getPrototypeGroup() {
-        return prototypeGroup;
     }
 
     @Override
@@ -160,12 +148,11 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         return actionExecutionStrategy;
     }
 
-    public static Builder builder(final PrototypeGroup prototypeGroup) {
-        return new Builder(prototypeGroup);
+    public static Builder builder() {
+        return new Builder();
     }
 
     public static final class Builder {
-        private PrototypeGroup prototypeGroup;
         private final List<AgentAction<? super BasicAgentContext>> actions = Lists.newArrayList();
         private final List<AgentProperty<? super BasicAgentContext, ?>> properties = Lists.newArrayList();
         private final Set<Integer> parents = Sets.newHashSet();
@@ -177,8 +164,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
             }
         };
 
-        private Builder(final PrototypeGroup prototypeGroup) {
-            this.prototypeGroup = checkNotNull(prototypeGroup);
+        private Builder() {
         }
 
         public Builder addAction(final AgentAction<? super BasicAgentContext> action) {
@@ -244,7 +230,6 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         }
 
         public DefaultBasicAgent build() {
-            checkState(prototypeGroup != null);
             checkState(inBox != null);
             checkNotNull(actionExecutionStrategyFactory != null);
             return new DefaultBasicAgent(this);
