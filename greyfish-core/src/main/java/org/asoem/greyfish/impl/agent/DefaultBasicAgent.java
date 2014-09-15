@@ -252,9 +252,9 @@ public final class DefaultBasicAgent
         }
 
         public DefaultBasicAgent build() {
-            checkState(type != null);
-            checkState(inBox != null);
-            checkNotNull(actionExecutionStrategyFactory != null);
+            checkState(type != null, "type is null");
+            checkState(inBox != null, "inBox is null");
+            checkState(actionExecutionStrategyFactory != null, "actionExecutionStrategyFactory is null");
             return new DefaultBasicAgent(this);
         }
     }
