@@ -1,15 +1,15 @@
 package org.asoem.greyfish.impl.simulation;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Environment;
 
 public final class AgentRemovedEvent implements SimulationEvent {
     private final Agent<?> agent;
-    private Simulation<?> simulation;
+    private Environment<?> environment;
 
-    public AgentRemovedEvent(final Agent<?> agent, final Simulation<?> simulation) {
+    public AgentRemovedEvent(final Agent<?> agent, final Environment<?> environment) {
         this.agent = agent;
-        this.simulation = simulation;
+        this.environment = environment;
     }
 
     public Agent<?> getAgent() {
@@ -17,7 +17,7 @@ public final class AgentRemovedEvent implements SimulationEvent {
     }
 
     @Override
-    public Simulation<?> getSimulation() {
-        return simulation;
+    public Environment<?> getEnvironment() {
+        return environment;
     }
 }

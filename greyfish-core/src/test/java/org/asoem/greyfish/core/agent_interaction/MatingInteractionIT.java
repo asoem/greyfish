@@ -10,8 +10,8 @@ import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.agent.DefaultBasic2DAgent;
-import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
-import org.asoem.greyfish.impl.simulation.DefaultBasic2DSimulation;
+import org.asoem.greyfish.impl.simulation.Basic2DEnvironment;
+import org.asoem.greyfish.impl.simulation.DefaultBasic2DEnvironment;
 import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
 import org.asoem.greyfish.impl.space.DefaultBasicTiled2DSpace;
 import org.asoem.greyfish.utils.base.Callbacks;
@@ -82,7 +82,7 @@ public class MatingInteractionIT {
 
         final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, SimpleTwoDimTreeFactory.<Basic2DAgent>newInstance());
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(male, female);
-        final Basic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
+        final Basic2DEnvironment simulation = DefaultBasic2DEnvironment.builder(space, prototypes)
                 .agentPool(SynchronizedKeyedObjectPool.<PrototypeGroup, Basic2DAgent>create(new LoadingKeyedObjectPool.PoolLoader<PrototypeGroup, Basic2DAgent>() {
                     @Override
                     public Basic2DAgent load(final PrototypeGroup prototypeGroup) {

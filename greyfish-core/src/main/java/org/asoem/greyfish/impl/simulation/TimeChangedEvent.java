@@ -1,21 +1,21 @@
 package org.asoem.greyfish.impl.simulation;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Environment;
 
 public final class TimeChangedEvent implements SimulationEvent {
-    private final Simulation<?> simulation;
+    private final Environment<?> environment;
     private final long from;
     private final long to;
 
-    public TimeChangedEvent(final Simulation<?> simulation, final long from, final long to) {
-        this.simulation = simulation;
+    public TimeChangedEvent(final Environment<?> environment, final long from, final long to) {
+        this.environment = environment;
         this.from = from;
         this.to = to;
     }
 
     @Override
-    public Simulation<?> getSimulation() {
-        return simulation;
+    public Environment<?> getEnvironment() {
+        return environment;
     }
 
     public long getFrom() {

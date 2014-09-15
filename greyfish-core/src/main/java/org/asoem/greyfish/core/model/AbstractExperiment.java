@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.model;
 
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Environment;
 
 import java.util.List;
 
@@ -13,15 +13,15 @@ public abstract class AbstractExperiment implements Experiment {
         this.listeners.add(listener);
     }
 
-    protected final void notifyStarted(final Simulation<?> simulation) {
+    protected final void notifyStarted(final Environment<?> environment) {
         for (SimulationListener listener : listeners) {
-            listener.started(simulation);
+            listener.started(environment);
         }
     }
 
-    protected final void notifyDone(final Simulation<?> simulation) {
+    protected final void notifyDone(final Environment<?> environment) {
         for (SimulationListener listener : listeners) {
-            listener.done(simulation);
+            listener.done(environment);
         }
     }
 }

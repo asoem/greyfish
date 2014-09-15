@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.io;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Environment;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import java.util.Map;
@@ -13,7 +13,7 @@ enum NullLogger implements SimulationLogger {
     INSTANCE;
 
     @Override
-    public void logSimulation(final Simulation<?> simulation) {
+    public void logSimulation(final Environment<?> environment) {
         // empty
     }
 

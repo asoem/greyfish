@@ -10,8 +10,8 @@ import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.agent.Basic2DAgentContext;
 import org.asoem.greyfish.impl.agent.DefaultBasic2DAgent;
-import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
-import org.asoem.greyfish.impl.simulation.DefaultBasic2DSimulation;
+import org.asoem.greyfish.impl.simulation.Basic2DEnvironment;
+import org.asoem.greyfish.impl.simulation.DefaultBasic2DEnvironment;
 import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
 import org.asoem.greyfish.impl.space.DefaultBasicTiled2DSpace;
 import org.asoem.greyfish.utils.base.Callback;
@@ -109,7 +109,7 @@ public class ResourceInteractionIT {
         Basic2DAgent consumer = consumerFactory.get();
         Basic2DAgent provider = providerFactory.get();
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(consumer, provider);
-        final Basic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
+        final Basic2DEnvironment simulation = DefaultBasic2DEnvironment.builder(space, prototypes)
                 .agentPool(SynchronizedKeyedObjectPool.create(new LoadingKeyedObjectPool.PoolLoader<PrototypeGroup, Basic2DAgent>() {
                     @Override
                     public Basic2DAgent load(@Nullable final PrototypeGroup prototypeGroup) {

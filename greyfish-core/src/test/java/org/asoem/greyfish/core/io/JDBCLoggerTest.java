@@ -6,7 +6,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.BasicSimulationContext;
 import org.asoem.greyfish.core.agent.SpatialAgent;
-import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
+import org.asoem.greyfish.core.simulation.SpatialEnvironment2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.junit.Test;
@@ -67,12 +67,12 @@ public class JDBCLoggerTest {
         verify(connectionMock, times(1)).commit();
     }
 
-    private interface TestSimulation extends SpatialSimulation2D<TestAgent, Space2D<TestAgent, Object2D>> {
+    private interface TestEnvironment extends SpatialEnvironment2D<TestAgent, Space2D<TestAgent, Object2D>> {
     }
 
     private interface TestAgent extends SpatialAgent<TestAgent, TestSimulationContext, Object2D, AgentContext<TestAgent>> {
     }
 
-    private interface TestSimulationContext extends BasicSimulationContext<TestSimulation, TestAgent> {
+    private interface TestSimulationContext extends BasicSimulationContext<TestEnvironment, TestAgent> {
     }
 }

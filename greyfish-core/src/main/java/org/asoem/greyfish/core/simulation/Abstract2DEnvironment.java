@@ -6,8 +6,8 @@ import org.asoem.greyfish.core.space.Space2D;
 /**
  * Basic class for implementing 2D simulations.
  */
-public abstract class Abstract2DSimulation<A extends SpatialAgent<A, ?, ?, ?>, Z extends Space2D<A, ?>>
-        extends AbstractSimulation<A> implements SpatialSimulation2D<A, Z> {
+public abstract class Abstract2DEnvironment<A extends SpatialAgent<A, ?, ?, ?>, Z extends Space2D<A, ?>>
+        extends AbstractEnvironment<A> implements SpatialEnvironment2D<A, Z> {
 
     @Override
     public final Iterable<A> findNeighbours(final A agent, final double distance) {

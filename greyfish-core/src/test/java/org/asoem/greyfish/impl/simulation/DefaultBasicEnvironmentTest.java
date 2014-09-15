@@ -19,11 +19,11 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-public class DefaultBasicSimulationTest {
+public class DefaultBasicEnvironmentTest {
     @Test
     public void testBuilder() throws Exception {
         // when
-        final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test").build();
+        final DefaultBasicEnvironment simulation = DefaultBasicEnvironment.builder("test").build();
 
         // then
         assertThat(simulation, is(notNullValue()));
@@ -32,7 +32,7 @@ public class DefaultBasicSimulationTest {
     @Test
     public void testBuilderWithExecutor() throws Exception {
         // when
-        final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test")
+        final DefaultBasicEnvironment simulation = DefaultBasicEnvironment.builder("test")
                 .executorService(Executors.newSingleThreadExecutor()).build();
 
         // then
@@ -42,7 +42,7 @@ public class DefaultBasicSimulationTest {
     @Test
     public void testBuilderWithLogger() throws Exception {
         // when
-        final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test")
+        final DefaultBasicEnvironment simulation = DefaultBasicEnvironment.builder("test")
                 .build();
 
         // then
@@ -52,7 +52,7 @@ public class DefaultBasicSimulationTest {
     @Test
     public void testCountAgents() throws Exception {
         // given
-        final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test").build();
+        final DefaultBasicEnvironment simulation = DefaultBasicEnvironment.builder("test").build();
 
         // when
         final int i = simulation.countAgents();
@@ -64,7 +64,7 @@ public class DefaultBasicSimulationTest {
     @Test
     public void testAddAgent() throws Exception {
         // given
-        final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test").build();
+        final DefaultBasicEnvironment simulation = DefaultBasicEnvironment.builder("test").build();
         final BasicAgent agentMock = mock(BasicAgent.class);
         given(agentMock.isActive()).willReturn(false, true);
 
@@ -83,11 +83,11 @@ public class DefaultBasicSimulationTest {
     @Test
     public void testRemoveAgent() throws Exception {
         // given
-        final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test").build();
+        final DefaultBasicEnvironment simulation = DefaultBasicEnvironment.builder("test").build();
         final BasicAgent agentMock = mock(BasicAgent.class);
         given(agentMock.isActive()).willReturn(false, true);
-        final BasicSimulationContext<BasicSimulation, BasicAgent> contextMock = mock(BasicSimulationContext.class);
-        given(agentMock.getContext()).willReturn(Optional.<BasicSimulationContext<BasicSimulation, BasicAgent>>of(contextMock));
+        final BasicSimulationContext<BasicEnvironment, BasicAgent> contextMock = mock(BasicSimulationContext.class);
+        given(agentMock.getContext()).willReturn(Optional.<BasicSimulationContext<BasicEnvironment, BasicAgent>>of(contextMock));
         given(contextMock.getSimulation()).willReturn(simulation);
         simulation.enqueueAddition(agentMock);
         simulation.nextStep();
@@ -110,7 +110,7 @@ public class DefaultBasicSimulationTest {
     @Test
     public void testDeliverMessage() throws Exception {
         // given
-        final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test").build();
+        final DefaultBasicEnvironment simulation = DefaultBasicEnvironment.builder("test").build();
         final BasicAgent agentMock = mock(BasicAgent.class);
         given(agentMock.isActive()).willReturn(false, true);
         simulation.enqueueAddition(agentMock);
@@ -134,12 +134,12 @@ public class DefaultBasicSimulationTest {
     public void testEventPublisher() throws Exception {
         // given
         EventBus eventPublisherMock = mock(EventBus.class);
-        final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("test")
+        final DefaultBasicEnvironment simulation = DefaultBasicEnvironment.builder("test")
                 .eventBus(eventPublisherMock)
                 .build();
         final BasicAgent agentMock = mock(BasicAgent.class);
-        final BasicSimulationContext<BasicSimulation, BasicAgent> contextMock = mock(BasicSimulationContext.class);
-        given(agentMock.getContext()).willReturn(Optional.<BasicSimulationContext<BasicSimulation, BasicAgent>>of(contextMock));
+        final BasicSimulationContext<BasicEnvironment, BasicAgent> contextMock = mock(BasicSimulationContext.class);
+        given(agentMock.getContext()).willReturn(Optional.<BasicSimulationContext<BasicEnvironment, BasicAgent>>of(contextMock));
         given(contextMock.getSimulation()).willReturn(simulation);
         given(agentMock.isActive()).willReturn(false, true, true, false);
 

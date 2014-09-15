@@ -31,10 +31,10 @@ import static com.google.common.base.Preconditions.*;
  * A {@code Simulation} that uses a cached thread pool to execute {@link Agent}s and process their addition, removal,
  * migration and communication in parallel.
  */
-public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S extends SpatialSimulation2D<A, Z>,
-        Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DSimulation<A, Z> {
+public abstract class Generic2DEnvironment<A extends SpatialAgent<A, ?, P, ?>, S extends SpatialEnvironment2D<A, Z>,
+        Z extends Space2D<A, P>, P extends Object2D> extends Abstract2DEnvironment<A, Z> {
 
-    private static final Logger logger = LoggerFactory.getLogger(Generic2DSimulation.class);
+    private static final Logger logger = LoggerFactory.getLogger(Generic2DEnvironment.class);
 
     private final AgentSpace<Z, A, P> space;
     private final AtomicInteger currentStep = new AtomicInteger(0);
@@ -50,7 +50,7 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
     private String title = "untitled";
     private SimulationState state;
 
-    protected Generic2DSimulation(final Basic2DSimulationBuilder<?, ?, S, A, Z, P> builder) {
+    protected Generic2DEnvironment(final Basic2DSimulationBuilder<?, ?, S, A, Z, P> builder) {
         this.prototypes = checkNotNull(builder.prototypes);
         this.parallelizationThreshold = builder.parallelizationThreshold;
         this.agentPool = checkNotNull(builder.agentPool);
@@ -443,8 +443,8 @@ public abstract class Generic2DSimulation<A extends SpatialAgent<A, ?, P, ?>, S 
 
     protected abstract static class Basic2DSimulationBuilder<
             B extends Basic2DSimulationBuilder<B, S, X, A, Z, P>,
-            S extends Generic2DSimulation<A, X, Z, P>,
-            X extends SpatialSimulation2D<A, Z>,
+            S extends Generic2DEnvironment<A, X, Z, P>,
+            X extends SpatialEnvironment2D<A, Z>,
             A extends SpatialAgent<A, ?, P, ?>,
             Z extends Space2D<A, P>,
             P extends Object2D>

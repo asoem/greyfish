@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.agent;
 import com.google.common.base.Optional;
 
 /**
- * An Agent which is the basic unit of a {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation}.
+ * An Agent which is the basic unit of a {@link org.asoem.greyfish.core.simulation.DiscreteTimeEnvironment}.
  *
  * @param <C> The type of the simulation context
  */

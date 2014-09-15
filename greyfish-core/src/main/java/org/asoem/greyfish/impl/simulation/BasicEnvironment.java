@@ -7,7 +7,7 @@ import java.util.concurrent.Executor;
 /**
  * The getSimulation environment for agents of type {@link org.asoem.greyfish.impl.agent.BasicAgent}.
  */
-public interface BasicSimulation extends SynchronizedAgentsSimulation<BasicAgent> {
+public interface BasicEnvironment extends SynchronizedAgentsEnvironment<BasicAgent> {
     /**
      * Add the removal of given {@code agent} to this simulations modification queue.
      *

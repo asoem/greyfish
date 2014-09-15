@@ -3,7 +3,6 @@ package org.asoem.greyfish.core.agent;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentContext;
-import org.asoem.greyfish.core.simulation.SpatialSimulation2D;
 import org.asoem.greyfish.utils.space.Motion2D;
 import org.asoem.greyfish.utils.space.Moving;
 import org.asoem.greyfish.utils.space.Object2D;
@@ -27,7 +26,7 @@ public interface SpatialAgent<
      *
      * @param degrees the angle in which to measure the distance
      * @return the distance to the first obstacle
-     * @see SpatialSimulation2D#distance(SpatialAgent, double)
+     * @see org.asoem.greyfish.core.simulation.SpatialEnvironment2D#distance(SpatialAgent, double)
      */
     double distance(double degrees);
 

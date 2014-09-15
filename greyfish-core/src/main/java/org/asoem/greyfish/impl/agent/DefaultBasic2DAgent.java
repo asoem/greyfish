@@ -14,7 +14,7 @@ import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.impl.simulation.Basic2DSimulation;
+import org.asoem.greyfish.impl.simulation.Basic2DEnvironment;
 import org.asoem.greyfish.utils.collect.FunctionalCollection;
 import org.asoem.greyfish.utils.collect.FunctionalFifoBuffer;
 import org.asoem.greyfish.utils.collect.FunctionalList;
@@ -37,7 +37,7 @@ import static java.util.Arrays.asList;
 /**
  * The default implementation of {@code Basic2DAgent}.
  */
-public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent, Basic2DSimulation, Point2D, Basic2DAgentContext>
+public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent, Basic2DEnvironment, Point2D, Basic2DAgentContext>
         implements Basic2DAgent, Serializable {
 
     private final FunctionalList<AgentProperty<? super Basic2DAgentContext, ?>> properties;
@@ -50,7 +50,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     private Point2D projection;
     private Motion2D motion = ImmutableMotion2D.noMotion();
     @Nullable
-    private BasicSimulationContext<Basic2DSimulation, Basic2DAgent> simulationContext;
+    private BasicSimulationContext<Basic2DEnvironment, Basic2DAgent> simulationContext;
     private final Basic2DAgentContext agentContext = new Basic2DAgentContext() {
         @Override
         public Basic2DAgent agent() {
@@ -98,7 +98,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    public void activate(final BasicSimulationContext<Basic2DSimulation, Basic2DAgent> context) {
+    public void activate(final BasicSimulationContext<Basic2DEnvironment, Basic2DAgent> context) {
         this.simulationContext = context;
     }
 
@@ -148,7 +148,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    public Optional<BasicSimulationContext<Basic2DSimulation, Basic2DAgent>> getContext() {
+    public Optional<BasicSimulationContext<Basic2DEnvironment, Basic2DAgent>> getContext() {
         return Optional.fromNullable(simulationContext);
     }
 
@@ -163,7 +163,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    protected void setSimulationContext(@Nullable final BasicSimulationContext<Basic2DSimulation, Basic2DAgent> simulationContext) {
+    protected void setSimulationContext(@Nullable final BasicSimulationContext<Basic2DEnvironment, Basic2DAgent> simulationContext) {
         this.simulationContext = simulationContext;
     }
 

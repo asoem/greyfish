@@ -8,7 +8,7 @@ import org.asoem.greyfish.core.agent.PrototypeGroup;
 /**
  * A {@code Simulation} is an environment for interacting agents.
  */
-public interface Simulation<A extends Agent<?>> {
+public interface Environment<A extends Agent<?>> {
     /**
      * Get all active {@code Agent}s which are part of the given {@code prototypeGroup}.
      *

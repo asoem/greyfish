@@ -6,7 +6,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.AbstractScheduledService;
 import org.asoem.greyfish.core.model.SimulationCreatedEvent;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Environment;
 
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * This service monitors a given {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation} and prints messages
+ * This service monitors a given {@link org.asoem.greyfish.core.simulation.DiscreteTimeEnvironment} and prints messages
  * to a given {@link OutputStream} every second.
  */
 final class ExperimentMonitorService extends AbstractScheduledService {
@@ -99,7 +99,7 @@ final class ExperimentMonitorService extends AbstractScheduledService {
             timestamp = System.currentTimeMillis();
         }
 
-        public Simulation<?> simulation() {
+        public Environment<?> simulation() {
             return event.simulation();
         }
 

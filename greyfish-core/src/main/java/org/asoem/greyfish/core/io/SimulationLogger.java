@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.io;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Environment;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import java.io.Closeable;
@@ -15,7 +15,7 @@ public interface SimulationLogger extends Closeable {
     /**
      * Log a getSimulation instance.
      */
-    void logSimulation(final Simulation<?> simulation);
+    void logSimulation(final Environment<?> environment);
 
     void logAgentCreation(int agentId, String prototypeGroupName, int activationStep,
                           String simulationName, Set<Integer> parents,

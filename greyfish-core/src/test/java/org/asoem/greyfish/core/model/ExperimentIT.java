@@ -21,8 +21,8 @@ import org.asoem.greyfish.impl.agent.BasicAgent;
 import org.asoem.greyfish.impl.agent.BasicAgentContext;
 import org.asoem.greyfish.impl.agent.DefaultBasicAgent;
 import org.asoem.greyfish.impl.agent.TraitMutateValueRequest;
-import org.asoem.greyfish.impl.simulation.BasicSimulation;
-import org.asoem.greyfish.impl.simulation.DefaultBasicSimulation;
+import org.asoem.greyfish.impl.simulation.BasicEnvironment;
+import org.asoem.greyfish.impl.simulation.DefaultBasicEnvironment;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.asoem.greyfish.utils.math.statistics.Samplings;
 import org.junit.Test;
@@ -54,15 +54,15 @@ public class ExperimentIT {
 
                 for (int i = 0; i < nRuns; i++) {
                     // create new getSimulation with predefined set of agents
-                    final BasicSimulation simulation = createSimulation(i);
+                    final BasicEnvironment simulation = createSimulation(i);
                     initializeSimulation(simulation, initialAgents);
 
                     // run the getSimulation
-                    runSimulation(simulation, new Predicate<BasicSimulation>() {
+                    runSimulation(simulation, new Predicate<BasicEnvironment>() {
                         int steps = 10;
 
                         @Override
-                        public boolean apply(@Nullable final BasicSimulation input) {
+                        public boolean apply(@Nullable final BasicEnvironment input) {
                             return steps-- > 0;
                         }
                     });
@@ -75,21 +75,21 @@ public class ExperimentIT {
                 }
             }
 
-            private void runSimulation(final BasicSimulation simulation, final Predicate<? super BasicSimulation> runWhile) {
+            private void runSimulation(final BasicEnvironment simulation, final Predicate<? super BasicEnvironment> runWhile) {
                 while (runWhile.apply(simulation)) {
                     simulation.nextStep();
                 }
             }
 
-            private void initializeSimulation(final BasicSimulation simulation, final Iterable<BasicAgent> agents) {
+            private void initializeSimulation(final BasicEnvironment simulation, final Iterable<BasicAgent> agents) {
                 for (BasicAgent agent : agents) {
                     agent.initialize();
                     simulation.enqueueAddition(agent);
                 }
             }
 
-            private BasicSimulation createSimulation(final int id) {
-                return DefaultBasicSimulation.builder(String.format("%s#%d", this.getClass().getName(), id))
+            private BasicEnvironment createSimulation(final int id) {
+                return DefaultBasicEnvironment.builder(String.format("%s#%d", this.getClass().getName(), id))
                         .build();
             }
 
@@ -129,34 +129,34 @@ public class ExperimentIT {
                 for (int i = 0; i < nRuns; i++) {
 
                     final int parallelSimulations = 4;
-                    final List<ListenableFuture<BasicSimulation>> futures = Lists.newArrayList();
+                    final List<ListenableFuture<BasicEnvironment>> futures = Lists.newArrayList();
                     for (int j = 0; j < parallelSimulations; j++) {
                         // create new getSimulation with predefined set of agents
-                        final BasicSimulation simulation = createSimulation(i);
+                        final BasicEnvironment simulation = createSimulation(i);
                         initializeSimulation(simulation, copy(initialAgents));
 
                         // run the getSimulation
-                        Callable<BasicSimulation> runnable = new Callable<BasicSimulation>() {
-                            public BasicSimulation call() {
-                                runSimulation(simulation, new Predicate<BasicSimulation>() {
+                        Callable<BasicEnvironment> runnable = new Callable<BasicEnvironment>() {
+                            public BasicEnvironment call() {
+                                runSimulation(simulation, new Predicate<BasicEnvironment>() {
                                     int steps = 10;
 
                                     @Override
-                                    public boolean apply(@Nullable final BasicSimulation input) {
+                                    public boolean apply(@Nullable final BasicEnvironment input) {
                                         return steps-- > 0;
                                     }
                                 });
                                 return simulation;
                             }
                         };
-                        final ListenableFuture<BasicSimulation> future = executorService.submit(runnable);
+                        final ListenableFuture<BasicEnvironment> future = executorService.submit(runnable);
                         futures.add(future);
                     }
 
-                    final List<BasicSimulation> simulations = Futures.getUnchecked(Futures.allAsList(futures));
+                    final List<BasicEnvironment> simulations = Futures.getUnchecked(Futures.allAsList(futures));
 
                     initialAgents.clear();
-                    for (BasicSimulation simulation : simulations) {
+                    for (BasicEnvironment simulation : simulations) {
                         // sample agents for new getSimulation
                         final Iterable<BasicAgent> sampledAgents =
                                 Samplings.random(rng()).withReplacement().sample(copyOf(simulation.getActiveAgents()), 30);
@@ -180,20 +180,20 @@ public class ExperimentIT {
                 });
             }
 
-            private void runSimulation(final BasicSimulation simulation, final Predicate<? super BasicSimulation> runWhile) {
+            private void runSimulation(final BasicEnvironment simulation, final Predicate<? super BasicEnvironment> runWhile) {
                 while (runWhile.apply(simulation)) {
                     simulation.nextStep();
                 }
             }
 
-            private void initializeSimulation(final BasicSimulation simulation, final Iterable<BasicAgent> agents) {
+            private void initializeSimulation(final BasicEnvironment simulation, final Iterable<BasicAgent> agents) {
                 for (BasicAgent agent : agents) {
                     simulation.enqueueAddition(agent);
                 }
             }
 
-            private BasicSimulation createSimulation(final int id) {
-                return DefaultBasicSimulation.builder(String.format("%s#%d", this.getClass().getName(), id))
+            private BasicEnvironment createSimulation(final int id) {
+                return DefaultBasicEnvironment.builder(String.format("%s#%d", this.getClass().getName(), id))
                         .build();
             }
 

@@ -12,7 +12,7 @@ import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.DefaultSimulationContextFactory;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.agent.SimulationContextFactory;
-import org.asoem.greyfish.core.simulation.AbstractSimulation;
+import org.asoem.greyfish.core.simulation.AbstractEnvironment;
 import org.asoem.greyfish.impl.agent.BasicAgent;
 import org.asoem.greyfish.utils.concurrent.Runnables;
 
@@ -35,22 +35,22 @@ import static com.google.common.base.Preconditions.*;
  * The default thread safe implementation of BasicSimulation.
  */
 @ThreadSafe
-public final class DefaultBasicSimulation
-        extends AbstractSimulation<BasicAgent>
-        implements BasicSimulation {
+public final class DefaultBasicEnvironment
+        extends AbstractEnvironment<BasicAgent>
+        implements BasicEnvironment {
 
     @GuardedBy("agents")
     private final List<BasicAgent> agents = Lists.newLinkedList();
     private final Queue<DelayedModification> delayedModifications = Queues.newConcurrentLinkedQueue();
     private final ListeningExecutorService executorService;
     private final String name;
-    private final SimulationContextFactory<BasicSimulation, BasicAgent> contextFactory;
+    private final SimulationContextFactory<BasicEnvironment, BasicAgent> contextFactory;
     private final AtomicLong steps = new AtomicLong(0);
     private final AtomicInteger agentIdSequence = new AtomicInteger();
     private final AtomicReference<Phase> phase = new AtomicReference<Phase>(Phase.IDLE);
     private final EventBus eventBus;
 
-    public DefaultBasicSimulation(final Builder builder) {
+    public DefaultBasicEnvironment(final Builder builder) {
         this.executorService = MoreExecutors.listeningDecorator(builder.executorService);
         this.name = builder.name;
         this.contextFactory = builder.simulationContextFactory;
@@ -223,8 +223,8 @@ public final class DefaultBasicSimulation
         private final String name;
         private ExecutorService executorService =
                 Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        private DefaultSimulationContextFactory<BasicSimulation, BasicAgent> simulationContextFactory =
-                DefaultSimulationContextFactory.<BasicSimulation, BasicAgent>create();
+        private DefaultSimulationContextFactory<BasicEnvironment, BasicAgent> simulationContextFactory =
+                DefaultSimulationContextFactory.<BasicEnvironment, BasicAgent>create();
         private EventBus eventPublisher = new EventBus();
 
         private Builder(final String name) {
@@ -241,8 +241,8 @@ public final class DefaultBasicSimulation
             return this;
         }
 
-        public DefaultBasicSimulation build() {
-            return new DefaultBasicSimulation(this);
+        public DefaultBasicEnvironment build() {
+            return new DefaultBasicEnvironment(this);
         }
     }
 

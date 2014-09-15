@@ -7,11 +7,11 @@ import com.google.common.collect.Sets;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.impl.agent.BasicAgent;
-import org.asoem.greyfish.impl.simulation.SynchronizedAgentsSimulation;
+import org.asoem.greyfish.impl.simulation.SynchronizedAgentsEnvironment;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class AbstractSimulation<A extends Agent<?>> implements SynchronizedAgentsSimulation<A> {
+public abstract class AbstractEnvironment<A extends Agent<?>> implements SynchronizedAgentsEnvironment<A> {
 
 
     /**

@@ -39,7 +39,7 @@ import static org.hamcrest.Matchers.*;
  */
 public class AgentObjectPoolAT {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultBasicSimulationTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultBasicEnvironmentTest.class);
 
     @Test
     public void testSignificantPerformanceBenefit() throws Exception {
@@ -86,7 +86,7 @@ public class AgentObjectPoolAT {
 
         // Is it faster?
         assertThat("The mean elapsed time of the version with an object pool " +
-                "is not less than the mean elapsed time of the version with an object pool",
+                        "is not less than the mean elapsed time of the version with an object pool",
                 statisticsWithObjectPool.getMean(), is(lessThan(statisticsWithoutObjectPool.getMean())));
 
         // Is it also significantly faster? Make a t-test.
@@ -162,7 +162,7 @@ public class AgentObjectPoolAT {
                 statisticsWithObjectPool, statisticsWithoutObjectPool);
 
         assertThat("The mean elapsed time of the version with an object pool " +
-                "is not less than the mean elapsed time of the version with an object pool",
+                        "is not less than the mean elapsed time of the version with an object pool",
                 statisticsWithObjectPool.getMean(), is(lessThan(statisticsWithoutObjectPool.getMean())));
 
         // Is it also significantly faster? Make a t-test.
@@ -177,7 +177,7 @@ public class AgentObjectPoolAT {
         assertThat("The means are not significantly different", Math.abs(t), is(greaterThan(qt)));
     }
 
-    private long measureExecutionTime(final SynchronizedAgentsSimulation<?> simulationWithoutObjectPool, final int steps) {
+    private long measureExecutionTime(final SynchronizedAgentsEnvironment<?> simulationWithoutObjectPool, final int steps) {
         final Stopwatch stopwatch = Stopwatch.createStarted();
         for (int j = 0; j < steps; j++) {
             simulationWithoutObjectPool.nextStep();
@@ -203,8 +203,8 @@ public class AgentObjectPoolAT {
             });
         }
 
-        public SynchronizedAgentsSimulation<?> newSimulation() {
-            final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("TestSimulation")
+        public SynchronizedAgentsEnvironment<?> newSimulation() {
+            final DefaultBasicEnvironment simulation = DefaultBasicEnvironment.builder("TestSimulation")
                     .eventBus(new EventBus() {
                         @Override
                         public void post(final Object event) {
@@ -250,7 +250,7 @@ public class AgentObjectPoolAT {
                                         @Override
                                         public Void apply(final GenericAction<BasicAgent> caller, final Map<String, ?> args) {
                                             final BasicAgent agent = caller.agent().get();
-                                            final BasicSimulation simulation = agent.getContext().get().getSimulation();
+                                            final BasicEnvironment simulation = agent.getContext().get().getSimulation();
                                             simulation.enqueueRemoval(agent, new Runnable() {
                                                 @Override
                                                 public void run() {
@@ -279,8 +279,8 @@ public class AgentObjectPoolAT {
             this.executorService = executorService;
         }
 
-        public SynchronizedAgentsSimulation<?> newSimulation() {
-            final DefaultBasicSimulation simulation = DefaultBasicSimulation.builder("TestSimulation")
+        public SynchronizedAgentsEnvironment<?> newSimulation() {
+            final DefaultBasicEnvironment simulation = DefaultBasicEnvironment.builder("TestSimulation")
                     .eventBus(new EventBus() {
                         @Override
                         public void post(final Object event) {
@@ -320,7 +320,7 @@ public class AgentObjectPoolAT {
                                         @Override
                                         public Void apply(final GenericAction<BasicAgent> caller, final Map<String, ?> args) {
                                             final BasicAgent agent = caller.agent().get();
-                                            final BasicSimulation simulation = agent.getContext().get().getSimulation();
+                                            final BasicEnvironment simulation = agent.getContext().get().getSimulation();
                                             simulation.enqueueRemoval(agent);
                                             return null;
                                         }

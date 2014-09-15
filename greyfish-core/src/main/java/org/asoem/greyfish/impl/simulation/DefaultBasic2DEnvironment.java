@@ -2,7 +2,7 @@ package org.asoem.greyfish.impl.simulation;
 
 import com.google.common.collect.ImmutableSet;
 import org.asoem.greyfish.core.agent.DefaultActiveSimulationContext;
-import org.asoem.greyfish.core.simulation.Generic2DSimulation;
+import org.asoem.greyfish.core.simulation.Generic2DEnvironment;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
 import org.asoem.greyfish.utils.space.Point2D;
@@ -10,12 +10,12 @@ import org.asoem.greyfish.utils.space.Point2D;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public final class DefaultBasic2DSimulation
-        extends Generic2DSimulation<Basic2DAgent, Basic2DSimulation, BasicTiled2DSpace, Point2D>
-        implements Basic2DSimulation {
+public final class DefaultBasic2DEnvironment
+        extends Generic2DEnvironment<Basic2DAgent, Basic2DEnvironment, BasicTiled2DSpace, Point2D>
+        implements Basic2DEnvironment {
     private final AtomicInteger agentIdSequence = new AtomicInteger();
 
-    private DefaultBasic2DSimulation(final Builder builder) {
+    private DefaultBasic2DEnvironment(final Builder builder) {
         super(builder);
     }
 
@@ -25,7 +25,7 @@ public final class DefaultBasic2DSimulation
     }
 
     @Override
-    protected Basic2DSimulation self() {
+    protected Basic2DEnvironment self() {
         return this;
     }
 
@@ -43,7 +43,7 @@ public final class DefaultBasic2DSimulation
     }
 
     public static final class Builder
-            extends Basic2DSimulationBuilder<Builder, DefaultBasic2DSimulation, Basic2DSimulation, Basic2DAgent, BasicTiled2DSpace, Point2D> {
+            extends Basic2DSimulationBuilder<Builder, DefaultBasic2DEnvironment, Basic2DEnvironment, Basic2DAgent, BasicTiled2DSpace, Point2D> {
 
         public Builder(final BasicTiled2DSpace space, final Set<Basic2DAgent> prototypes) {
             super(space, prototypes);
@@ -55,8 +55,8 @@ public final class DefaultBasic2DSimulation
         }
 
         @Override
-        protected DefaultBasic2DSimulation checkedBuild() {
-            return new DefaultBasic2DSimulation(this);
+        protected DefaultBasic2DEnvironment checkedBuild() {
+            return new DefaultBasic2DEnvironment(this);
         }
     }
 }

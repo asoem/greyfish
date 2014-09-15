@@ -7,7 +7,7 @@ import com.google.inject.Inject;
 import org.asoem.greyfish.core.model.Experiment;
 
 /**
- * This service executes a given {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation}.
+ * This service executes a given {@link org.asoem.greyfish.core.simulation.DiscreteTimeEnvironment}.
  */
 final class ExperimentExecutionService extends AbstractExecutionThreadService {
 

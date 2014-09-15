@@ -1,29 +1,32 @@
 package org.asoem.greyfish.core.model;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Environment;
 
 /**
- * An event which is published by {@link org.asoem.greyfish.core.model.Experiment experiments} if they create a new {@link Simulation getSimulation}.
+ * An event which is published by {@link org.asoem.greyfish.core.model.Experiment experiments} if they create a new
+ * {@link org.asoem.greyfish.core.simulation.Environment getSimulation}.
  */
 public class SimulationCreatedEvent {
     private final Experiment experiment;
-    private final Simulation<?> simulation;
+    private final Environment<?> environment;
 
-    public SimulationCreatedEvent(final Experiment experiment, final Simulation<?> simulation) {
+    public SimulationCreatedEvent(final Experiment experiment, final Environment<?> environment) {
         this.experiment = experiment;
-        this.simulation = simulation;
+        this.environment = environment;
     }
 
     /**
      * Get the getSimulation which was created
+     *
      * @return the newly created getSimulation
      */
-    public Simulation<?> simulation() {
-        return simulation;
+    public Environment<?> simulation() {
+        return environment;
     }
 
     /**
      * Get the experiment which created the new {@link #simulation() getSimulation}.
+     *
      * @return the event origin
      */
     public Experiment experiment() {

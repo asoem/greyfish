@@ -38,12 +38,12 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DefaultBasic2DSimulationTest {
+public class DefaultBasic2DEnvironmentTest {
 
     @Inject
     private Persister persister;
 
-    public DefaultBasic2DSimulationTest() {
+    public DefaultBasic2DEnvironmentTest() {
         Guice.createInjector(new CoreModule()).injectMembers(this);
     }
 
@@ -62,7 +62,7 @@ public class DefaultBasic2DSimulationTest {
         });
 
         // when
-        final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, ImmutableSet.of(prototype))
+        final DefaultBasic2DEnvironment simulation = DefaultBasic2DEnvironment.builder(space, ImmutableSet.of(prototype))
                 .agentPool(SynchronizedKeyedObjectPool.create(new LoadingKeyedObjectPool.PoolLoader<PrototypeGroup, Basic2DAgent>() {
                     @Override
                     public Basic2DAgent load(final PrototypeGroup input) {
@@ -93,7 +93,7 @@ public class DefaultBasic2DSimulationTest {
         });
 
         // when
-        final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation
+        final DefaultBasic2DEnvironment simulation = DefaultBasic2DEnvironment
                 .builder(space, ImmutableSet.of(prototype))
                 .agentPool(mock(LoadingKeyedObjectPool.class))
                 .build();
@@ -148,8 +148,8 @@ public class DefaultBasic2DSimulationTest {
             }
         });
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(agent);
-        final DefaultBasic2DSimulation simulation =
-                DefaultBasic2DSimulation.builder(space, prototypes)
+        final DefaultBasic2DEnvironment simulation =
+                DefaultBasic2DEnvironment.builder(space, prototypes)
                         .agentPool(pool)
                         .build();
 
@@ -189,8 +189,8 @@ public class DefaultBasic2DSimulationTest {
             }
         });
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(agent);
-        final DefaultBasic2DSimulation simulation =
-                DefaultBasic2DSimulation.builder(space, prototypes)
+        final DefaultBasic2DEnvironment simulation =
+                DefaultBasic2DEnvironment.builder(space, prototypes)
                         .agentPool(pool)
                         .build();
 
@@ -218,7 +218,7 @@ public class DefaultBasic2DSimulationTest {
             }
         });
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(agent);
-        final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
+        final DefaultBasic2DEnvironment simulation = DefaultBasic2DEnvironment.builder(space, prototypes)
                 .agentPool(mock(LoadingKeyedObjectPool.class))
                 .build();
         //given(agent.getSimulation()).willReturn(getSimulation);
@@ -257,7 +257,7 @@ public class DefaultBasic2DSimulationTest {
             }
         });
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(agent);
-        final DefaultBasic2DSimulation simulation = DefaultBasic2DSimulation.builder(space, prototypes)
+        final DefaultBasic2DEnvironment simulation = DefaultBasic2DEnvironment.builder(space, prototypes)
                 .agentPool(pool)
                 .build();
         simulation.addAgent(agent, ImmutablePoint2D.at(0, 0));

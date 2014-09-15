@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
+import org.asoem.greyfish.core.simulation.DiscreteTimeEnvironment;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -11,7 +11,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @param <S> the type of the getSimulation
  * @param <A> the type of the agent
  */
-public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<?>> implements BasicSimulationContext<S, A> {
+public final class DefaultActiveSimulationContext<S extends DiscreteTimeEnvironment<A>, A extends Agent<?>> implements BasicSimulationContext<S, A> {
 
     private final S simulation;
 
@@ -25,7 +25,7 @@ public final class DefaultActiveSimulationContext<S extends DiscreteTimeSimulati
         this.activationStep = simulationStep;
     }
 
-    public static <S extends DiscreteTimeSimulation<A>, A extends Agent<?>>
+    public static <S extends DiscreteTimeEnvironment<A>, A extends Agent<?>>
     DefaultActiveSimulationContext<S, A> create(final S simulation, final int agentId, final long simulationStep) {
         return new DefaultActiveSimulationContext<>(simulation, agentId, simulationStep);
     }

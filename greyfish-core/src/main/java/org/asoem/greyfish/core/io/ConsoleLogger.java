@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.io;
 
 import com.google.common.base.Joiner;
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Environment;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import java.io.PrintStream;
@@ -22,8 +22,8 @@ final class ConsoleLogger implements SimulationLogger {
     }
 
     @Override
-    public void logSimulation(final Simulation<?> simulation) {
-        printStream.println("Created simulation: " + simulation.getName() + " (" + simulation.hashCode() + ")");
+    public void logSimulation(final Environment<?> environment) {
+        printStream.println("Created simulation: " + environment.getName() + " (" + environment.hashCode() + ")");
     }
 
     @Override

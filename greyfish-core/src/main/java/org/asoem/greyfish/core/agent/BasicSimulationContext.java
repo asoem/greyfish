@@ -1,12 +1,12 @@
 package org.asoem.greyfish.core.agent;
 
-import org.asoem.greyfish.core.simulation.DiscreteTimeSimulation;
+import org.asoem.greyfish.core.simulation.DiscreteTimeEnvironment;
 
 /**
- * A SimulationContext is the link between an {@link Agent} and a {@link DiscreteTimeSimulation}. If an agent got
- * activated a newly created context will be set for this agent.
+ * A SimulationContext is the link between an {@link Agent} and a {@link org.asoem.greyfish.core.simulation.DiscreteTimeEnvironment}.
+ * If an agent got activated a newly created context will be set for this agent.
  */
-public interface BasicSimulationContext<S extends DiscreteTimeSimulation<A>, A extends Agent<?>> extends SimulationContext<S, A> {
+public interface BasicSimulationContext<S extends DiscreteTimeEnvironment<A>, A extends Agent<?>> extends SimulationContext<S, A> {
 
     /**
      * The step at which this agent was inserted into the getSimulation.
@@ -23,7 +23,7 @@ public interface BasicSimulationContext<S extends DiscreteTimeSimulation<A>, A e
     long getAge();
 
     /**
-     * Get the current getSimulation step. Delegates to {@link org.asoem.greyfish.core.simulation.DiscreteTimeSimulation#getTime()}
+     * Get the current getSimulation step. Delegates to {@link org.asoem.greyfish.core.simulation.DiscreteTimeEnvironment#getTime()}
      *
      * @return the number of executed steps in the getSimulation
      */

@@ -1,8 +1,9 @@
 package org.asoem.greyfish.core.model;
 
-import org.asoem.greyfish.core.simulation.Simulation;
+import org.asoem.greyfish.core.simulation.Environment;
 
 public interface SimulationListener {
-    void started(Simulation<?> simulation);
-    void done(Simulation<?> simulation);
+    void started(Environment<?> environment);
+
+    void done(Environment<?> environment);
 }

@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.impl.simulation.BasicSimulation;
+import org.asoem.greyfish.impl.simulation.BasicEnvironment;
 import org.asoem.greyfish.utils.collect.FunctionalCollection;
 import org.asoem.greyfish.utils.collect.FunctionalFifoBuffer;
 import org.asoem.greyfish.utils.collect.FunctionalList;
@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * The default implementation of {@code BasicAgent}.
  */
-public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimulationContext<BasicSimulation, BasicAgent>, BasicAgentContext>
+public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimulationContext<BasicEnvironment, BasicAgent>, BasicAgentContext>
         implements BasicAgent {
     private final PrototypeGroup prototypeGroup;
     private final FunctionalList<AgentAction<? super BasicAgentContext>> actions;
@@ -36,7 +36,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     private final transient ActionExecutionStrategy<BasicAgentContext> actionExecutionStrategy;
 
     @Nullable
-    private BasicSimulationContext<BasicSimulation, BasicAgent> simulationContext;
+    private BasicSimulationContext<BasicEnvironment, BasicAgent> simulationContext;
     private final BasicAgentContext agentContext = new BasicAgentContext() {
         @Override
         public void addAgent(final BasicAgent agent) {
@@ -112,7 +112,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     }
 
     @Override
-    public void activate(final BasicSimulationContext<BasicSimulation, BasicAgent> context) {
+    public void activate(final BasicSimulationContext<BasicEnvironment, BasicAgent> context) {
         this.simulationContext = context;
     }
 
@@ -121,7 +121,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     }
 
     @Override
-    public Optional<BasicSimulationContext<BasicSimulation, BasicAgent>> getContext() {
+    public Optional<BasicSimulationContext<BasicEnvironment, BasicAgent>> getContext() {
         return Optional.fromNullable(simulationContext);
     }
 
@@ -151,7 +151,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     }
 
     @Override
-    protected void setSimulationContext(@Nullable final BasicSimulationContext<BasicSimulation, BasicAgent> simulationContext) {
+    protected void setSimulationContext(@Nullable final BasicSimulationContext<BasicEnvironment, BasicAgent> simulationContext) {
         this.simulationContext = simulationContext;
     }
 
