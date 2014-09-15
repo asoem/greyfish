@@ -4,7 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.actions.utils.ActionState;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
+import org.asoem.greyfish.core.agent.BasicContext;
 import org.asoem.greyfish.core.agent.RequestAllTraitValues;
 import org.asoem.greyfish.core.traits.Chromosome;
 import org.asoem.greyfish.core.traits.HeritableTraitsChromosome;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.*;
 
-public abstract class ClonalReproduction<A extends Agent<? extends BasicSimulationContext<?, A>>,
+public abstract class ClonalReproduction<A extends Agent<? extends BasicContext<?, A>>,
         C extends AgentContext<A>> extends BaseAgentAction<A, C> {
 
     private Callback<? super ClonalReproduction<A, C>, Integer> clutchSize;
@@ -82,7 +82,7 @@ public abstract class ClonalReproduction<A extends Agent<? extends BasicSimulati
      * @Override protected ClonalReproduction<A> checkedBuild() { return new ClonalReproduction<A>(this); } }
      */
     private abstract static class AbstractBuilder<
-            A extends Agent<? extends BasicSimulationContext<?, A>>,
+            A extends Agent<? extends BasicContext<?, A>>,
             C extends ClonalReproduction<A, AC>,
             B extends AbstractBuilder<A, C, B, AC>,
             AC extends AgentContext<A>>

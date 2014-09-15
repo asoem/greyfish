@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
  */
 public abstract class AbstractAgent<
         A extends Agent<C>,
-        C extends BasicSimulationContext<?, A>,
+        C extends BasicContext<?, A>,
         AC extends AgentContext<A>>
         implements Agent<C> {
     private static final Logger logger = LoggerFactory.getLogger(AbstractAgent.class);
@@ -63,10 +63,10 @@ public abstract class AbstractAgent<
 
     @Override
     public final void run() {
-        final ActionExecutionStrategy<AC> actionExecutionStrategy = getActionExecutionStrategy();
-        final boolean executeSuccess = actionExecutionStrategy.executeNext(agentContext());
+        final ActionScheduler<AC> actionScheduler = getActionScheduler();
+        final boolean executeSuccess = actionScheduler.executeNext(agentContext());
         if (executeSuccess) {
-            logger.debug("{} executed {}", this, actionExecutionStrategy);
+            logger.debug("{} executed {}", this, actionScheduler);
         }
     }
 
@@ -137,7 +137,7 @@ public abstract class AbstractAgent<
         setSimulationContext(null);
         getInBox().clear();
         //setParents(ImmutableSet.<Integer>of());
-        getActionExecutionStrategy().reset();
+        getActionScheduler().reset();
         for (final AgentNode node : children()) {
             node.initialize();
         }
@@ -181,6 +181,6 @@ public abstract class AbstractAgent<
      *
      * @return the action execution strategy
      */
-    protected abstract ActionExecutionStrategy<AC> getActionExecutionStrategy();
+    protected abstract ActionScheduler<AC> getActionScheduler();
 
 }

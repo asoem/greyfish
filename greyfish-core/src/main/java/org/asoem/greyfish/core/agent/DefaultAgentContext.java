@@ -7,9 +7,9 @@ import org.asoem.greyfish.core.actions.AgentContext;
 
 public final class DefaultAgentContext<A extends Agent<?>> implements AgentContext<A> {
     private A agent;
-    private final BasicSimulationContext<?, A> simulationContext;
+    private final BasicContext<?, A> simulationContext;
 
-    public DefaultAgentContext(final A agent, final BasicSimulationContext<?, A> simulationContext) {
+    public DefaultAgentContext(final A agent, final BasicContext<?, A> simulationContext) {
         this.agent = agent;
         this.simulationContext = simulationContext;
     }

@@ -5,7 +5,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableMap;
 import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
+import org.asoem.greyfish.core.agent.BasicContext;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.SingleElementCache;
 
@@ -19,7 +19,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public final class CachingProperty<A extends Agent<? extends BasicSimulationContext<?, A>>, T, C extends AgentContext<A>> extends AbstractAgentProperty<C, T> {
+public final class CachingProperty<A extends Agent<? extends BasicContext<?, A>>, T, C extends AgentContext<A>> extends AbstractAgentProperty<C, T> {
 
     private final Callback<? super CachingProperty<A, T, C>, ? extends T> valueCallback;
 
@@ -63,7 +63,7 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
         return valueCallback;
     }
 
-    public static <T, A extends Agent<? extends BasicSimulationContext<?, A>>, C extends AgentContext<A>> Builder<T, A, C> builder() {
+    public static <T, A extends Agent<? extends BasicContext<?, A>>, C extends AgentContext<A>> Builder<T, A, C> builder() {
         return new Builder<>();
     }
 
@@ -82,7 +82,7 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
         this.agent = agent;
     }
 
-    public static final class Builder<T, A extends Agent<? extends BasicSimulationContext<?, A>>, C extends AgentContext<A>> extends CachingProperty.AbstractBuilder<T, A, CachingProperty<A, T, C>, Builder<T, A, C>, C> implements Serializable {
+    public static final class Builder<T, A extends Agent<? extends BasicContext<?, A>>, C extends AgentContext<A>> extends CachingProperty.AbstractBuilder<T, A, CachingProperty<A, T, C>, Builder<T, A, C>, C> implements Serializable {
 
         private Builder() {
         }
@@ -112,7 +112,7 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
         private static final long serialVersionUID = 0;
     }
 
-    private abstract static class AbstractBuilder<T, A extends Agent<? extends BasicSimulationContext<?, A>>, P extends CachingProperty<A, T, C>, B extends AbstractBuilder<T, A, P, B, C>, C extends AgentContext<A>> extends AbstractAgentProperty.AbstractBuilder<P, B> implements Serializable {
+    private abstract static class AbstractBuilder<T, A extends Agent<? extends BasicContext<?, A>>, P extends CachingProperty<A, T, C>, B extends AbstractBuilder<T, A, P, B, C>, C extends AgentContext<A>> extends AbstractAgentProperty.AbstractBuilder<P, B> implements Serializable {
         private Callback<? super CachingProperty<A, T, C>, ? extends T> valueCallback;
 
         private Callback<? super CachingProperty<A, T, C>, Boolean> expirationCallback = CachingProperty.expiresAtBirth();
@@ -164,7 +164,7 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
 
         @Override
         public Boolean apply(final CachingProperty<?, ?, ?> caller, final Map<String, ?> args) {
-            final Agent<? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
+            final Agent<? extends BasicContext<?, ?>> agent = caller.agent().get();
             return caller.getLastModificationStep() < agent.getContext().get().getActivationStep();
         }
     }
@@ -178,7 +178,7 @@ public final class CachingProperty<A extends Agent<? extends BasicSimulationCont
 
         @Override
         public Boolean apply(final CachingProperty<?, ?, ?> caller, final Map<String, ?> args) {
-            final Agent<? extends BasicSimulationContext<?, ?>> agent = caller.agent().get();
+            final Agent<? extends BasicContext<?, ?>> agent = caller.agent().get();
             return caller.getLastModificationStep() != agent.getContext().get().getTime();
         }
     }

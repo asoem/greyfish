@@ -12,7 +12,7 @@ import com.google.common.reflect.TypeToken;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.asoem.greyfish.core.simulation.Environment;
+import org.asoem.greyfish.core.environment.Environment;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.asoem.greyfish.utils.space.Point2D;
 import org.slf4j.Logger;
@@ -171,7 +171,7 @@ final class JDBCLogger
     }
 
     @Override
-    public void logSimulation(final Environment<?> environment) {
+    public void logEnvironment(final Environment<?> environment) {
         addQuery(new InsertSimulationQuery(
                 simulationIdCache.getUnchecked(environment.getName()),
                 environment.getName()));

@@ -1,11 +1,11 @@
 package org.asoem.greyfish.core.conditions;
 
 import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
+import org.asoem.greyfish.core.agent.BasicContext;
 import org.asoem.greyfish.utils.base.Tagged;
 
 @Tagged("conditions")
-public class AgeCondition<A extends Agent<? extends BasicSimulationContext<?, A>>> extends LongCompareCondition<A> {
+public class AgeCondition<A extends Agent<? extends BasicContext<?, A>>> extends LongCompareCondition<A> {
 
     @SuppressWarnings("UnusedDeclaration") // Needed for construction by reflection / deserialization
     public AgeCondition() {
@@ -20,7 +20,7 @@ public class AgeCondition<A extends Agent<? extends BasicSimulationContext<?, A>
         return agent().get().getContext().get().getAge();
     }
 
-    public static final class Builder<A extends Agent<? extends BasicSimulationContext<?, A>>> extends AbstractBuilder<AgeCondition<A>, Builder<A>, A> {
+    public static final class Builder<A extends Agent<? extends BasicContext<?, A>>> extends AbstractBuilder<AgeCondition<A>, Builder<A>, A> {
         @Override
         protected Builder<A> self() {
             return this;
@@ -32,6 +32,6 @@ public class AgeCondition<A extends Agent<? extends BasicSimulationContext<?, A>
         }
     }
 
-    protected static abstract class AbstractBuilder<E extends AgeCondition<A>, T extends AbstractBuilder<E, T, A>, A extends Agent<? extends BasicSimulationContext<?, A>>> extends LongCompareCondition.AbstractBuilder<E, T, A> {
+    protected static abstract class AbstractBuilder<E extends AgeCondition<A>, T extends AbstractBuilder<E, T, A>, A extends Agent<? extends BasicContext<?, A>>> extends LongCompareCondition.AbstractBuilder<E, T, A> {
     }
 }

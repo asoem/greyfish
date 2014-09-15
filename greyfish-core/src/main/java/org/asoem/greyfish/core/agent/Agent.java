@@ -3,11 +3,11 @@ package org.asoem.greyfish.core.agent;
 import com.google.common.base.Optional;
 
 /**
- * An Agent which is the basic unit of a {@link org.asoem.greyfish.core.simulation.DiscreteTimeEnvironment}.
+ * An Agent which is the basic unit of a {@link org.asoem.greyfish.core.environment.DiscreteTimeEnvironment}.
  *
  * @param <C> The type of the simulation context
  */
-public interface Agent<C extends SimulationContext<?, ?>>
+public interface Agent<C extends Context<?, ?>>
         extends AgentNode, Runnable {
 
     /**
@@ -32,12 +32,12 @@ public interface Agent<C extends SimulationContext<?, ?>>
     void activate(C context);
 
     /**
-     * Deactivate this agent. <p>Deactivation will remove the current {@link BasicSimulationContext context}</p>
+     * Deactivate this agent. <p>Deactivation will remove the current {@link BasicContext context}</p>
      */
     void deactivate();
 
     /**
-     * Check if the agent's {@link BasicSimulationContext context} is present.
+     * Check if the agent's {@link BasicContext context} is present.
      *
      * @return {@code true} if the context is present, {@code false} if absent
      */

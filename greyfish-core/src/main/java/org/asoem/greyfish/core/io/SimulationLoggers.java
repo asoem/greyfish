@@ -1,6 +1,6 @@
 package org.asoem.greyfish.core.io;
 
-import org.asoem.greyfish.core.simulation.Environment;
+import org.asoem.greyfish.core.environment.Environment;
 import org.asoem.greyfish.utils.space.Object2D;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -80,9 +80,9 @@ public final class SimulationLoggers {
         }
 
         @Override
-        public void logSimulation(final Environment<?> environment) {
+        public void logEnvironment(final Environment<?> environment) {
             synchronized (this) {
-                logger.logSimulation(environment);
+                logger.logEnvironment(environment);
             }
         }
 

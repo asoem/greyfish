@@ -14,7 +14,7 @@ import org.asoem.greyfish.core.actions.AgentContext;
 import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.properties.AgentProperty;
 import org.asoem.greyfish.core.traits.AgentTrait;
-import org.asoem.greyfish.impl.simulation.Basic2DEnvironment;
+import org.asoem.greyfish.impl.environment.Basic2DEnvironment;
 import org.asoem.greyfish.utils.collect.FunctionalCollection;
 import org.asoem.greyfish.utils.collect.FunctionalFifoBuffer;
 import org.asoem.greyfish.utils.collect.FunctionalList;
@@ -43,14 +43,14 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     private final FunctionalList<AgentProperty<? super Basic2DAgentContext, ?>> properties;
     private final List<AgentAction<? super Basic2DAgentContext>> actions;
     private final FunctionalList<AgentTrait<? super Basic2DAgentContext, ?>> traits;
-    private final ActionExecutionStrategy<Basic2DAgentContext> actionExecutionStrategy;
+    private final ActionScheduler<Basic2DAgentContext> actionScheduler;
     private final FunctionalCollection<ACLMessage<Basic2DAgent>> inBox;
     private PrototypeGroup prototypeGroup;
     @Nullable
     private Point2D projection;
     private Motion2D motion = ImmutableMotion2D.noMotion();
     @Nullable
-    private BasicSimulationContext<Basic2DEnvironment, Basic2DAgent> simulationContext;
+    private BasicContext<Basic2DEnvironment, Basic2DAgent> simulationContext;
     private final Basic2DAgentContext agentContext = new Basic2DAgentContext() {
         @Override
         public Basic2DAgent agent() {
@@ -79,7 +79,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
 
         @Override
         public void sendMessage(final ACLMessage<Basic2DAgent> message) {
-            getContext().get().getSimulation().deliverMessage(message);
+            getContext().get().getEnvironment().deliverMessage(message);
         }
     };
 
@@ -88,7 +88,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
         this.actions = ImmutableFunctionalList.copyOf(builder.actions);
         this.traits = ImmutableFunctionalList.copyOf(builder.traits);
         this.prototypeGroup = builder.prototypeGroup;
-        this.actionExecutionStrategy = new DefaultActionExecutionStrategy<Basic2DAgent, Basic2DAgentContext>(actions);
+        this.actionScheduler = new DefaultActionScheduler<Basic2DAgent, Basic2DAgentContext>(actions);
         this.inBox = new FunctionalFifoBuffer<>();
     }
 
@@ -98,7 +98,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    public void activate(final BasicSimulationContext<Basic2DEnvironment, Basic2DAgent> context) {
+    public void activate(final BasicContext<Basic2DEnvironment, Basic2DAgent> context) {
         this.simulationContext = context;
     }
 
@@ -148,7 +148,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    public Optional<BasicSimulationContext<Basic2DEnvironment, Basic2DAgent>> getContext() {
+    public Optional<BasicContext<Basic2DEnvironment, Basic2DAgent>> getContext() {
         return Optional.fromNullable(simulationContext);
     }
 
@@ -163,13 +163,13 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     @Override
-    protected void setSimulationContext(@Nullable final BasicSimulationContext<Basic2DEnvironment, Basic2DAgent> simulationContext) {
+    protected void setSimulationContext(@Nullable final BasicContext<Basic2DEnvironment, Basic2DAgent> simulationContext) {
         this.simulationContext = simulationContext;
     }
 
     @Override
-    protected ActionExecutionStrategy<Basic2DAgentContext> getActionExecutionStrategy() {
-        return actionExecutionStrategy;
+    protected ActionScheduler<Basic2DAgentContext> getActionScheduler() {
+        return actionScheduler;
     }
 
     public static Builder builder(final PrototypeGroup prototypeGroup) {

@@ -11,7 +11,7 @@ import org.asoem.greyfish.core.acl.MessageTemplate;
 import org.asoem.greyfish.core.actions.AgentAction;
 import org.asoem.greyfish.core.agent.*;
 import org.asoem.greyfish.core.properties.AgentProperty;
-import org.asoem.greyfish.impl.simulation.BasicEnvironment;
+import org.asoem.greyfish.impl.environment.BasicEnvironment;
 import org.asoem.greyfish.utils.collect.FunctionalCollection;
 import org.asoem.greyfish.utils.collect.FunctionalFifoBuffer;
 import org.asoem.greyfish.utils.collect.FunctionalList;
@@ -27,25 +27,25 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * The default implementation of {@code BasicAgent}.
  */
-public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimulationContext<BasicEnvironment, BasicAgent>, BasicAgentContext>
+public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicContext<BasicEnvironment, BasicAgent>, BasicAgentContext>
         implements BasicAgent {
     private final PrototypeGroup prototypeGroup;
     private final FunctionalList<AgentAction<? super BasicAgentContext>> actions;
     private final FunctionalList<AgentProperty<? super BasicAgentContext, ?>> properties;
     private final FunctionalCollection<ACLMessage<BasicAgent>> inBox;
-    private final transient ActionExecutionStrategy<BasicAgentContext> actionExecutionStrategy;
+    private final transient ActionScheduler<BasicAgentContext> actionScheduler;
 
     @Nullable
-    private BasicSimulationContext<BasicEnvironment, BasicAgent> simulationContext;
+    private BasicContext<BasicEnvironment, BasicAgent> simulationContext;
     private final BasicAgentContext agentContext = new BasicAgentContext() {
         @Override
         public void addAgent(final BasicAgent agent) {
-            getContext().get().getSimulation().enqueueAddition(agent);
+            getContext().get().getEnvironment().enqueueAddition(agent);
         }
 
         @Override
         public void removeAgent(final BasicAgent agent) {
-            getContext().get().getSimulation().enqueueRemoval(agent);
+            getContext().get().getEnvironment().enqueueRemoval(agent);
         }
 
         @Override
@@ -75,7 +75,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
 
         @Override
         public void sendMessage(final ACLMessage<BasicAgent> message) {
-            getContext().get().getSimulation().deliverMessage(message);
+            getContext().get().getEnvironment().deliverMessage(message);
         }
     };
 
@@ -88,7 +88,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         final ActionExecutionStrategyFactory<BasicAgentContext> actionExecutionStrategyFactory = builder.actionExecutionStrategyFactory;
 
         // TODO: write test for the following steps
-        this.actionExecutionStrategy = actionExecutionStrategyFactory.create(actions);
+        this.actionScheduler = actionExecutionStrategyFactory.create(actions);
         this.simulationContext = null;
     }
 
@@ -112,7 +112,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     }
 
     @Override
-    public void activate(final BasicSimulationContext<BasicEnvironment, BasicAgent> context) {
+    public void activate(final BasicContext<BasicEnvironment, BasicAgent> context) {
         this.simulationContext = context;
     }
 
@@ -121,7 +121,7 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     }
 
     @Override
-    public Optional<BasicSimulationContext<BasicEnvironment, BasicAgent>> getContext() {
+    public Optional<BasicContext<BasicEnvironment, BasicAgent>> getContext() {
         return Optional.fromNullable(simulationContext);
     }
 
@@ -151,13 +151,13 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
     }
 
     @Override
-    protected void setSimulationContext(@Nullable final BasicSimulationContext<BasicEnvironment, BasicAgent> simulationContext) {
+    protected void setSimulationContext(@Nullable final BasicContext<BasicEnvironment, BasicAgent> simulationContext) {
         this.simulationContext = simulationContext;
     }
 
     @Override
-    protected ActionExecutionStrategy<BasicAgentContext> getActionExecutionStrategy() {
-        return actionExecutionStrategy;
+    protected ActionScheduler<BasicAgentContext> getActionScheduler() {
+        return actionScheduler;
     }
 
     public static Builder builder(final PrototypeGroup prototypeGroup) {
@@ -172,8 +172,8 @@ public final class DefaultBasicAgent extends AbstractAgent<BasicAgent, BasicSimu
         private FunctionalCollection<ACLMessage<BasicAgent>> inBox = FunctionalFifoBuffer.withCapacity(8);
         private ActionExecutionStrategyFactory<BasicAgentContext> actionExecutionStrategyFactory = new ActionExecutionStrategyFactory<BasicAgentContext>() {
             @Override
-            public ActionExecutionStrategy<BasicAgentContext> create(final List<? extends AgentAction<? super BasicAgentContext>> actions) {
-                return new DefaultActionExecutionStrategy<BasicAgent, BasicAgentContext>(actions);
+            public ActionScheduler<BasicAgentContext> create(final List<? extends AgentAction<? super BasicAgentContext>> actions) {
+                return new DefaultActionScheduler<BasicAgent, BasicAgentContext>(actions);
             }
         };
 

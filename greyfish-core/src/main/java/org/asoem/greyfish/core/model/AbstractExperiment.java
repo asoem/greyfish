@@ -1,7 +1,7 @@
 package org.asoem.greyfish.core.model;
 
 import com.google.common.collect.Lists;
-import org.asoem.greyfish.core.simulation.Environment;
+import org.asoem.greyfish.core.environment.Environment;
 
 import java.util.List;
 

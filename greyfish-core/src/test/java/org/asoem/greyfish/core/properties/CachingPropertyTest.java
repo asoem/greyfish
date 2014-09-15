@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.properties;
 
 import com.google.common.base.Optional;
-import org.asoem.greyfish.core.agent.BasicSimulationContext;
+import org.asoem.greyfish.core.agent.BasicContext;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
 import org.asoem.greyfish.impl.agent.Basic2DAgentContext;
-import org.asoem.greyfish.impl.simulation.Basic2DEnvironment;
+import org.asoem.greyfish.impl.environment.Basic2DEnvironment;
 import org.asoem.greyfish.utils.base.Callback;
 import org.junit.Test;
 
@@ -29,9 +29,9 @@ public class CachingPropertyTest {
         final Basic2DAgent agent = mock(Basic2DAgent.class);
         final Basic2DEnvironment simulationMock = mock(Basic2DEnvironment.class);
         given(simulationMock.getTime()).willReturn(0L, 0L, 1L, 1L);
-        final BasicSimulationContext mock = mock(BasicSimulationContext.class);
-        given(mock.getSimulation()).willReturn(simulationMock);
-        given(agent.getContext()).willReturn(Optional.<BasicSimulationContext<Basic2DEnvironment, Basic2DAgent>>of(mock));
+        final BasicContext mock = mock(BasicContext.class);
+        given(mock.getEnvironment()).willReturn(simulationMock);
+        given(agent.getContext()).willReturn(Optional.<BasicContext<Basic2DEnvironment, Basic2DAgent>>of(mock));
         lifetimeProperty.setAgent(agent);
 
         // when
@@ -54,9 +54,9 @@ public class CachingPropertyTest {
                 .expires(CachingProperty.expiresEveryStep())
                 .build();
         final Basic2DAgent agent = mock(Basic2DAgent.class);
-        final BasicSimulationContext contextMock = mock(BasicSimulationContext.class);
+        final BasicContext contextMock = mock(BasicContext.class);
         given(contextMock.getTime()).willReturn(0L, 0L, 1L, 1L);
-        given(agent.getContext()).willReturn(Optional.<BasicSimulationContext<Basic2DEnvironment, Basic2DAgent>>of(contextMock));
+        given(agent.getContext()).willReturn(Optional.<BasicContext<Basic2DEnvironment, Basic2DAgent>>of(contextMock));
         lifetimeProperty.setAgent(agent);
 
         // when

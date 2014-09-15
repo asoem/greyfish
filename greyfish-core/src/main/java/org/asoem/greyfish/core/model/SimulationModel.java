@@ -1,9 +1,9 @@
 package org.asoem.greyfish.core.model;
 
-import org.asoem.greyfish.core.simulation.DiscreteTimeEnvironment;
+import org.asoem.greyfish.core.environment.DiscreteTimeEnvironment;
 
 /**
- * A SimulationModel is a factory for {@link org.asoem.greyfish.core.simulation.DiscreteTimeEnvironment}s.
+ * A SimulationModel is a factory for {@link org.asoem.greyfish.core.environment.DiscreteTimeEnvironment}s.
  *
  * @param <S> the type of the getSimulation which will be created.
  */

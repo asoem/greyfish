@@ -3,7 +3,7 @@ package org.asoem.greyfish.core.agent;
 import com.google.common.collect.ForwardingObject;
 import org.asoem.greyfish.core.actions.AgentContext;
 
-abstract class ForwardingAgent<C extends SimulationContext<?, ?>, AC extends AgentContext<?>>
+abstract class ForwardingAgent<C extends Context<?, ?>, AC extends AgentContext<?>>
         extends ForwardingObject
         implements Agent<C> {
 

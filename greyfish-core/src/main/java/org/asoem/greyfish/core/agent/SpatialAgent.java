@@ -16,7 +16,7 @@ import org.asoem.greyfish.utils.space.Projectable;
  */
 public interface SpatialAgent<
         A extends SpatialAgent<A, C, P, ?>,
-        C extends SimulationContext<?, A>,
+        C extends Context<?, A>,
         P extends Object2D,
         AC extends AgentContext<A>>
         extends Agent<C>, Moving<Motion2D>, Projectable<P> {
@@ -26,7 +26,7 @@ public interface SpatialAgent<
      *
      * @param degrees the angle in which to measure the distance
      * @return the distance to the first obstacle
-     * @see org.asoem.greyfish.core.simulation.SpatialEnvironment2D#distance(SpatialAgent, double)
+     * @see org.asoem.greyfish.core.environment.SpatialEnvironment2D#distance(SpatialAgent, double)
      */
     double distance(double degrees);
 

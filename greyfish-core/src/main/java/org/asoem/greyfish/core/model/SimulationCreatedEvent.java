@@ -1,10 +1,10 @@
 package org.asoem.greyfish.core.model;
 
-import org.asoem.greyfish.core.simulation.Environment;
+import org.asoem.greyfish.core.environment.Environment;
 
 /**
  * An event which is published by {@link org.asoem.greyfish.core.model.Experiment experiments} if they create a new
- * {@link org.asoem.greyfish.core.simulation.Environment getSimulation}.
+ * {@link org.asoem.greyfish.core.environment.Environment getSimulation}.
  */
 public class SimulationCreatedEvent {
     private final Experiment experiment;
