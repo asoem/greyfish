@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.fail;
 
 public class DefaultBasicAgentTest {
 
@@ -30,16 +29,5 @@ public class DefaultBasicAgentTest {
         // then
         assertThat(agent, is(notNullValue()));
         assertThat(agent.getActions(), contains((Object) action));
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testBuilderNullPopulation() throws Exception {
-        // given
-
-        // when
-        DefaultBasicAgent.builder().build();
-
-        // then
-        fail();
     }
 }
