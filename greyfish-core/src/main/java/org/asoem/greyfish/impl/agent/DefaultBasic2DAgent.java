@@ -76,6 +76,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
             getContext().get().getSimulation().deliverMessage(message);
         }
     };
+    private final AgentType type;
 
     private DefaultBasic2DAgent(final Builder builder) {
         this.properties = ImmutableFunctionalList.copyOf(builder.properties);
@@ -83,6 +84,12 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
         this.traits = ImmutableFunctionalList.copyOf(builder.traits);
         this.actionExecutionStrategy = new DefaultActionExecutionStrategy<Basic2DAgent, Basic2DAgentContext>(actions);
         this.inBox = new FunctionalFifoBuffer<>();
+        this.type = builder.type;
+    }
+
+    @Override
+    public AgentType getType() {
+        return type;
     }
 
     @Override
@@ -173,6 +180,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
         private final List<AgentAction<? super Basic2DAgentContext>> actions = Lists.newArrayList();
         private final List<AgentProperty<? super Basic2DAgentContext, ?>> properties = Lists.newArrayList();
         private final List<AgentTrait<? super Basic2DAgentContext, ?>> traits = Lists.newArrayList();
+        private AgentType type;
 
         protected Builder() {
         }
@@ -181,6 +189,7 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
             this.actions.addAll(abstractAgent.actions);
             this.properties.addAll(abstractAgent.properties);
             this.traits.addAll(abstractAgent.traits);
+            this.type = abstractAgent.type;
         }
 
         public Builder addTraits(final AgentTrait<? super Basic2DAgentContext, ?>... traits) {
@@ -220,6 +229,11 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
 
         public Builder addProperties(final Iterable<? extends AgentProperty<? super Basic2DAgentContext, ?>> properties) {
             Iterables.addAll(this.properties, checkNotNull(properties));
+            return this;
+        }
+
+        public Builder setType(final AgentType type) {
+            this.type = type;
             return this;
         }
 

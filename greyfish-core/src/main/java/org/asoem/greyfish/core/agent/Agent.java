@@ -10,6 +10,12 @@ import com.google.common.base.Optional;
 public interface Agent<C extends SimulationContext<?, ?>>
         extends AgentNode, Runnable {
 
+    /**
+     * Get the type of this agent.
+     *
+     * @return the type of this agent.
+     */
+    AgentType getType();
 
     /**
      * Let the agent execute it's next action

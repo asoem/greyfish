@@ -11,6 +11,11 @@ abstract class ForwardingAgent<C extends SimulationContext<?, ?>, AC extends Age
     protected abstract Agent<?> delegate();
 
     @Override
+    public AgentType getType() {
+        return delegate().getType();
+    }
+
+    @Override
     public void run() {
         delegate().run();
     }
