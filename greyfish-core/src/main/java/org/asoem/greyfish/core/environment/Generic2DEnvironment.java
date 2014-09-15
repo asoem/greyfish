@@ -49,7 +49,7 @@ public abstract class Generic2DEnvironment<A extends SpatialAgent<A, ?, P, ?>, S
     private String title = "untitled";
     private SimulationState state;
 
-    protected Generic2DEnvironment(final Generic2DSimulationBuilder<?, ?, S, A, Z, P> builder) {
+    protected Generic2DEnvironment(final Generic2DEnvironmentBuilder<?, ?, S, A, Z, P> builder) {
         this.parallelizationThreshold = builder.parallelizationThreshold;
         this.space = new AgentSpace<>(checkNotNull(builder.space));
 
@@ -397,8 +397,8 @@ public abstract class Generic2DEnvironment<A extends SpatialAgent<A, ?, P, ?>, S
 
     }
 
-    protected abstract static class Generic2DSimulationBuilder<
-            B extends Generic2DSimulationBuilder<B, S, X, A, Z, P>,
+    protected abstract static class Generic2DEnvironmentBuilder<
+            B extends Generic2DEnvironmentBuilder<B, S, X, A, Z, P>,
             S extends Generic2DEnvironment<A, X, Z, P>,
             X extends SpatialEnvironment2D<A, Z>,
             A extends SpatialAgent<A, ?, P, ?>,
@@ -411,7 +411,7 @@ public abstract class Generic2DEnvironment<A extends SpatialAgent<A, ?, P, ?>, S
         private ExecutorService executionService = Executors.newCachedThreadPool();
         private EventBus eventPublisher = new EventBus();
 
-        public Generic2DSimulationBuilder(final Z space) {
+        public Generic2DEnvironmentBuilder(final Z space) {
             this.space = checkNotNull(space);
             addVerification(new Verification() {
                 @Override

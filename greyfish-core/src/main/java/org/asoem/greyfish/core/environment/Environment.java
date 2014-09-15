@@ -7,7 +7,7 @@ import org.asoem.greyfish.core.agent.Agent;
 /**
  * A {@code Simulation} is an environment for interacting agents.
  */
-public interface Enironment<A extends Agent<?>> {
+public interface Environment<A extends Agent<?>> {
 
     /**
      * Get all agents in this simulation which satisfy the given {@code predicate}.

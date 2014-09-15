@@ -5,7 +5,7 @@ import com.google.common.collect.Iterables;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.impl.environment.SynchronizedAgentsEnvironment;
 
-public abstract class AbstractSimulation<A extends Agent<?>> implements SynchronizedAgentsEnvironment<A> {
+public abstract class AbstractEnvironment<A extends Agent<?>> implements SynchronizedAgentsEnvironment<A> {
 
 
     @Override
