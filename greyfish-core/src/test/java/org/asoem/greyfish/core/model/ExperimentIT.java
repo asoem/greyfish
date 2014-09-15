@@ -14,7 +14,6 @@ import org.asoem.greyfish.core.actions.AbstractAgentAction;
 import org.asoem.greyfish.core.actions.ActionExecutionResult;
 import org.asoem.greyfish.core.agent.Agent;
 import org.asoem.greyfish.core.agent.PropertyValueRequest;
-import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.agent.RequestAllTraitValues;
 import org.asoem.greyfish.core.traits.AbstractAgentTrait;
 import org.asoem.greyfish.impl.agent.BasicAgent;
@@ -94,7 +93,7 @@ public class ExperimentIT {
             }
 
             private BasicAgent createAgent() {
-                return DefaultBasicAgent.builder(PrototypeGroup.named("test")).build();
+                return DefaultBasicAgent.builder().build();
             }
 
             @Override
@@ -198,9 +197,8 @@ public class ExperimentIT {
             }
 
             private BasicAgent createAgent(final Map<String, ?> traitValues) {
-                final PrototypeGroup prototypeGroup = PrototypeGroup.named("test");
                 return DefaultBasicAgent
-                        .builder(prototypeGroup)
+                        .builder()
                         .addAction(new AbstractAgentAction<BasicAgentContext>("action") {
                             @Override
                             public ActionExecutionResult apply(final BasicAgentContext context) {
@@ -214,7 +212,7 @@ public class ExperimentIT {
                             }
 
                             private double sumTraitValues(final BasicAgentContext context) {
-                                final Iterable<BasicAgent> activeAgents = context.getAgents(prototypeGroup);
+                                final Iterable<BasicAgent> activeAgents = context.getActiveAgents();
                                 double sum = 0.0;
                                 for (Agent<?> activeAgent : activeAgents) {
                                     final Double value = activeAgent.ask(new PropertyValueRequest("trait"), Double.class);

@@ -10,7 +10,6 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.inference.TTest;
 import org.apache.commons.math3.stat.inference.TestUtils;
 import org.asoem.greyfish.core.actions.GenericAction;
-import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.conditions.AlwaysTrueCondition;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.impl.agent.BasicAgent;
@@ -52,7 +51,7 @@ public class AgentObjectPoolAT {
 
             @Override
             public BasicAgent get() {
-                return DefaultBasicAgent.builder(PrototypeGroup.named(""))
+                return DefaultBasicAgent.builder()
                         .addAllActions(
                                 GenericAction.<BasicAgent>builder()
                                         .name("reproduce")
@@ -188,7 +187,6 @@ public class AgentObjectPoolAT {
     public static final class SimulationWithObjectPoolFactory {
 
         private final LoadingObjectPool<BasicAgent> agentObjectPool;
-        private final PrototypeGroup prototypeGroup = PrototypeGroup.named("test");
         private final int populationSize;
         private final ExecutorService executorService;
 
@@ -221,7 +219,7 @@ public class AgentObjectPoolAT {
         }
 
         private DefaultBasicAgent createAgent() {
-            return DefaultBasicAgent.builder(prototypeGroup)
+            return DefaultBasicAgent.builder()
                     .addAllActions(
                             GenericAction.<BasicAgent>builder()
                                     .name("reproduce")
@@ -272,7 +270,6 @@ public class AgentObjectPoolAT {
     private class SimulationWithoutObjectPoolFactory {
         private final int populationSize;
         private final ExecutorService executorService;
-        private final PrototypeGroup prototypeGroup = PrototypeGroup.named("test");
 
         public SimulationWithoutObjectPoolFactory(final int populationSize, final ExecutorService executorService) {
             this.populationSize = populationSize;
@@ -298,7 +295,7 @@ public class AgentObjectPoolAT {
         }
 
         private DefaultBasicAgent createAgent() {
-            return DefaultBasicAgent.builder(prototypeGroup)
+            return DefaultBasicAgent.builder()
                     .addAllActions(
                             GenericAction.<BasicAgent>builder()
                                     .name("reproduce")

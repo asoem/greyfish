@@ -11,7 +11,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import org.asoem.greyfish.core.acl.ACLMessage;
 import org.asoem.greyfish.core.agent.ContextFactory;
 import org.asoem.greyfish.core.agent.DefaultContextFactory;
-import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.environment.AbstractEnvironment;
 import org.asoem.greyfish.core.scheduler.Event;
 import org.asoem.greyfish.impl.agent.BasicAgent;
@@ -112,11 +111,6 @@ public final class DefaultBasicEnvironment
     }
 
     @Override
-    public Iterable<BasicAgent> getAgents(final PrototypeGroup prototypeGroup) {
-        return standardGetAgents(prototypeGroup);
-    }
-
-    @Override
     public Iterable<BasicAgent> getActiveAgents() {
         synchronized (agents) {
             return ImmutableList.copyOf(agents);
@@ -163,18 +157,8 @@ public final class DefaultBasicEnvironment
     }
 
     @Override
-    public int numberOfPopulations() {
-        return standardNumberOfPopulations();
-    }
-
-    @Override
     public int countAgents() {
         return standardCountAgents();
-    }
-
-    @Override
-    public int countAgents(final PrototypeGroup prototypeGroup) {
-        return standardCountAgents(prototypeGroup);
     }
 
     @Override

@@ -25,11 +25,6 @@ public final class DefaultAgentContext<A extends Agent<?>> implements AgentConte
     }
 
     @Override
-    public Iterable<A> getAgents(final PrototypeGroup prototypeGroup) {
-        return ImmutableList.copyOf(simulationContext.getAgents(prototypeGroup));
-    }
-
-    @Override
     public void receive(final ACLMessage<A> message) {
         throw new UnsupportedOperationException("Not implemented");
     }

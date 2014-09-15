@@ -46,7 +46,7 @@ public final class DefaultBasic2DEnvironment
             extends Basic2DSimulationBuilder<Builder, DefaultBasic2DEnvironment, Basic2DEnvironment, Basic2DAgent, BasicTiled2DSpace, Point2D> {
 
         public Builder(final BasicTiled2DSpace space, final Set<Basic2DAgent> prototypes) {
-            super(space, prototypes);
+            super(space);
         }
 
         @Override

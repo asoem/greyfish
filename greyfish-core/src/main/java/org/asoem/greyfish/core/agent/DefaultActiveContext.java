@@ -46,11 +46,6 @@ public final class DefaultActiveContext<S extends DiscreteTimeEnvironment<A>, A 
     }
 
     @Override
-    public Iterable<A> getAgents(final PrototypeGroup prototypeGroup) {
-        return simulation.getAgents(prototypeGroup);
-    }
-
-    @Override
     public long getAge() {
         checkState(getSimulationStep() >= getActivationStep(),
                 "Agent seems to be born in the future: activationStep={} > simulation.getTime()={}",

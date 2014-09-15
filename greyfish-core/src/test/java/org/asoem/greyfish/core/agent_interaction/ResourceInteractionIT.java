@@ -4,7 +4,6 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import org.asoem.greyfish.core.actions.ResourceConsumptionAction;
 import org.asoem.greyfish.core.actions.ResourceProvisionAction;
-import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.properties.DoubleProperty;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
@@ -16,15 +15,12 @@ import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
 import org.asoem.greyfish.impl.space.DefaultBasicTiled2DSpace;
 import org.asoem.greyfish.utils.base.Callback;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.collect.LoadingKeyedObjectPool;
-import org.asoem.greyfish.utils.collect.SynchronizedKeyedObjectPool;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.asoem.greyfish.utils.space.SimpleTwoDimTreeFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.annotation.Nullable;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,9 +34,6 @@ public class ResourceInteractionIT {
     @Test
     public void testNormalInteraction() throws Exception {
         // given
-        final PrototypeGroup consumerPrototypeGroup = PrototypeGroup.named("ConsumerPopulation");
-        final PrototypeGroup providerPrototypeGroup = PrototypeGroup.named("ProviderPopulation");
-
         final String messageClassifier = "mate";
 
         final DoubleProperty<Basic2DAgent, Basic2DAgentContext> energyStorage = DoubleProperty.<Basic2DAgent, Basic2DAgentContext>with()
@@ -81,7 +74,7 @@ public class ResourceInteractionIT {
         final Supplier<Basic2DAgent> consumerFactory = new Supplier<Basic2DAgent>() {
             @Override
             public Basic2DAgent get() {
-                final DefaultBasic2DAgent.Builder consumerBuilder = DefaultBasic2DAgent.builder(consumerPrototypeGroup)
+                final DefaultBasic2DAgent.Builder consumerBuilder = DefaultBasic2DAgent.builder()
                         .addProperties(energyStorage)
                         .addAction(consumptionAction);
                 final Basic2DAgent consumer = consumerBuilder
@@ -94,7 +87,7 @@ public class ResourceInteractionIT {
         final Supplier<Basic2DAgent> providerFactory = new Supplier<Basic2DAgent>() {
             @Override
             public Basic2DAgent get() {
-                final DefaultBasic2DAgent.Builder providerBuilder = DefaultBasic2DAgent.builder(providerPrototypeGroup)
+                final DefaultBasic2DAgent.Builder providerBuilder = DefaultBasic2DAgent.builder()
                         .addProperties(resourceProperty)
                         .addAction(provisionAction);
                 final Basic2DAgent provisioner = providerBuilder
@@ -110,18 +103,6 @@ public class ResourceInteractionIT {
         Basic2DAgent provider = providerFactory.get();
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(consumer, provider);
         final Basic2DEnvironment simulation = DefaultBasic2DEnvironment.builder(space, prototypes)
-                .agentPool(SynchronizedKeyedObjectPool.create(new LoadingKeyedObjectPool.PoolLoader<PrototypeGroup, Basic2DAgent>() {
-                    @Override
-                    public Basic2DAgent load(@Nullable final PrototypeGroup prototypeGroup) {
-                        if (consumerPrototypeGroup.equals(prototypeGroup)) {
-                            return consumerFactory.get();
-                        } else if (providerPrototypeGroup.equals(prototypeGroup)) {
-                            return providerFactory.get();
-                        } else {
-                            throw new AssertionError();
-                        }
-                    }
-                }))
                 .build();
 
         simulation.enqueueAddition(consumer, ImmutablePoint2D.at(0, 0));

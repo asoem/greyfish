@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
 import org.asoem.greyfish.core.actions.FemaleLikeMating;
 import org.asoem.greyfish.core.actions.MaleLikeMating;
-import org.asoem.greyfish.core.agent.PrototypeGroup;
 import org.asoem.greyfish.core.conditions.GenericCondition;
 import org.asoem.greyfish.core.inject.CoreModule;
 import org.asoem.greyfish.impl.agent.Basic2DAgent;
@@ -15,8 +14,6 @@ import org.asoem.greyfish.impl.environment.DefaultBasic2DEnvironment;
 import org.asoem.greyfish.impl.space.BasicTiled2DSpace;
 import org.asoem.greyfish.impl.space.DefaultBasicTiled2DSpace;
 import org.asoem.greyfish.utils.base.Callbacks;
-import org.asoem.greyfish.utils.collect.LoadingKeyedObjectPool;
-import org.asoem.greyfish.utils.collect.SynchronizedKeyedObjectPool;
 import org.asoem.greyfish.utils.space.ImmutablePoint2D;
 import org.asoem.greyfish.utils.space.SimpleTwoDimTreeFactory;
 import org.junit.Test;
@@ -37,8 +34,6 @@ public class MatingInteractionIT {
     @Test
     public void testNormalInteraction() throws Exception {
         // given
-        final PrototypeGroup receiverPrototypeGroup = PrototypeGroup.named("receiverPopulation");
-        final PrototypeGroup donorPrototypeGroup = PrototypeGroup.named("donorPopulation");
 
         final String messageClassifier = "mate";
         final FemaleLikeMating<Basic2DAgent> femaleLikeMating = FemaleLikeMating.<Basic2DAgent>with()
@@ -60,7 +55,7 @@ public class MatingInteractionIT {
         final Supplier<DefaultBasic2DAgent> femaleFactory = new Supplier<DefaultBasic2DAgent>() {
             @Override
             public DefaultBasic2DAgent get() {
-                DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(receiverPrototypeGroup)
+                DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder()
                         .addAction(femaleLikeMating).build();
                 agent.initialize();
                 return agent;
@@ -70,7 +65,7 @@ public class MatingInteractionIT {
         final Supplier<DefaultBasic2DAgent> maleFactory = new Supplier<DefaultBasic2DAgent>() {
             @Override
             public DefaultBasic2DAgent get() {
-                DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder(donorPrototypeGroup)
+                DefaultBasic2DAgent agent = DefaultBasic2DAgent.builder()
                         .addAction(maleLikeMating).build();
                 agent.initialize();
                 return agent;
@@ -83,18 +78,6 @@ public class MatingInteractionIT {
         final BasicTiled2DSpace space = DefaultBasicTiled2DSpace.ofSize(1, 1, SimpleTwoDimTreeFactory.<Basic2DAgent>newInstance());
         final ImmutableSet<Basic2DAgent> prototypes = ImmutableSet.of(male, female);
         final Basic2DEnvironment simulation = DefaultBasic2DEnvironment.builder(space, prototypes)
-                .agentPool(SynchronizedKeyedObjectPool.<PrototypeGroup, Basic2DAgent>create(new LoadingKeyedObjectPool.PoolLoader<PrototypeGroup, Basic2DAgent>() {
-                    @Override
-                    public Basic2DAgent load(final PrototypeGroup prototypeGroup) {
-                        if (receiverPrototypeGroup.equals(prototypeGroup)) {
-                            return femaleFactory.get();
-                        } else if (donorPrototypeGroup.equals(prototypeGroup)) {
-                            return maleFactory.get();
-                        } else {
-                            throw new AssertionError();
-                        }
-                    }
-                }))
                 .build();
 
         simulation.enqueueAddition(male, ImmutablePoint2D.at(0, 0));

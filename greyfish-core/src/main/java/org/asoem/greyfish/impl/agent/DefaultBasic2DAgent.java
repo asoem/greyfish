@@ -45,7 +45,6 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     private final FunctionalList<AgentTrait<? super Basic2DAgentContext, ?>> traits;
     private final ActionScheduler<Basic2DAgentContext> actionScheduler;
     private final FunctionalCollection<ACLMessage<Basic2DAgent>> inBox;
-    private PrototypeGroup prototypeGroup;
     @Nullable
     private Point2D projection;
     private Motion2D motion = ImmutableMotion2D.noMotion();
@@ -63,11 +62,6 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
         }
 
         @Override
-        public Iterable<Basic2DAgent> getAgents(final PrototypeGroup prototypeGroup) {
-            return getContext().get().getAgents(prototypeGroup);
-        }
-
-        @Override
         public void receive(final ACLMessage<Basic2DAgent> message) {
             inBox.add(message);
         }
@@ -82,19 +76,20 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
             getContext().get().getEnvironment().deliverMessage(message);
         }
     };
+    private final AgentType type;
 
     private DefaultBasic2DAgent(final Builder builder) {
         this.properties = ImmutableFunctionalList.copyOf(builder.properties);
         this.actions = ImmutableFunctionalList.copyOf(builder.actions);
         this.traits = ImmutableFunctionalList.copyOf(builder.traits);
-        this.prototypeGroup = builder.prototypeGroup;
         this.actionScheduler = new DefaultActionScheduler<Basic2DAgent, Basic2DAgentContext>(actions);
         this.inBox = new FunctionalFifoBuffer<>();
+        this.type = builder.type;
     }
 
     @Override
-    public PrototypeGroup getPrototypeGroup() {
-        return prototypeGroup;
+    public AgentType getType() {
+        return type;
     }
 
     @Override
@@ -172,8 +167,8 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
         return actionScheduler;
     }
 
-    public static Builder builder(final PrototypeGroup prototypeGroup) {
-        return new Builder(prototypeGroup);
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
@@ -182,20 +177,19 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
     }
 
     public static final class Builder implements Serializable {
-        private final PrototypeGroup prototypeGroup;
         private final List<AgentAction<? super Basic2DAgentContext>> actions = Lists.newArrayList();
         private final List<AgentProperty<? super Basic2DAgentContext, ?>> properties = Lists.newArrayList();
         private final List<AgentTrait<? super Basic2DAgentContext, ?>> traits = Lists.newArrayList();
+        private AgentType type;
 
-        protected Builder(final PrototypeGroup prototypeGroup) {
-            this.prototypeGroup = checkNotNull(prototypeGroup, "PrototypeGroup must not be null");
+        protected Builder() {
         }
 
         protected Builder(final DefaultBasic2DAgent abstractAgent) {
-            this.prototypeGroup = abstractAgent.prototypeGroup;
             this.actions.addAll(abstractAgent.actions);
             this.properties.addAll(abstractAgent.properties);
             this.traits.addAll(abstractAgent.traits);
+            this.type = abstractAgent.type;
         }
 
         public Builder addTraits(final AgentTrait<? super Basic2DAgentContext, ?>... traits) {
@@ -235,6 +229,11 @@ public final class DefaultBasic2DAgent extends AbstractSpatialAgent<Basic2DAgent
 
         public Builder addProperties(final Iterable<? extends AgentProperty<? super Basic2DAgentContext, ?>> properties) {
             Iterables.addAll(this.properties, checkNotNull(properties));
+            return this;
+        }
+
+        public Builder setType(final AgentType type) {
+            this.type = type;
             return this;
         }
 

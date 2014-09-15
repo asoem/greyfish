@@ -11,8 +11,8 @@ abstract class ForwardingAgent<C extends Context<?, ?>, AC extends AgentContext<
     protected abstract Agent<?> delegate();
 
     @Override
-    public PrototypeGroup getPrototypeGroup() {
-        return delegate().getPrototypeGroup();
+    public AgentType getType() {
+        return delegate().getType();
     }
 
     @Override

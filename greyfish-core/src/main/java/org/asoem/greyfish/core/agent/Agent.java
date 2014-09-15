@@ -11,12 +11,11 @@ public interface Agent<C extends Context<?, ?>>
         extends AgentNode, Runnable {
 
     /**
-     * Get the population
+     * Get the type of this agent.
      *
-     * @return the population
+     * @return the type of this agent.
      */
-    PrototypeGroup getPrototypeGroup();
-
+    AgentType getType();
 
     /**
      * Let the agent execute it's next action

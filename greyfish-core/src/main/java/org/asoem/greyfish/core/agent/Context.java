@@ -12,5 +12,4 @@ public interface Context<S extends Environment<A>, A extends Agent<?>> {
 
     Iterable<A> getActiveAgents();
 
-    Iterable<A> getAgents(PrototypeGroup prototypeGroup);
 }
