@@ -16,4 +16,5 @@ public interface SpatialObject {
      * @return the anchor point for the bounding volume
      */
     Point getCentroid();
+
 }
