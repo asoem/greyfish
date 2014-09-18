@@ -1,29 +1,39 @@
 package org.asoem.greyfish.utils.space;
 
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public abstract class AbstractPoint2D implements Point2D {
     @Override
-    public double[] getCoordinate() {
+    public final double[] getCoordinate() {
         return new double[]{getX(), getY()};
     }
 
     @Override
-    public Double first() {
+    public final Double first() {
         return getX();
     }
 
     @Override
-    public Double second() {
+    public final Double second() {
         return getY();
     }
 
     @Override
-    public int getDimension() {
+    public final int getDimension() {
         return 2;
     }
 
     @Override
-    public Point2D getCentroid() {
+    public final Point2D getCentroid() {
         return this;
+    }
+
+    @Override
+    public final double distance(final Point neighbor) {
+        checkArgument(neighbor.getDimension() == 2, "Dimension mismatch");
+        final double[] neighborCentroidCoordinate = neighbor.getCoordinate();
+        return Geometry2D.distance(this.getX(), this.getY(),
+                neighborCentroidCoordinate[0], neighborCentroidCoordinate[1]);
     }
 }

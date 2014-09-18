@@ -15,6 +15,7 @@ public final class Geometry2D {
 
     /**
      * Adapted from {@code org.newdawn.slick.geom.Line.java}
+     *
      * @param l1x1 Line1:Point1:x
      * @param l1y1 Line1:Point1:y
      * @param l1x2 Line1:Point2:x
@@ -26,8 +27,9 @@ public final class Geometry2D {
      * @return The {@code ImmutablePoint2D} where the line segments intersect or {@code null} if they don't.
      */
     @Nullable
-    public static ImmutablePoint2D intersection(final double l1x1, final double l1y1, final double l1x2, final double l1y2,
-                                                   final double l2x1, final double l2y1, final double l2x2, final double l2y2) {
+    public static ImmutablePoint2D intersection(
+            final double l1x1, final double l1y1, final double l1x2, final double l1y2,
+            final double l2x1, final double l2y1, final double l2x2, final double l2y2) {
         final double dx1 = l1x2 - l1x1;
         final double dx2 = l2x2 - l2x1;
         final double dy1 = l1y2 - l1y1;
@@ -59,7 +61,7 @@ public final class Geometry2D {
     }
 
     public static double distance(final Point2D point1, final Point2D point2) {
-        return distance(point1.getX(), point1.getY(), point2.getX(),point2.getY());
+        return distance(point1.getX(), point1.getY(), point2.getX(), point2.getY());
     }
 
     public static Point2D polarToCartesian(final double angle, final double radius) {
