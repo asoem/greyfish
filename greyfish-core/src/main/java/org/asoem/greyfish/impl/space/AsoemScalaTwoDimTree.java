@@ -14,6 +14,7 @@ import scala.Tuple2;
 import scala.collection.immutable.List;
 
 import javax.annotation.Nullable;
+import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -26,7 +27,7 @@ import static scala.collection.JavaConversions.iterableAsScalaIterable;
  *
  * @param <T> the type of the value stored with each node
  */
-public class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
+public class AsoemScalaTwoDimTree<T> extends AbstractCollection<TwoDimTree.Node<T>> implements TwoDimTree<T> {
 
     private static final int DIMENSIONS = 2;
 
@@ -175,10 +176,10 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
     }
 
     @Override
-    public Iterator<Node<T>> iterator() {
+    public Iterator<TwoDimTree.Node<T>> iterator() {
         final Optional<Node<T>> rootOptional = rootNode();
         if (rootOptional.isPresent()) {
-            return treeTraverser.inOrderTraversal(rootOptional.get()).iterator();
+            return treeTraverser.postOrderTraversal(rootOptional.get()).iterator();
         } else {
             return Iterators.emptyIterator();
         }

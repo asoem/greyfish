@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.TreeTraverser;
 
 import javax.annotation.Nullable;
+import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  *
  * @param <T> the value type
  */
-public final class SimpleTwoDimTree<T> implements TwoDimTree<T> {
+public final class SimpleTwoDimTree<T> extends AbstractCollection<TwoDimTree.Node<T>> implements TwoDimTree<T> {
 
     private final Optional<Node<T>> rootNode;
     private final TreeTraverser<Node<T>> treeTraverser = new TwoDimTreeTraverser<>();

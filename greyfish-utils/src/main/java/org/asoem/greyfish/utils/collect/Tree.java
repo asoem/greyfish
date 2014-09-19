@@ -3,12 +3,13 @@ package org.asoem.greyfish.utils.collect;
 import com.google.common.base.Optional;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.Iterator;
 
 /**
  * A generic tree data structure.
  */
-public interface Tree<N> extends Iterable<N> {
+public interface Tree<N> extends Collection<N> {
     /**
      * Get the root node of this tree.
      *
