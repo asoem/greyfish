@@ -1,17 +1,16 @@
 package org.asoem.greyfish.utils.space.cluster;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
-import com.google.common.collect.Sets;
 import org.asoem.greyfish.utils.space.DistanceMeasure;
+import org.asoem.greyfish.utils.space.SpatialData;
 
-import javax.annotation.Nullable;
 import java.util.*;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Density-Based Spatial Clustering of Applications with Noise.
@@ -38,12 +37,16 @@ public final class DBSCAN<O> implements ClusterAlgorithm<O, DBSCANResult<O>> {
      */
     private final int minPts;
 
-    /**
-     * The distance measure to use
-     */
     private final DistanceMeasure<? super O> distanceMeasure;
 
+    private final NeighborSearch<O> neighborSearch;
+
     public DBSCAN(final double epsilon, final int minPts, final DistanceMeasure<? super O> distanceMeasure) {
+        this(epsilon, minPts, distanceMeasure, new NaiveNeighborSearch<O>());
+    }
+
+    public DBSCAN(final double epsilon, final int minPts, final DistanceMeasure<? super O> distanceMeasure,
+                  final NeighborSearch<O> neighborSearch) {
         checkArgument(epsilon >= 0.0d, "epsilon must be positive");
         checkArgument(minPts >= 0, "minPts must be positive");
         checkNotNull(distanceMeasure);
@@ -51,10 +54,11 @@ public final class DBSCAN<O> implements ClusterAlgorithm<O, DBSCANResult<O>> {
         this.distanceMeasure = distanceMeasure;
         this.epsilon = epsilon;
         this.minPts = minPts;
+        this.neighborSearch = neighborSearch;
     }
 
     @Override
-    public DBSCANResult<O> apply(final Collection<? extends O> objects) {
+    public DBSCANResult<O> apply(final Collection<O> objects) {
         checkNotNull(objects);
 
         final List<DBSCANCluster<O>> clusters = Lists.newArrayList();
@@ -66,6 +70,7 @@ public final class DBSCAN<O> implements ClusterAlgorithm<O, DBSCANResult<O>> {
 
         for (Map.Entry<O, PointStatus> entry : objectStatusMap.entrySet()) {
             if (entry.getValue().equals(PointStatus.UNKNOWN)) {
+
                 final Optional<DBSCANCluster<O>> clusterOptional =
                         tryCluster(entry.getKey(), objectStatusMap);
 
@@ -81,7 +86,8 @@ public final class DBSCAN<O> implements ClusterAlgorithm<O, DBSCANResult<O>> {
         return DBSCANResult.create(clusters, noise, epsilon, minPts);
     }
 
-    private Optional<DBSCANCluster<O>> tryCluster(final O origin, final Map<O, PointStatus> objectStatusMap) {
+    private Optional<DBSCANCluster<O>> tryCluster(
+            final O origin, final Map<O, PointStatus> objectStatusMap) {
         final List<O> clusterObjects = new ArrayList<>();
         final Queue<O> seeds = Queues.newArrayDeque();
 
@@ -95,7 +101,8 @@ public final class DBSCAN<O> implements ClusterAlgorithm<O, DBSCANResult<O>> {
             final O seed = seeds.poll();
             assert seed != null;
 
-            final Set<O> currentNeighbors = filterNeighbors(candidates, seed, epsilon, distanceMeasure);
+            final Collection<O> currentNeighbors =
+                    neighborSearch.filterNeighbors(candidates, seed, distanceMeasure, epsilon);
             if (currentNeighbors.size() >= minPts) {
                 for (O neighbor : currentNeighbors) {
                     if (objectStatusMap.get(neighbor).equals(PointStatus.NOISE)) {
@@ -121,28 +128,23 @@ public final class DBSCAN<O> implements ClusterAlgorithm<O, DBSCANResult<O>> {
         }
     }
 
-    private static <O> Set<O> filterNeighbors(
-            final Set<O> points, final O point, final double eps, final DistanceMeasure<? super O> distanceMeasure) {
-        return Sets.filter(points, new Predicate<O>() {
-            @Override
-            public boolean apply(@Nullable final O input) {
-                checkNotNull(input);
-                if (input == point) {
-                    return false;
-                }
-
-                final double distance = distanceMeasure.apply(point, input);
-                checkState(distance >= 0, "the distance must be positive");
-
-                return distance <= eps;
-            }
-        });
-    }
-
     private enum PointStatus {
         UNKNOWN,
         NOISE,
         CORE_OBJECT,
         SEED, DENSITY_REACHABLE
+    }
+
+    public static final class NaiveNeighborSearch<O> implements NeighborSearch<O> {
+
+        public NaiveNeighborSearch() {
+        }
+
+        @Override
+        public Collection<O> filterNeighbors(
+                final Collection<O> collection, final O origin,
+                final DistanceMeasure<? super O> distanceMeasure, final double range) {
+            return SpatialData.filterNeighbors(collection, origin, range, distanceMeasure);
+        }
     }
 }

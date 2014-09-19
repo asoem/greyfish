@@ -16,5 +16,5 @@ public interface ClusterAlgorithm<O, R extends ClusterResult<?>> {
      * @param objects the objects to cluster
      * @return the cluster result
      */
-    R apply(Collection<? extends O> objects);
+    R apply(Collection<O> objects);
 }
