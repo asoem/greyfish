@@ -25,11 +25,7 @@ public final class SimpleTwoDimTree<T> extends AbstractCollection<TwoDimTree.Nod
     private final Supplier<Integer> lazySize = Suppliers.memoize(new Supplier<Integer>() {
         @Override
         public Integer get() {
-            if (rootNode().isPresent()) {
-                return Iterables.size(treeTraverser.postOrderTraversal(rootNode.get()));
-            } else {
-                return 0;
-            }
+            return Iterables.size(SimpleTwoDimTree.this);
         }
     });
 
