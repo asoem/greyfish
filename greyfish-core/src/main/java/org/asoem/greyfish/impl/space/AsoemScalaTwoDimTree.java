@@ -4,20 +4,18 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Iterables;
-import org.asoem.greyfish.utils.space.Geometry2D;
-import org.asoem.greyfish.utils.space.ImmutablePoint2D;
-import org.asoem.greyfish.utils.space.Point2D;
-import org.asoem.greyfish.utils.space.TwoDimTree;
+import com.google.common.collect.*;
+import org.asoem.greyfish.utils.space.*;
 import org.asoem.kdtree.*;
+import org.asoem.kdtree.KDNode;
+import org.asoem.kdtree.KDTree;
 import scala.Product2;
 import scala.Tuple2;
 import scala.collection.immutable.List;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static scala.collection.JavaConversions.asJavaIterable;
@@ -50,6 +48,7 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
             };
         }
     };
+    private final BinaryTreeTraverser<Node<T>> treeTraverser = new TwoDimTreeTraverser<>();
 
     private AsoemScalaTwoDimTree(
             final Iterable<? extends T> elements,
@@ -174,4 +173,15 @@ public class AsoemScalaTwoDimTree<T> implements TwoDimTree<T> {
             final Function<? super T, ? extends org.asoem.greyfish.utils.collect.Product2<Double, Double>> mappingFunction) {
         return new AsoemScalaTwoDimTree<T>(elements, mappingFunction);
     }
+
+    @Override
+    public Iterator<Node<T>> iterator() {
+        final Optional<Node<T>> rootOptional = rootNode();
+        if (rootOptional.isPresent()) {
+            return treeTraverser.inOrderTraversal(rootOptional.get()).iterator();
+        } else {
+            return Iterators.emptyIterator();
+        }
+    }
+
 }

@@ -9,21 +9,18 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.TreeTraverser;
 
 import javax.annotation.Nullable;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * A simple implementation of a two dimensional kd-tree with no search optimization.
+ *
  * @param <T> the value type
  */
 public final class SimpleTwoDimTree<T> implements TwoDimTree<T> {
 
     private final Optional<Node<T>> rootNode;
-    private final TreeTraverser<Node<T>> treeTraverser = new TreeTraverser<Node<T>>() {
-        @Override
-        public Iterable<Node<T>> children(final Node<T> root) {
-            return root.children();
-        }
-    };
+    private final TreeTraverser<Node<T>> treeTraverser = new TwoDimTreeTraverser<>();
     private final Supplier<Integer> lazySize = Suppliers.memoize(new Supplier<Integer>() {
         @Override
         public Integer get() {
@@ -85,5 +82,10 @@ public final class SimpleTwoDimTree<T> implements TwoDimTree<T> {
             }
         }
         return searchResults;
+    }
+
+    @Override
+    public Iterator<Node<T>> iterator() {
+        return treeTraverser.postOrderTraversal(root()).iterator();
     }
 }

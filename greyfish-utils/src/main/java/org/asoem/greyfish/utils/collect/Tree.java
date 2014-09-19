@@ -7,9 +7,10 @@ import javax.annotation.Nullable;
 /**
  * A generic tree data structure.
  */
-public interface Tree<N> {
+public interface Tree<N> extends Iterable<N> {
     /**
      * Get the root node of this tree.
+     *
      * @return the root node.
      * @deprecated Use {@link #rootNode()}
      */
@@ -18,6 +19,7 @@ public interface Tree<N> {
 
     /**
      * Get the optional root node of this tree.
+     *
      * @return the root node as an {@code Optional}
      */
     Optional<N> rootNode();
