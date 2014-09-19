@@ -1,6 +1,6 @@
 package org.asoem.greyfish.utils.space.cluster;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Interface for cluster algorithms.
@@ -16,5 +16,5 @@ public interface ClusterAlgorithm<O, R extends ClusterResult<?>> {
      * @param objects the objects to cluster
      * @return the cluster result
      */
-    R apply(Set<? extends O> objects);
+    R apply(Collection<? extends O> objects);
 }

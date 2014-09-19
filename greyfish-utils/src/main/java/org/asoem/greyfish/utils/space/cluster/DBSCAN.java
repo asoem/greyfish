@@ -1,6 +1,5 @@
 package org.asoem.greyfish.utils.space.cluster;
 
-import com.google.common.base.Functions;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
@@ -55,13 +54,15 @@ public final class DBSCAN<O> implements ClusterAlgorithm<O, DBSCANResult<O>> {
     }
 
     @Override
-    public DBSCANResult<O> apply(final Set<? extends O> objects) {
+    public DBSCANResult<O> apply(final Collection<? extends O> objects) {
         checkNotNull(objects);
 
         final List<DBSCANCluster<O>> clusters = Lists.newArrayList();
         final List<O> noise = Lists.newArrayList();
-        final Map<O, PointStatus> objectStatusMap =
-                Maps.newHashMap(Maps.asMap(objects, Functions.constant(PointStatus.UNKNOWN)));
+        final Map<O, PointStatus> objectStatusMap = Maps.newIdentityHashMap();
+        for (O object : objects) {
+            objectStatusMap.put(object, PointStatus.UNKNOWN);
+        }
 
         for (Map.Entry<O, PointStatus> entry : objectStatusMap.entrySet()) {
             if (entry.getValue().equals(PointStatus.UNKNOWN)) {

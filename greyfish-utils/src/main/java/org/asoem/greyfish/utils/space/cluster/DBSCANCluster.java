@@ -1,24 +1,23 @@
 package org.asoem.greyfish.utils.space.cluster;
 
-import com.google.common.collect.ForwardingSet;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ForwardingCollection;
+import com.google.common.collect.ImmutableList;
 
 import java.util.Collection;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-class DBSCANCluster<O> extends ForwardingSet<O>
+class DBSCANCluster<O> extends ForwardingCollection<O>
         implements Cluster<O> {
 
-    private final ImmutableSet<O> objects;
+    private final ImmutableList<O> objects;
 
-    private DBSCANCluster(final ImmutableSet<O> objects) {
+    private DBSCANCluster(final ImmutableList<O> objects) {
         this.objects = objects;
     }
 
     @Override
-    protected Set<O> delegate() {
+    protected Collection<O> delegate() {
         return objects;
     }
 
@@ -52,7 +51,7 @@ class DBSCANCluster<O> extends ForwardingSet<O>
 
     public static <O> DBSCANCluster<O> create(final Collection<? extends O> objects) {
         checkNotNull(objects);
-        return new DBSCANCluster<>(ImmutableSet.copyOf(objects));
+        return new DBSCANCluster<>(ImmutableList.copyOf(objects));
     }
 
 }
