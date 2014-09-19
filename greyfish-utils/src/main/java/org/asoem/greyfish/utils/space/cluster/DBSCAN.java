@@ -88,13 +88,7 @@ public final class DBSCAN<O> implements ClusterAlgorithm<O, DBSCANResult<O>> {
         objectStatusMap.put(origin, PointStatus.SEED);
         seeds.offer(origin);
 
-        final Set<O> candidates = Sets.filter(objectStatusMap.keySet(), new Predicate<O>() {
-            @Override
-            public boolean apply(final O input) {
-                return objectStatusMap.get(input).equals(PointStatus.UNKNOWN)
-                        || objectStatusMap.get(input).equals(PointStatus.NOISE);
-            }
-        });
+        final Set<O> candidates = objectStatusMap.keySet();
 
         while (!seeds.isEmpty()) {
             final O seed = seeds.poll();
