@@ -16,8 +16,8 @@ public interface TwoDimTree<T> extends KDTree<TwoDimTree.Node<T>> {
         double yCoordinate();
     }
 
-    interface SearchResult<T> {
-        Node<T> node();
+    interface SearchResult<T> extends DistantObject<Node<T>> {
+        Node<T> object();
 
         double distance();
     }

@@ -5,7 +5,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public abstract class AbstractPoint2D implements Point2D {
     @Override
-    public final double[] getCoordinate() {
+    public final double[] coordinates() {
         return new double[]{getX(), getY()};
     }
 
@@ -32,7 +32,7 @@ public abstract class AbstractPoint2D implements Point2D {
     @Override
     public final double distance(final Point neighbor) {
         checkArgument(neighbor.getDimension() == 2, "Dimension mismatch");
-        final double[] neighborCentroidCoordinate = neighbor.getCoordinate();
+        final double[] neighborCentroidCoordinate = neighbor.coordinates();
         return Geometry2D.distance(this.getX(), this.getY(),
                 neighborCentroidCoordinate[0], neighborCentroidCoordinate[1]);
     }

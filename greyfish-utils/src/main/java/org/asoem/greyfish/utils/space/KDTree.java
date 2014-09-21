@@ -20,4 +20,14 @@ public interface KDTree<N extends KDNode<N, ?>> extends BinaryTree<N> {
      * @return the size of the tree
      */
     int size();
+
+    /**
+     * Search the tree for all nodes which have coordinates that intersect with the hypersphere with given {@code
+     * center} and {@code range}.
+     *
+     * @param center the center of the hypersphere
+     * @param range  the radius of the hypersphere
+     * @return an iterable of node distance pairs
+     */
+    Iterable<DistantObject<N>> rangeSearch(double[] center, double range);
 }

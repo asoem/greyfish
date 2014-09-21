@@ -326,7 +326,7 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
         return Iterables.transform(tree.get().findNodes(x, y, radius), new Function<TwoDimTree.SearchResult<O>, O>() {
             @Override
             public O apply(final TwoDimTree.SearchResult<O> input) {
-                return input.node().value();
+                return input.object().value();
             }
         });
     }

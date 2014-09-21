@@ -5,6 +5,7 @@ import com.google.common.base.Functions;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.*;
+import org.asoem.greyfish.utils.collect.AbstractTree;
 import org.asoem.greyfish.utils.space.*;
 import org.asoem.kdtree.*;
 import org.asoem.kdtree.KDNode;
@@ -14,7 +15,6 @@ import scala.Tuple2;
 import scala.collection.immutable.List;
 
 import javax.annotation.Nullable;
-import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -27,7 +27,7 @@ import static scala.collection.JavaConversions.iterableAsScalaIterable;
  *
  * @param <T> the type of the value stored with each node
  */
-public class AsoemScalaTwoDimTree<T> extends AbstractCollection<TwoDimTree.Node<T>> implements TwoDimTree<T> {
+public class AsoemScalaTwoDimTree<T> extends AbstractTree<TwoDimTree.Node<T>> implements TwoDimTree<T> {
 
     private static final int DIMENSIONS = 2;
 
@@ -38,7 +38,7 @@ public class AsoemScalaTwoDimTree<T> extends AbstractCollection<TwoDimTree.Node<
         public SearchResult<T> apply(final NNResult<T> o) {
             return new SearchResult<T>() {
                 @Override
-                public Node<T> node() {
+                public Node<T> object() {
                     return asTreeNode(o.node());
                 }
 
@@ -90,6 +90,12 @@ public class AsoemScalaTwoDimTree<T> extends AbstractCollection<TwoDimTree.Node<
     }
 
     @Override
+    public Iterable<DistantObject<Node<T>>> rangeSearch(final double[] center, final double range) {
+        checkArgument(center.length == dimensions(), "Dimension mismatch");
+        return ImmutableList.<DistantObject<Node<T>>>copyOf(findNodes(center[0], center[1], range));
+    }
+
+    @Override
     @Nullable
     public Node<T> root() {
         final KDNode<T> root = tree.root();
@@ -127,6 +133,11 @@ public class AsoemScalaTwoDimTree<T> extends AbstractCollection<TwoDimTree.Node<
             @Override
             public T value() {
                 return value;
+            }
+
+            @Override
+            public double[] coordinates() {
+                return point.coordinates();
             }
 
             @Override
@@ -179,10 +190,13 @@ public class AsoemScalaTwoDimTree<T> extends AbstractCollection<TwoDimTree.Node<
     public Iterator<TwoDimTree.Node<T>> iterator() {
         final Optional<Node<T>> rootOptional = rootNode();
         if (rootOptional.isPresent()) {
-            return treeTraverser.postOrderTraversal(rootOptional.get()).iterator();
+            return getTreeTraverser().postOrderTraversal(rootOptional.get()).iterator();
         } else {
             return Iterators.emptyIterator();
         }
     }
+
+    @Override
+    protected TreeTraverser<Node<T>> getTreeTraverser() {return treeTraverser;}
 
 }

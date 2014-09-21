@@ -23,8 +23,8 @@ dependencies {
             'com.google.inject:guice:3.0',
             'org.apache.commons:commons-jexl:2.1.1',
             'com.lmax:disruptor:3.2.0',
-            'org.scala-lang:scala-library:2.10.2',
-            'org.asoem:kdtree:1.2.2'
+            'org.scala-lang:scala-library:2.10.4',
+            'org.asoem:kdtree:1.2.5'
 
     compile project(':greyfish-utils')
 

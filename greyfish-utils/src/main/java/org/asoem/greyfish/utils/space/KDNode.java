@@ -6,6 +6,12 @@ import org.asoem.greyfish.utils.collect.BinaryTreeNode;
  * A node of a {@link KDTree}
  */
 public interface KDNode<N extends KDNode<N, T>, T> extends BinaryTreeNode<N> {
+
+    /**
+     * Get the number of dimensions (value for k).
+     *
+     * @return the number of dimensions
+     */
     int dimensions();
 
     /**
@@ -14,6 +20,13 @@ public interface KDNode<N extends KDNode<N, T>, T> extends BinaryTreeNode<N> {
      * @return the value stored with this node
      */
     T value();
+
+    /**
+     * Get the coordinates for this node.
+     *
+     * @return the coordinates
+     */
+    double[] coordinates();
 
     /**
      * Calculate the distance of this node to the given {@code coordinates}. The length of {@code coordinates} must

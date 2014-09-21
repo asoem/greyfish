@@ -10,14 +10,14 @@ public final class ImmutablePoint1D implements Point, Point1D {
     }
 
     @Override
-    public double[] getCoordinate() {
+    public double[] coordinates() {
         return new double[]{x};
     }
 
     @Override
     public double distance(final Point point) {
         checkArgument(point.getDimension() == 1);
-        return Math.abs(point.getCoordinate()[0] - x);
+        return Math.abs(point.coordinates()[0] - x);
     }
 
     @Override

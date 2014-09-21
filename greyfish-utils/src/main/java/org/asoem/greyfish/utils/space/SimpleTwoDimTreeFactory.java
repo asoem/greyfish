@@ -100,6 +100,11 @@ public final class SimpleTwoDimTreeFactory<T> implements TwoDimTreeFactory<T> {
         }
 
         @Override
+        public double[] coordinates() {
+            return new double[] {x, y};
+        }
+
+        @Override
         public double distance(final double... coordinates) {
             checkArgument(coordinates.length == dimensions());
             return Geometry2D.distance(x, y, coordinates[0], coordinates[1]);

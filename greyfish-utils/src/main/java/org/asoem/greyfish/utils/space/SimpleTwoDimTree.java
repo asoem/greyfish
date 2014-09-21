@@ -3,15 +3,14 @@ package org.asoem.greyfish.utils.space;
 import com.google.common.base.Optional;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.TreeTraverser;
+import com.google.common.collect.*;
 
 import javax.annotation.Nullable;
 import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * A simple implementation of a two dimensional kd-tree with no search optimization.
@@ -47,6 +46,12 @@ public final class SimpleTwoDimTree<T> extends AbstractCollection<TwoDimTree.Nod
         return lazySize.get();
     }
 
+    @Override
+    public Iterable<DistantObject<Node<T>>> rangeSearch(final double[] center, final double range) {
+        checkArgument(center.length == dimensions(), "Dimension mismatch");
+        return ImmutableList.<DistantObject<Node<T>>>copyOf(findNodes(center[0], center[1], range));
+    }
+
     @Nullable
     @Override
     public Node<T> root() {
@@ -67,7 +72,7 @@ public final class SimpleTwoDimTree<T> extends AbstractCollection<TwoDimTree.Nod
             if (distance <= range) {
                 searchResults.add(new SearchResult<T>() {
                     @Override
-                    public Node<T> node() {
+                    public Node<T> object() {
                         return node;
                     }
 
