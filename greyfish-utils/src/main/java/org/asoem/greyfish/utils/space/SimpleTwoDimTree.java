@@ -1,16 +1,19 @@
 package org.asoem.greyfish.utils.space;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicates;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.*;
 
 import javax.annotation.Nullable;
 import java.util.AbstractCollection;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * A simple implementation of a two dimensional kd-tree with no search optimization.
@@ -19,8 +22,8 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public final class SimpleTwoDimTree<T> extends AbstractCollection<TwoDimTree.Node<T>> implements TwoDimTree<T> {
 
-    private final Optional<Node<T>> rootNode;
-    private final TreeTraverser<Node<T>> treeTraverser = new TwoDimTreeTraverser<>();
+    private final Optional<TwoDimTree.Node<T>> rootNode;
+    private final TreeTraverser<TwoDimTree.Node<T>> treeTraverser = new TwoDimTreeTraverser<>();
     private final Supplier<Integer> lazySize = Suppliers.memoize(new Supplier<Integer>() {
         @Override
         public Integer get() {
@@ -28,11 +31,11 @@ public final class SimpleTwoDimTree<T> extends AbstractCollection<TwoDimTree.Nod
         }
     });
 
-    private SimpleTwoDimTree(@Nullable final Node<T> rootNode) {
+    private SimpleTwoDimTree(@Nullable final TwoDimTree.Node<T> rootNode) {
         this.rootNode = Optional.fromNullable(rootNode);
     }
 
-    public static <T> SimpleTwoDimTree<T> create(final Node<T> rootNode) {
+    public static <T> SimpleTwoDimTree<T> create(final TwoDimTree.Node<T> rootNode) {
         return new SimpleTwoDimTree<T>(rootNode);
     }
 
@@ -47,32 +50,34 @@ public final class SimpleTwoDimTree<T> extends AbstractCollection<TwoDimTree.Nod
     }
 
     @Override
-    public Iterable<DistantObject<Node<T>>> rangeSearch(final double[] center, final double range) {
+    public Iterable<DistantObject<TwoDimTree.Node<T>>> rangeSearch(final double[] center, final double range) {
         checkArgument(center.length == dimensions(), "Dimension mismatch");
-        return ImmutableList.<DistantObject<Node<T>>>copyOf(findNodes(center[0], center[1], range));
+        return ImmutableList.copyOf(findNodes(center[0], center[1], range));
     }
 
     @Nullable
     @Override
-    public Node<T> root() {
+    public TwoDimTree.Node<T> root() {
         return rootNode().orNull();
     }
 
     @Override
-    public Optional<Node<T>> rootNode() {
+    public Optional<TwoDimTree.Node<T>> rootNode() {
         return rootNode;
     }
 
     @Override
-    public Iterable<SearchResult<T>> findNodes(final double x, final double y, final double range) {
-        final FluentIterable<Node<T>> nodes = treeTraverser.preOrderTraversal(root());
-        List<SearchResult<T>> searchResults = Lists.newArrayList();
-        for (final Node<T> node : nodes) {
-            final double distance = Geometry2D.distance(ImmutablePoint2D.at(x, y), ImmutablePoint2D.at(node.xCoordinate(), node.yCoordinate()));
+    public Iterable<DistantObject<TwoDimTree.Node<T>>> findNodes(final double x, final double y, final double range) {
+        final FluentIterable<TwoDimTree.Node<T>> nodes = treeTraverser.preOrderTraversal(rootNode().get());
+        List<DistantObject<TwoDimTree.Node<T>>> distantObjects = Lists.newArrayList();
+        for (final TwoDimTree.Node<T> node : nodes) {
+            final double distance = Geometry2D.distance(
+                    ImmutablePoint2D.at(x, y),
+                    ImmutablePoint2D.at(node.xCoordinate(), node.yCoordinate()));
             if (distance <= range) {
-                searchResults.add(new SearchResult<T>() {
+                distantObjects.add(new DistantObject<TwoDimTree.Node<T>>() {
                     @Override
-                    public Node<T> object() {
+                    public TwoDimTree.Node<T> object() {
                         return node;
                     }
 
@@ -83,11 +88,76 @@ public final class SimpleTwoDimTree<T> extends AbstractCollection<TwoDimTree.Nod
                 });
             }
         }
-        return searchResults;
+        return distantObjects;
     }
 
     @Override
-    public Iterator<Node<T>> iterator() {
-        return treeTraverser.postOrderTraversal(root()).iterator();
+    public Iterator<TwoDimTree.Node<T>> iterator() {
+        return treeTraverser.postOrderTraversal(rootNode().get()).iterator();
+    }
+
+    static class Node<T> implements TwoDimTree.Node<T> {
+
+        private final double x;
+        private final double y;
+        private final T input;
+        private Optional<TwoDimTree.Node<T>> leftOptional;
+        private Optional<TwoDimTree.Node<T>> rightOptional;
+
+        public Node(final double x, final double y, final T input,
+                    final Optional<TwoDimTree.Node<T>> leftOptional,
+                    final Optional<TwoDimTree.Node<T>> rightOptional) {
+            this.x = x;
+            this.y = y;
+            this.input = input;
+            this.leftOptional = checkNotNull(leftOptional);
+            this.rightOptional = checkNotNull(rightOptional);
+        }
+
+        @Override
+        public double xCoordinate() {
+            return x;
+        }
+
+        @Override
+        public double yCoordinate() {
+            return y;
+        }
+
+        @Override
+        public int dimensions() {
+            return 2;
+        }
+
+        @Override
+        public Optional<TwoDimTree.Node<T>> leftChild() {
+            return leftOptional;
+        }
+
+        @Override
+        public Optional<TwoDimTree.Node<T>> rightChild() {
+            return rightOptional;
+        }
+
+        @Override
+        public Iterable<TwoDimTree.Node<T>> children() {
+            return Iterables.filter(Arrays.asList(leftChild().orNull(), rightChild().orNull()), Predicates.notNull());
+        }
+
+        @Override
+        public T value() {
+            return input;
+        }
+
+        @Override
+        public double[] coordinates() {
+            return new double[]{x, y};
+        }
+
+        @Override
+        public double distance(final double... coordinates) {
+            checkArgument(coordinates.length == dimensions());
+            return Geometry2D.distance(x, y, coordinates[0], coordinates[1]);
+        }
     }
 }

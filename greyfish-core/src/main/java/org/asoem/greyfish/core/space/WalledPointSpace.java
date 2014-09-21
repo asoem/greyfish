@@ -217,7 +217,7 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
      * @param xd   Movement line x destination
      * @param yd   Movement line x destination
      * @return the location on the line closest to the point of a collision with a wall or {@code null} if none could be
-     *         found
+     * found
      */
     @Nullable
     private Point2D collision(final WalledTile tile, final double xo, final double yo, final double xd, final double yd) {
@@ -323,12 +323,13 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
 
     @Override
     public Iterable<O> findObjects(final double x, final double y, final double radius) {
-        return Iterables.transform(tree.get().findNodes(x, y, radius), new Function<TwoDimTree.SearchResult<O>, O>() {
-            @Override
-            public O apply(final TwoDimTree.SearchResult<O> input) {
-                return input.object().value();
-            }
-        });
+        return Iterables.transform(tree.get().findNodes(x, y, radius),
+                new Function<DistantObject<TwoDimTree.Node<O>>, O>() {
+                    @Override
+                    public O apply(final DistantObject<TwoDimTree.Node<O>> input) {
+                        return input.object().value();
+                    }
+                });
     }
 
     @Override
@@ -390,12 +391,12 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
         final BinaryTreeTraverser<TwoDimTree.Node<O>> traverser = new BinaryTreeTraverser<TwoDimTree.Node<O>>() {
             @Override
             public Optional<TwoDimTree.Node<O>> leftChild(final TwoDimTree.Node<O> root) {
-                return Optional.fromNullable(root.leftChild());
+                return root.leftChild();
             }
 
             @Override
             public Optional<TwoDimTree.Node<O>> rightChild(final TwoDimTree.Node<O> root) {
-                return Optional.fromNullable(root.rightChild());
+                return root.rightChild();
             }
         };
 

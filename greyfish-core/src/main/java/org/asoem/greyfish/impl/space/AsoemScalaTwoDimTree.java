@@ -33,12 +33,12 @@ public class AsoemScalaTwoDimTree<T> extends AbstractTree<TwoDimTree.Node<T>> im
 
     private final KDTree<T> tree;
 
-    private final Function<NNResult<T>, SearchResult<T>> neighbourSearchResultTransformation = new Function<NNResult<T>, SearchResult<T>>() {
+    private final Function<NNResult<T>, DistantObject<TwoDimTree.Node<T>>> neighbourSearchResultTransformation = new Function<NNResult<T>, DistantObject<TwoDimTree.Node<T>>>() {
         @Override
-        public SearchResult<T> apply(final NNResult<T> o) {
-            return new SearchResult<T>() {
+        public DistantObject<TwoDimTree.Node<T>> apply(final NNResult<T> o) {
+            return new DistantObject<TwoDimTree.Node<T>>() {
                 @Override
-                public Node<T> object() {
+                public TwoDimTree.Node<T> object() {
                     return asTreeNode(o.node());
                 }
 
@@ -67,7 +67,7 @@ public class AsoemScalaTwoDimTree<T> extends AbstractTree<TwoDimTree.Node<T>> im
     }
 
     @Override
-    public Iterable<SearchResult<T>> findNodes(final double x, final double y, final double range) {
+    public Iterable<DistantObject<TwoDimTree.Node<T>>> findNodes(final double x, final double y, final double range) {
         switch (tree.size()) {
             case 0:
                 return ImmutableList.of();
@@ -122,57 +122,8 @@ public class AsoemScalaTwoDimTree<T> extends AbstractTree<TwoDimTree.Node<T>> im
         }
     }
 
-    private static <T> Node<T> createNode(final Node<T> left, final Node<T> right, final T value, final Point2D point) {
-        return new Node<T>() {
-
-            @Override
-            public Iterable<Node<T>> children() {
-                return Iterables.filter(Arrays.asList(left, right), Predicates.notNull());
-            }
-
-            @Override
-            public T value() {
-                return value;
-            }
-
-            @Override
-            public double[] coordinates() {
-                return point.coordinates();
-            }
-
-            @Override
-            public double distance(final double... coordinates) {
-                checkArgument(coordinates.length == dimensions());
-                return Geometry2D.distance(xCoordinate(), yCoordinate(), coordinates[0], coordinates[1]);
-            }
-
-            @Nullable
-            @Override
-            public Node<T> leftChild() {
-                return left;
-            }
-
-            @Nullable
-            @Override
-            public Node<T> rightChild() {
-                return right;
-            }
-
-            @Override
-            public double xCoordinate() {
-                return point.getX();
-            }
-
-            @Override
-            public double yCoordinate() {
-                return point.getY();
-            }
-
-            @Override
-            public int dimensions() {
-                return 2;
-            }
-        };
+    private static <T> Node<T> createNode(@Nullable final Node<T> left, @Nullable final Node<T> right, final T value, final Point2D point) {
+        return new SimpleNode<>(value, point, Optional.fromNullable(left), Optional.fromNullable(right));
     }
 
     public static <T> AsoemScalaTwoDimTree<T> of() {
@@ -197,6 +148,69 @@ public class AsoemScalaTwoDimTree<T> extends AbstractTree<TwoDimTree.Node<T>> im
     }
 
     @Override
-    protected TreeTraverser<Node<T>> getTreeTraverser() {return treeTraverser;}
+    protected TreeTraverser<Node<T>> getTreeTraverser() {
+        return treeTraverser;
+    }
 
+    private static class SimpleNode<T> implements Node<T> {
+
+        private final T value;
+        private final Point2D point;
+        private final Optional<Node<T>> leftOptional;
+        private final Optional<Node<T>> rightOptional;
+
+        public SimpleNode(final T value, final Point2D point,
+                          final Optional<Node<T>> leftOptional, final Optional<Node<T>> rightOptional) {
+            this.value = value;
+            this.point = point;
+            this.leftOptional = leftOptional;
+            this.rightOptional = rightOptional;
+        }
+
+        @Override
+        public Iterable<Node<T>> children() {
+            return Iterables.filter(Arrays.asList(leftChild().orNull(), rightChild().orNull()), Predicates.notNull());
+        }
+
+        @Override
+        public T value() {
+            return value;
+        }
+
+        @Override
+        public double[] coordinates() {
+            return point.coordinates();
+        }
+
+        @Override
+        public double distance(final double... coordinates) {
+            checkArgument(coordinates.length == dimensions());
+            return Geometry2D.distance(xCoordinate(), yCoordinate(), coordinates[0], coordinates[1]);
+        }
+
+        @Override
+        public Optional<Node<T>> leftChild() {
+            return leftOptional;
+        }
+
+        @Override
+        public Optional<Node<T>> rightChild() {
+            return rightOptional;
+        }
+
+        @Override
+        public double xCoordinate() {
+            return point.getX();
+        }
+
+        @Override
+        public double yCoordinate() {
+            return point.getY();
+        }
+
+        @Override
+        public int dimensions() {
+            return 2;
+        }
+    }
 }

@@ -99,12 +99,12 @@ public final class ASKDTree<T> extends AbstractTree<ASKDTree.ImmutableKDNode<T>>
     private static class Traverser<N extends KDNode<N, ?>> extends BinaryTreeTraverser<N> {
         @Override
         public Optional<N> leftChild(final N root) {
-            return Optional.fromNullable(root.leftChild());
+            return root.leftChild();
         }
 
         @Override
         public Optional<N> rightChild(final N root) {
-            return Optional.fromNullable(root.rightChild());
+            return root.rightChild();
         }
     }
 
@@ -118,7 +118,8 @@ public final class ASKDTree<T> extends AbstractTree<ASKDTree.ImmutableKDNode<T>>
             final ASKDTree.ImmutableKDNode<T> right = asTreeNode(node.right());
             final T value = node.value();
 
-            return new ImmutableKDNode<T>(left, right, dimensions, value, asPoint(node.point()));
+            return new ImmutableKDNode<T>(dimensions, value, asPoint(node.point()),
+                    Optional.fromNullable(left), Optional.fromNullable(right));
         }
     }
 
@@ -156,20 +157,20 @@ public final class ASKDTree<T> extends AbstractTree<ASKDTree.ImmutableKDNode<T>>
     }
 
     public static class ImmutableKDNode<T> implements KDNode<ImmutableKDNode<T>, T> {
-
-        private final ImmutableKDNode<T> left;
-        private final ImmutableKDNode<T> right;
         private final int dimensions;
         private final T value;
         private final Point point;
+        private Optional<ImmutableKDNode<T>> leftOptional;
+        private Optional<ImmutableKDNode<T>> rightOptional;
 
-        private ImmutableKDNode(final ImmutableKDNode<T> left, final ImmutableKDNode<T> right,
-                                final int dimensions, final T value, final Point point) {
-            this.left = left;
-            this.right = right;
+        private ImmutableKDNode(final int dimensions, final T value, final Point point,
+                                final Optional<ImmutableKDNode<T>> leftOptional,
+                                final Optional<ImmutableKDNode<T>> rightOptional) {
             this.dimensions = dimensions;
             this.value = value;
             this.point = point;
+            this.leftOptional = leftOptional;
+            this.rightOptional = rightOptional;
         }
 
         @Override
@@ -192,21 +193,19 @@ public final class ASKDTree<T> extends AbstractTree<ASKDTree.ImmutableKDNode<T>>
             return euclideanDistance.compute(point.coordinates(), coordinates);
         }
 
-        @Nullable
         @Override
-        public ImmutableKDNode<T> leftChild() {
-            return left;
+        public Optional<ImmutableKDNode<T>> leftChild() {
+            return leftOptional;
         }
 
-        @Nullable
         @Override
-        public ImmutableKDNode<T> rightChild() {
-            return right;
+        public Optional<ImmutableKDNode<T>> rightChild() {
+            return rightOptional;
         }
 
         @Override
         public Iterable<ImmutableKDNode<T>> children() {
-            return Iterables.filter(Arrays.asList(leftChild(), rightChild()), Predicates.notNull());
+            return Iterables.filter(Arrays.asList(leftChild().orNull(), rightChild().orNull()), Predicates.notNull());
         }
     }
 }

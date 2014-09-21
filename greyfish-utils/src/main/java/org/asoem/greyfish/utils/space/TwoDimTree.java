@@ -8,17 +8,11 @@ public interface TwoDimTree<T> extends KDTree<TwoDimTree.Node<T>> {
      * @param range the radius of the circle around the point at {@code x} and {@code y}
      * @return all nodes whose point intersects with the circle in undefined order
      */
-    Iterable<SearchResult<T>> findNodes(double x, double y, final double range);
+    Iterable<DistantObject<TwoDimTree.Node<T>>> findNodes(double x, double y, final double range);
 
     interface Node<T> extends KDNode<Node<T>, T> {
         double xCoordinate();
 
         double yCoordinate();
-    }
-
-    interface SearchResult<T> extends DistantObject<Node<T>> {
-        Node<T> object();
-
-        double distance();
     }
 }
