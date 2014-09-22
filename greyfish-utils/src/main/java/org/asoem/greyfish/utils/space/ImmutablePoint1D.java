@@ -2,7 +2,7 @@ package org.asoem.greyfish.utils.space;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public final class ImmutablePoint1D implements Point, Point1D {
+public final class ImmutablePoint1D implements Point1D {
     private final double x;
 
     public ImmutablePoint1D(final double x) {
