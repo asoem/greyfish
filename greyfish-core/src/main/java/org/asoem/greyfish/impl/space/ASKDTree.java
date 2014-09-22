@@ -2,49 +2,38 @@ package org.asoem.greyfish.impl.space;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicates;
 import com.google.common.collect.BinaryTreeTraverser;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.TreeTraverser;
 import com.google.common.primitives.Doubles;
-import org.apache.commons.math3.ml.distance.EuclideanDistance;
 import org.asoem.greyfish.utils.collect.AbstractTree;
+import org.asoem.greyfish.utils.space.DistanceMeasures;
 import org.asoem.greyfish.utils.space.DistantObject;
-import org.asoem.greyfish.utils.space.KDNode;
 import org.asoem.greyfish.utils.space.KDTree;
 import org.asoem.greyfish.utils.space.Point;
-import org.asoem.kdtree.HyperPoint;
-import org.asoem.kdtree.HyperPoint$;
-import org.asoem.kdtree.HyperSphere$;
-import org.asoem.kdtree.NNResult;
+import org.asoem.kdtree.*;
 import scala.Product2;
 import scala.Tuple2;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static scala.collection.JavaConversions.asJavaIterable;
-import static scala.collection.JavaConversions.iterableAsScalaIterable;
+import static scala.collection.JavaConversions.*;
 
-public final class ASKDTree<T> extends AbstractTree<ASKDTree.ImmutableKDNode<T>>
-        implements KDTree<ASKDTree.ImmutableKDNode<T>> {
-    private static final EuclideanDistance euclideanDistance = new EuclideanDistance();
+public final class ASKDTree<T> extends AbstractTree<ASKDTree.KDNodeWrapper<T>>
+        implements KDTree<ASKDTree.KDNodeWrapper<T>> {
 
-    private final int dimensions;
     private final org.asoem.kdtree.KDTree<T> tree;
 
     public ASKDTree(final int dimensions, final Map<T, ? extends Point> elements) {
         checkNotNull(elements);
 
-        this.dimensions = dimensions;
-        this.tree = buildTree(elements);
-        assert tree.dim() == dimensions;
+        this.tree = buildTree(elements, dimensions);
     }
 
-    private org.asoem.kdtree.KDTree<T> buildTree(final Map<T, ? extends Point> elements) {
+    private org.asoem.kdtree.KDTree<T> buildTree(final Map<T, ? extends Point> elements, final int dimensions) {
 
         final Iterable<Product2<HyperPoint, T>> transform = Iterables.transform(elements.entrySet(),
                 new Function<Map.Entry<T, ? extends Point>, Product2<HyperPoint, T>>() {
@@ -59,27 +48,27 @@ public final class ASKDTree<T> extends AbstractTree<ASKDTree.ImmutableKDNode<T>>
     }
 
     @Override
-    protected TreeTraverser<ASKDTree.ImmutableKDNode<T>> getTreeTraverser() {
+    protected TreeTraverser<ASKDTree.KDNodeWrapper<T>> getTreeTraverser() {
         return new Traverser<>();
     }
 
     @Override
     public int dimensions() {
-        return dimensions;
+        return tree.dim();
     }
 
     @Override
-    public Iterable<DistantObject<ImmutableKDNode<T>>> rangeSearch(final double[] center, final double range) {
+    public Iterable<DistantObject<KDNodeWrapper<T>>> rangeSearch(final double[] center, final double range) {
         return Iterables.transform(
                 asJavaIterable(tree.filterRange(HyperSphere$.MODULE$.apply(HyperPoint$.MODULE$.apply(center), range))),
-                new Function<NNResult<T>, DistantObject<ImmutableKDNode<T>>>() {
+                new Function<NNResult<T>, DistantObject<KDNodeWrapper<T>>>() {
                     @Nullable
                     @Override
-                    public DistantObject<ImmutableKDNode<T>> apply(final NNResult<T> input) {
-                        return new DistantObject<ImmutableKDNode<T>>() {
+                    public DistantObject<KDNodeWrapper<T>> apply(final NNResult<T> input) {
+                        return new DistantObject<KDNodeWrapper<T>>() {
                             @Override
-                            public ImmutableKDNode<T> object() {
-                                return asTreeNode(input.node());
+                            public KDNodeWrapper<T> object() {
+                                return new KDNodeWrapper<>(input.node());
                             }
 
                             @Override
@@ -92,11 +81,14 @@ public final class ASKDTree<T> extends AbstractTree<ASKDTree.ImmutableKDNode<T>>
     }
 
     @Override
-    public Optional<ASKDTree.ImmutableKDNode<T>> rootNode() {
-        return Optional.fromNullable(asTreeNode(tree.root()));
+    public Optional<ASKDTree.KDNodeWrapper<T>> rootNode() {
+        return (tree.root().isDefined())
+                ? Optional.of(new KDNodeWrapper<>(tree.root().get()))
+                : Optional.<KDNodeWrapper<T>>absent();
     }
 
-    private static class Traverser<N extends KDNode<N, ?>> extends BinaryTreeTraverser<N> {
+    private static class Traverser<N extends org.asoem.greyfish.utils.space.KDNode<N, ?>>
+            extends BinaryTreeTraverser<N> {
         @Override
         public Optional<N> leftChild(final N root) {
             return root.leftChild();
@@ -108,104 +100,57 @@ public final class ASKDTree<T> extends AbstractTree<ASKDTree.ImmutableKDNode<T>>
         }
     }
 
-    @Nullable
-    private ASKDTree.ImmutableKDNode<T> asTreeNode(@Nullable final org.asoem.kdtree.KDNode<T> node) {
-        if (node == null) {
-            return null;
-        } else {
+    public static final class KDNodeWrapper<T> implements org.asoem.greyfish.utils.space.KDNode<KDNodeWrapper<T>, T> {
+        private final org.asoem.kdtree.KDNode<T> node;
 
-            final ASKDTree.ImmutableKDNode<T> left = asTreeNode(node.left());
-            final ASKDTree.ImmutableKDNode<T> right = asTreeNode(node.right());
-            final T value = node.value();
-
-            return new ImmutableKDNode<T>(dimensions, value, asPoint(node.point()),
-                    Optional.fromNullable(left), Optional.fromNullable(right));
-        }
-    }
-
-    private Point asPoint(final HyperPoint point) {
-        return new Point() {
-
-            @Override
-            public double[] coordinates() {
-                return Doubles.toArray(ImmutableList.copyOf(
-                        Iterables.transform(asJavaIterable(point.coordinates()),
-                                new Function<Object, Double>() {
-                                    @Nullable
-                                    @Override
-                                    public Double apply(@Nullable final Object input) {
-                                        return (Double) input;
-                                    }
-                                })));
-            }
-
-            @Override
-            public double distance(final Point point) {
-                return euclideanDistance.compute(coordinates(), point.coordinates());
-            }
-
-            @Override
-            public int getDimension() {
-                return point.dim();
-            }
-
-            @Override
-            public Point getCentroid() {
-                return this;
-            }
-        };
-    }
-
-    public static class ImmutableKDNode<T> implements KDNode<ImmutableKDNode<T>, T> {
-        private final int dimensions;
-        private final T value;
-        private final Point point;
-        private Optional<ImmutableKDNode<T>> leftOptional;
-        private Optional<ImmutableKDNode<T>> rightOptional;
-
-        private ImmutableKDNode(final int dimensions, final T value, final Point point,
-                                final Optional<ImmutableKDNode<T>> leftOptional,
-                                final Optional<ImmutableKDNode<T>> rightOptional) {
-            this.dimensions = dimensions;
-            this.value = value;
-            this.point = point;
-            this.leftOptional = leftOptional;
-            this.rightOptional = rightOptional;
+        public KDNodeWrapper(final org.asoem.kdtree.KDNode<T> node) {
+            this.node = node;
         }
 
         @Override
         public int dimensions() {
-            return dimensions;
+            return node.dim();
         }
 
         @Override
         public T value() {
-            return value;
+            return node.value();
         }
 
         @Override
         public double[] coordinates() {
-            return point.coordinates();
+            return Doubles.toArray((List<Double>) (List) asJavaList(node._1().coordinates()));
         }
 
         @Override
         public double distance(final double... coordinates) {
-            return euclideanDistance.compute(point.coordinates(), coordinates);
+            return DistanceMeasures.euclidean().apply(coordinates(), coordinates);
         }
 
         @Override
-        public Optional<ImmutableKDNode<T>> leftChild() {
-            return leftOptional;
+        public Optional<KDNodeWrapper<T>> leftChild() {
+            return node.leftChild().isDefined()
+                    ? Optional.of(new KDNodeWrapper<>(node.leftChild().get()))
+                    : Optional.<KDNodeWrapper<T>>absent();
         }
 
         @Override
-        public Optional<ImmutableKDNode<T>> rightChild() {
-            return rightOptional;
+        public Optional<KDNodeWrapper<T>> rightChild() {
+            return node.rightChild().isDefined()
+                    ? Optional.of(new KDNodeWrapper<>(node.rightChild().get()))
+                    : Optional.<KDNodeWrapper<T>>absent();
         }
 
         @Override
-        public Iterable<ImmutableKDNode<T>> children() {
-            return Iterables.filter(Arrays.asList(leftChild().orNull(), rightChild().orNull()), Predicates.notNull());
+        public Iterable<KDNodeWrapper<T>> children() {
+            return Iterables.transform(asJavaIterable(node.children()),
+                    new Function<org.asoem.kdtree.KDNode<T>, KDNodeWrapper<T>>() {
+                        @Nullable
+                        @Override
+                        public KDNodeWrapper<T> apply(@Nullable final KDNode<T> input) {
+                            return new KDNodeWrapper<T>(input);
+                        }
+                    });
         }
     }
 }

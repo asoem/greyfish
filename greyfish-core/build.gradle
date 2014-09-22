@@ -17,14 +17,14 @@ configurations {
 dependencies {
     compile 'com.google.inject.extensions:guice-assistedinject:3.0',
             'org.slf4j:slf4j-api:1.7.5',
-            'org.apache.commons:commons-math3:3.2',
-            'com.google.guava:guava:16.0.1',
+            'org.apache.commons:commons-math3:3.3',
+            'com.google.guava:guava:18.0',
             'com.google.code.findbugs:jsr305:2.0.1',
             'com.google.inject:guice:3.0',
             'org.apache.commons:commons-jexl:2.1.1',
             'com.lmax:disruptor:3.2.0',
             'org.scala-lang:scala-library:2.10.4',
-            'org.asoem:kdtree:1.2.5'
+            'org.asoem:kdtree:1.2.7'
 
     compile project(':greyfish-utils')
 

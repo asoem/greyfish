@@ -1,9 +1,9 @@
 package org.asoem.greyfish.utils.persistence;
 
+import com.google.common.io.ByteSink;
+import com.google.common.io.ByteSource;
 import com.google.common.io.Closeables;
 import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
-import com.google.common.io.OutputSupplier;
 
 import java.io.*;
 
@@ -15,11 +15,11 @@ public enum JavaPersister implements Persister {
 
     @Override
     public <T> T deserialize(final File file, final Class<T> clazz) throws IOException, ClassNotFoundException {
-        return deserialize(Files.newInputStreamSupplier(file), clazz);
+        return deserialize(Files.asByteSource(file), clazz);
     }
 
-    private <T> T deserialize(final InputSupplier<? extends InputStream> inputSupplier, final Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException {
-        final InputStream input = inputSupplier.getInput();
+    private <T> T deserialize(final ByteSource byteSource, final Class<T> clazz) throws IOException, ClassNotFoundException {
+        final InputStream input = byteSource.openBufferedStream();
         boolean threw = true;
         try {
             final T object = deserialize(input, clazz);
@@ -31,15 +31,15 @@ public enum JavaPersister implements Persister {
     }
 
     @Override
-    public <T> T deserialize(final InputStream inputStream, final Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException {
+    public <T> T deserialize(final InputStream inputStream, final Class<T> clazz) throws IOException, ClassNotFoundException {
         checkNotNull(inputStream);
         checkNotNull(clazz);
         final ObjectInputStream in = new ObjectInputStream(inputStream);
         return clazz.cast(in.readObject());
     }
 
-    private void serialize(final Object object, final OutputSupplier<? extends OutputStream> outputSupplier) throws IOException {
-        final OutputStream output = outputSupplier.getOutput();
+    private void serialize(final Object object, final ByteSink byteSink) throws IOException {
+        final OutputStream output = byteSink.openBufferedStream();
         boolean threw = true;
         try {
             serialize(object, output);
@@ -51,7 +51,7 @@ public enum JavaPersister implements Persister {
 
     @Override
     public void serialize(final Object object, final File file) throws IOException {
-        serialize(object, Files.newOutputStreamSupplier(file));
+        serialize(object, Files.asByteSink(file));
     }
 
     @Override
