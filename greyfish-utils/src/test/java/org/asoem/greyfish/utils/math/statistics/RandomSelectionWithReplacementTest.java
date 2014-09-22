@@ -61,6 +61,6 @@ public class RandomSelectionWithReplacementTest {
         final Iterable<Integer> sample = sampling.sample(elements, sampleSize);
 
         // then
-        assertThat(sample, contains(7, 2, 6, 5, 5));
+        assertThat(sample, contains(0, 8, 9, 7, 5));
     }
 }
