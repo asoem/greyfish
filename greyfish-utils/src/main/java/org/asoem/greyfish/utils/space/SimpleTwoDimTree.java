@@ -36,7 +36,7 @@ public final class SimpleTwoDimTree<T> extends AbstractCollection<TwoDimTree.Nod
     }
 
     public static <T> SimpleTwoDimTree<T> create(final TwoDimTree.Node<T> rootNode) {
-        return new SimpleTwoDimTree<T>(rootNode);
+        return new SimpleTwoDimTree<>(rootNode);
     }
 
     @Override

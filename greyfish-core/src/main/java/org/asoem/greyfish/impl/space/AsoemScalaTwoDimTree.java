@@ -33,22 +33,23 @@ public class AsoemScalaTwoDimTree<T> extends AbstractTree<TwoDimTree.Node<T>> im
 
     private final KDTree<T> tree;
 
-    private final Function<NNResult<T>, DistantObject<TwoDimTree.Node<T>>> neighbourSearchResultTransformation = new Function<NNResult<T>, DistantObject<TwoDimTree.Node<T>>>() {
-        @Override
-        public DistantObject<TwoDimTree.Node<T>> apply(final NNResult<T> o) {
-            return new DistantObject<TwoDimTree.Node<T>>() {
+    private final Function<NNResult<T>, DistantObject<TwoDimTree.Node<T>>> neighbourSearchResultTransformation =
+            new Function<NNResult<T>, DistantObject<TwoDimTree.Node<T>>>() {
                 @Override
-                public TwoDimTree.Node<T> object() {
-                    return asTreeNode(o.node());
-                }
+                public DistantObject<TwoDimTree.Node<T>> apply(final NNResult<T> o) {
+                    return new DistantObject<TwoDimTree.Node<T>>() {
+                        @Override
+                        public TwoDimTree.Node<T> object() {
+                            return asTreeNode(o.node());
+                        }
 
-                @Override
-                public double distance() {
-                    return o.distance();
+                        @Override
+                        public double distance() {
+                            return o.distance();
+                        }
+                    };
                 }
             };
-        }
-    };
     private final BinaryTreeTraverser<Node<T>> treeTraverser = new TwoDimTreeTraverser<>();
 
     private AsoemScalaTwoDimTree(
@@ -122,19 +123,20 @@ public class AsoemScalaTwoDimTree<T> extends AbstractTree<TwoDimTree.Node<T>> im
         }
     }
 
-    private static <T> Node<T> createNode(@Nullable final Node<T> left, @Nullable final Node<T> right, final T value, final Point2D point) {
+    private static <T> Node<T> createNode(@Nullable final Node<T> left, @Nullable final Node<T> right,
+                                          final T value, final Point2D point) {
         return new SimpleNode<>(value, point, Optional.fromNullable(left), Optional.fromNullable(right));
     }
 
     public static <T> AsoemScalaTwoDimTree<T> of() {
         final ImmutableMap<T, org.asoem.greyfish.utils.collect.Product2<Double, Double>> map = ImmutableMap.of();
-        return new AsoemScalaTwoDimTree<T>(map.keySet(), Functions.forMap(map));
+        return new AsoemScalaTwoDimTree<>(map.keySet(), Functions.forMap(map));
     }
 
     public static <T> AsoemScalaTwoDimTree<T> of(
             final Iterable<? extends T> elements,
             final Function<? super T, ? extends org.asoem.greyfish.utils.collect.Product2<Double, Double>> mappingFunction) {
-        return new AsoemScalaTwoDimTree<T>(elements, mappingFunction);
+        return new AsoemScalaTwoDimTree<>(elements, mappingFunction);
     }
 
     @Override

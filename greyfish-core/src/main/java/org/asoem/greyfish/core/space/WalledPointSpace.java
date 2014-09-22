@@ -51,7 +51,8 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
     }
 
     @SuppressWarnings("UnusedDeclaration") // Needed for deserialization
-    private WalledPointSpace(final int width, final int height, final Map<O, Point2D> projectables, final WalledTile[] walledTiles, final TwoDimTreeFactory<O> treeFactory) {
+    private WalledPointSpace(final int width, final int height, final Map<O, Point2D> projectables,
+                             final WalledTile[] walledTiles, final TwoDimTreeFactory<O> treeFactory) {
         this(width, height, walledTiles, treeFactory);
         this.point2DMap.putAll(projectables);
     }
@@ -63,7 +64,8 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
         }
     }
 
-    public WalledPointSpace(final int width, final int height, final WalledTile[] walledTiles, final TwoDimTreeFactory<O> treeFactory) {
+    public WalledPointSpace(final int width, final int height, final WalledTile[] walledTiles,
+                            final TwoDimTreeFactory<O> treeFactory) {
         checkArgument(width >= 0);
         checkArgument(height >= 0);
         checkNotNull(treeFactory);
@@ -82,7 +84,8 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
         setWalledTiles(walledTiles);
     }
 
-    public static <O> WalledPointSpace<O> create(final int width, final int height, final TwoDimTreeFactory<O> twoDimTreeFactory) {
+    public static <O> WalledPointSpace<O> create(final int width, final int height,
+                                                 final TwoDimTreeFactory<O> twoDimTreeFactory) {
         return new WalledPointSpace<O>(width, height, twoDimTreeFactory);
     }
 
@@ -139,7 +142,7 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
         return "Tiled Space: dim=" + width + "x" + height + "; oc=" + Iterables.size(getObjects());
     }
 
-    public WalledTile getTileAt(final Point2D point2D) throws IndexOutOfBoundsException, IllegalArgumentException {
+    public WalledTile getTileAt(final Point2D point2D) {
         checkArgument(contains(point2D.getX(), point2D.getY()),
                 "There is no tile for location [%s, %s]", point2D.getX(), point2D.getY());
         return getTileAt(point2D.getX(), point2D.getY());
@@ -174,12 +177,15 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
         final Point2D anchorPoint =
                 checkNotNull(currentProjection, "Projection of {} is null", object).getCentroid();
         if (translation != 0) {
-            final Point2D preferredPoint = ImmutablePoint2D.sum(anchorPoint, polarToCartesian(newOrientation, translation));
+            final Point2D preferredPoint =
+                    ImmutablePoint2D.sum(anchorPoint, polarToCartesian(newOrientation, translation));
             final Point2D maxPoint = maxTransition(anchorPoint, preferredPoint);
-            //final MotionObject2D projection = MotionObject2DImpl.of(maxPoint.getX(), maxPoint.getY(), !preferredPoint.equals(maxPoint));
+            //final MotionObject2D projection = MotionObject2DImpl.of(maxPoint.getX(),
+            // maxPoint.getY(), !preferredPoint.equals(maxPoint));
             //object.setProjection(projection);
         }
-        // else: object.setProjection(MotionObject2DImpl.of(anchorPoint.getX(), anchorPoint.getY(), newOrientation, false));
+        // else: object.setProjection(MotionObject2DImpl.of(anchorPoint.getX(),
+        // anchorPoint.getY(), newOrientation, false));
 
         tree.invalidate();
     }
@@ -197,7 +203,8 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
     public Point2D maxTransition(final Point2D origin, final Point2D destination) {
         final Point2D collision = collision(origin.getX(), origin.getY(), destination.getX(), destination.getY());
         assert collision == null || contains(collision.getX(), collision.getY()) :
-                "Calculated maxTransition from " + origin + " to " + destination + " is " + collision + ", which not contained by this space " + this;
+                "Calculated maxTransition from " + origin + " to " + destination + " is "
+                        + collision + ", which not contained by this space " + this;
         return collision != null ? collision : destination;
     }
 
@@ -220,7 +227,9 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
      * found
      */
     @Nullable
-    private Point2D collision(final WalledTile tile, final double xo, final double yo, final double xd, final double yd) {
+    private Point2D collision(final WalledTile tile,
+                              final double xo, final double yo,
+                              final double xd, final double yd) {
         assert tile != null;
 
         if (tile.covers(xd, yd)) {
@@ -247,8 +256,10 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
 
         if (xd > xo) { // east
             final ImmutablePoint2D intersection = intersection(
-                    Math.nextAfter(tile.getX() + 1.0, -Double.MIN_VALUE), tile.getY(),
-                    Math.nextAfter(tile.getX() + 1.0, -Double.MIN_VALUE), Math.nextAfter(tile.getY() + 1.0, -Double.MIN_VALUE),
+                    Math.nextAfter(tile.getX() + 1.0, -Double.MIN_VALUE),
+                    tile.getY(),
+                    Math.nextAfter(tile.getX() + 1.0, -Double.MIN_VALUE),
+                    Math.nextAfter(tile.getY() + 1.0, -Double.MIN_VALUE),
                     xo, yo, xd, yd);
 
             if (intersection != null) {
@@ -266,8 +277,10 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
 
         if (yd > yo) { // south
             final ImmutablePoint2D intersection = intersection(
-                    tile.getX(), Math.nextAfter(tile.getY() + 1.0, -Double.MIN_VALUE),
-                    Math.nextAfter(tile.getX() + 1.0, -Double.MIN_VALUE), Math.nextAfter(tile.getY() + 1.0, -Double.MIN_VALUE),
+                    tile.getX(),
+                    Math.nextAfter(tile.getY() + 1.0, -Double.MIN_VALUE),
+                    Math.nextAfter(tile.getX() + 1.0, -Double.MIN_VALUE),
+                    Math.nextAfter(tile.getY() + 1.0, -Double.MIN_VALUE),
                     xo, yo, xd, yd);
 
             if (intersection != null) {
@@ -553,7 +566,7 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public final static class TiledSpaceBuilder<O> implements Builder<WalledPointSpace<O>> {
+    public static final class TiledSpaceBuilder<O> implements Builder<WalledPointSpace<O>> {
 
         private final int width;
         private final int height;
@@ -578,7 +591,8 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
             return this;
         }
 
-        public TiledSpaceBuilder<O> addWallsVertical(final int x, final int y1, final int y2, final TileDirection direction) {
+        public TiledSpaceBuilder<O> addWallsVertical(
+                final int x, final int y1, final int y2, final TileDirection direction) {
             checkArgument(x >= 0 && x < width);
             checkArgument(y1 >= 0 && y1 < height);
             checkArgument(y2 >= 0 && y2 < height);
@@ -595,7 +609,8 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
             return this;
         }
 
-        public TiledSpaceBuilder<O> addWallsHorizontal(final int x1, final int x2, final int y, final TileDirection direction) {
+        public TiledSpaceBuilder<O> addWallsHorizontal(
+                final int x1, final int x2, final int y, final TileDirection direction) {
             checkArgument(x1 >= 0 && x1 < width);
             checkArgument(x2 >= 0 && x2 < width);
             checkArgument(y >= 0 && y < height);

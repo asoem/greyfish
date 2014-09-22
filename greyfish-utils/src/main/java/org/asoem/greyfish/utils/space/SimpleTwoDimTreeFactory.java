@@ -30,11 +30,11 @@ public final class SimpleTwoDimTreeFactory<T> implements TwoDimTreeFactory<T> {
                 final T input = nodeList.get(0);
                 final Point2D point2D = checkNotNull(point2DFunction.apply(input));
                 final TwoDimTree.Node<T> leftChild = createNode(nodeList.subList(1, nodeList.size()), point2DFunction);
-                final TwoDimTree.Node<T> rightChild = null;
                 final double x = point2D.getX();
                 final double y = point2D.getY();
 
-                return new SimpleTwoDimTree.Node<T>(x, y, input, Optional.fromNullable(leftChild), Optional.fromNullable(rightChild));
+                return new SimpleTwoDimTree.Node<>(x, y, input,
+                        Optional.fromNullable(leftChild), Optional.<TwoDimTree.Node<T>>absent());
         }
 
     }
