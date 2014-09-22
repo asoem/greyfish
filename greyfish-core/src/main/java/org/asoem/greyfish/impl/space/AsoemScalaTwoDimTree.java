@@ -74,7 +74,7 @@ public class AsoemScalaTwoDimTree<T> extends AbstractTree<TwoDimTree.Node<T>> im
             default:
                 final HyperPoint searchPoint = new HyperPoint2(x, y);
                 final List<NNResult<T>> nnResultList
-                        = tree.filterRange(searchPoint, range);
+                        = tree.filterRange(HyperSphere$.MODULE$.apply(searchPoint, range));
                 return Iterables.transform(asJavaIterable(nnResultList), neighbourSearchResultTransformation);
         }
     }
@@ -98,13 +98,13 @@ public class AsoemScalaTwoDimTree<T> extends AbstractTree<TwoDimTree.Node<T>> im
     @Override
     @Nullable
     public Node<T> root() {
-        final KDNode<T> root = tree.root();
+        final KDNode<T> root = tree.root().getOrElse(null);
         return asTreeNode(root);
     }
 
     @Override
     public Optional<Node<T>> rootNode() {
-        return Optional.fromNullable(asTreeNode(tree.root()));
+        return Optional.fromNullable(root());
     }
 
     @Nullable
