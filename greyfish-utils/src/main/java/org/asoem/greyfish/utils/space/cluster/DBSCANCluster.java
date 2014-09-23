@@ -7,7 +7,7 @@ import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-class DBSCANCluster<O> extends ForwardingCollection<O>
+public final class DBSCANCluster<O> extends ForwardingCollection<O>
         implements Cluster<O> {
 
     private final ImmutableList<O> objects;
