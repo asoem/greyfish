@@ -5,7 +5,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import org.asoem.greyfish.utils.space.DistanceMeasure;
+import org.asoem.greyfish.utils.space.DistanceMeasures;
 import org.asoem.greyfish.utils.space.SpatialData;
+import org.asoem.greyfish.utils.space.SpatialObject;
 
 import java.util.*;
 
@@ -23,55 +25,59 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <i>The algorithm is deterministic for the number of clusters and their core objects, but not for the cluster
  * assignment of only 'density reachable' objects.</i>
  *
- * @param <O> The type of the spatial objects to cluster
+ * @param <T> The type of the spatial objects to cluster
  */
-public final class DBSCAN<O> implements ClusterAlgorithm<O, DBSCANResult<O>> {
+public final class DBSCAN<T> implements ClusterAlgorithm<T, DBSCANResult<T>> {
 
-    /**
-     * Maximum radius of the neighborhood to be considered.
-     */
     private final double epsilon;
 
-    /**
-     * Minimum number of points needed for a cluster.
-     */
     private final int minPts;
 
-    private final DistanceMeasure<? super O> distanceMeasure;
+    private final NeighborSearch<T> neighborSearch;
 
-    private final NeighborSearch<O> neighborSearch;
+    private DBSCAN(final double epsilon, final int minPts, final NeighborSearch<T> neighborSearch) {
+        assert epsilon >= 0.0d;
+        assert minPts >= 0;
+        assert neighborSearch != null;
 
-    public DBSCAN(final double epsilon, final int minPts, final DistanceMeasure<? super O> distanceMeasure) {
-        this(epsilon, minPts, distanceMeasure, new NaiveNeighborSearch<O>());
-    }
-
-    public DBSCAN(final double epsilon, final int minPts, final DistanceMeasure<? super O> distanceMeasure,
-                  final NeighborSearch<O> neighborSearch) {
-        checkArgument(epsilon >= 0.0d, "epsilon must be positive");
-        checkArgument(minPts >= 0, "minPts must be positive");
-        checkNotNull(distanceMeasure);
-
-        this.distanceMeasure = distanceMeasure;
         this.epsilon = epsilon;
         this.minPts = minPts;
         this.neighborSearch = neighborSearch;
     }
 
+    public static <T extends SpatialObject> DBSCAN<T> create(final double epsilon, final int minPts) {
+        return create(epsilon, minPts, DistanceMeasures.euclidean());
+    }
+
+    public static <T> DBSCAN<T> create(final double epsilon, final int minPts,
+                                       final DistanceMeasure<? super T> distanceMeasure) {
+        checkNotNull(distanceMeasure, "distanceMeasure");
+        return create(epsilon, minPts, new NaiveNeighborSearch<>(distanceMeasure));
+    }
+
+    public static <T> DBSCAN<T> create(final double epsilon, final int minPts, final NeighborSearch<T> neighborSearch) {
+        checkArgument(epsilon >= 0.0d, "epsilon must be positive");
+        checkArgument(minPts >= 0, "minPts must be positive");
+        checkNotNull(neighborSearch, "neighborSearch");
+        return new DBSCAN<>(epsilon, minPts, neighborSearch);
+    }
+
     @Override
-    public DBSCANResult<O> apply(final Collection<O> objects) {
+    public DBSCANResult<T> apply(final Collection<T> objects) {
         checkNotNull(objects);
 
-        final List<DBSCANCluster<O>> clusters = Lists.newArrayList();
-        final List<O> noise = Lists.newArrayList();
-        final Map<O, PointStatus> objectStatusMap = Maps.newIdentityHashMap();
-        for (O object : objects) {
+        final List<DBSCANCluster<T>> clusters = Lists.newArrayList();
+        final List<T> noise = Lists.newArrayList();
+        final Map<T, PointStatus> objectStatusMap = Maps.newIdentityHashMap();
+
+        for (T object : objects) {
             objectStatusMap.put(object, PointStatus.UNKNOWN);
         }
 
-        for (Map.Entry<O, PointStatus> entry : objectStatusMap.entrySet()) {
+        for (Map.Entry<T, PointStatus> entry : objectStatusMap.entrySet()) {
             if (entry.getValue().equals(PointStatus.UNKNOWN)) {
 
-                final Optional<DBSCANCluster<O>> clusterOptional =
+                final Optional<DBSCANCluster<T>> clusterOptional =
                         tryCluster(entry.getKey(), objectStatusMap);
 
                 if (clusterOptional.isPresent()) {
@@ -86,25 +92,25 @@ public final class DBSCAN<O> implements ClusterAlgorithm<O, DBSCANResult<O>> {
         return DBSCANResult.create(clusters, noise, epsilon, minPts);
     }
 
-    private Optional<DBSCANCluster<O>> tryCluster(
-            final O origin, final Map<O, PointStatus> objectStatusMap) {
-        final List<O> clusterObjects = new ArrayList<>();
-        final Queue<O> seeds = Queues.newArrayDeque();
+    private Optional<DBSCANCluster<T>> tryCluster(
+            final T origin, final Map<T, PointStatus> objectStatusMap) {
+        final List<T> clusterObjects = new ArrayList<>();
+        final Queue<T> seeds = Queues.newArrayDeque();
 
         assert objectStatusMap.get(origin).equals(PointStatus.UNKNOWN);
         objectStatusMap.put(origin, PointStatus.SEED);
         seeds.offer(origin);
 
-        final Set<O> candidates = objectStatusMap.keySet();
+        final Set<T> candidates = objectStatusMap.keySet();
 
         while (!seeds.isEmpty()) {
-            final O seed = seeds.poll();
+            final T seed = seeds.poll();
             assert seed != null;
 
-            final Collection<O> currentNeighbors =
-                    neighborSearch.filterNeighbors(candidates, seed, distanceMeasure, epsilon);
+            final Collection<T> currentNeighbors =
+                    neighborSearch.filterNeighbors(candidates, seed, epsilon);
             if (currentNeighbors.size() >= minPts) {
-                for (O neighbor : currentNeighbors) {
+                for (T neighbor : currentNeighbors) {
                     if (objectStatusMap.get(neighbor).equals(PointStatus.NOISE)) {
                         clusterObjects.add(neighbor);
                         objectStatusMap.put(neighbor, PointStatus.DENSITY_REACHABLE);
@@ -135,15 +141,25 @@ public final class DBSCAN<O> implements ClusterAlgorithm<O, DBSCANResult<O>> {
         SEED, DENSITY_REACHABLE
     }
 
+    /**
+     * A NeighborSearch algorithm that scans the whole collection for neighbours using a given {@link
+     * org.asoem.greyfish.utils.space.DistanceMeasure distance measure}.
+     *
+     * @param <O> The type of the objects to search
+     */
     public static final class NaiveNeighborSearch<O> implements NeighborSearch<O> {
 
-        public NaiveNeighborSearch() {
+        private final DistanceMeasure<? super O> distanceMeasure;
+
+        public NaiveNeighborSearch(final DistanceMeasure<? super O> distanceMeasure) {
+            checkNotNull(distanceMeasure);
+            this.distanceMeasure = distanceMeasure;
         }
 
         @Override
         public Collection<O> filterNeighbors(
                 final Collection<O> collection, final O origin,
-                final DistanceMeasure<? super O> distanceMeasure, final double range) {
+                final double range) {
             return SpatialData.filterNeighbors(collection, origin, range, distanceMeasure);
         }
     }
