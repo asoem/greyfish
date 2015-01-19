@@ -127,7 +127,9 @@ public final class GreyfishH2ConnectionManager implements ConnectionManager, Clo
     }
 
     public static String defaultInitSql() {
-        final URL resource = GreyfishH2ConnectionManager.class.getResource("/h2/DefaultExperimentDatabase.init.sql");
+        final String resourceName = "/h2/DefaultExperimentDatabase.init.sql";
+        final URL resource = Resources.getResource(GreyfishH2ConnectionManager.class, resourceName);
+
         try {
             return Resources.asCharSource(resource, Charsets.UTF_8).read();
         } catch (IOException e) {
@@ -136,11 +138,14 @@ public final class GreyfishH2ConnectionManager implements ConnectionManager, Clo
     }
 
     public static String defaultFinalizeSql() {
-        final URL resource = GreyfishH2ConnectionManager.class.getResource("/h2/DefaultExperimentDatabase.finalize.sql");
+        final String resourceName = "/h2/DefaultExperimentDatabase.finalize.sql";
+        final URL resource = Resources.getResource(GreyfishH2ConnectionManager.class, resourceName);
+
         try {
             return Resources.asCharSource(resource, Charsets.UTF_8).read();
         } catch (IOException e) {
             throw Throwables.propagate(e);
         }
     }
+
 }
