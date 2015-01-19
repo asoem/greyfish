@@ -70,7 +70,7 @@ final class JDBCLogger
     private Throwable consumerException;
 
     JDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
-        checkArgument(commitThreshold > 0);
+        checkArgument(commitThreshold > 0, "commitThreshold must be > 0, was %s", commitThreshold);
         this.connectionManager = checkNotNull(connectionManager);
 
         final ExecutorService executor = Executors.newSingleThreadExecutor();
