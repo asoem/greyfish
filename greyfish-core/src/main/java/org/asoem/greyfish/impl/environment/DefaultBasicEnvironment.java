@@ -71,7 +71,7 @@ public final class DefaultBasicEnvironment
             checkState(this.phase.compareAndSet(Phase.UPDATE, Phase.EXECUTION));
             executeAgents();
 
-            incrementTime(); // TODO: verify that this is the correct place to increment
+            incrementTime(); // TODO: should be moved to the beginning of the loop
             checkState(this.phase.compareAndSet(Phase.EXECUTION, Phase.IDLE));
         }
     }

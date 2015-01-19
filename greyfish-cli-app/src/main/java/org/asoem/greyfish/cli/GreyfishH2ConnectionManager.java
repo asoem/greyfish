@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -22,7 +23,7 @@ import static com.google.common.base.Preconditions.*;
 /**
  * This {@code ConnectionManager} implementation manages a single connection to a H2 database.
  */
-final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable {
+public final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable {
     private static final Logger logger = LoggerFactory.getLogger(GreyfishH2ConnectionManager.class);
 
     static {
@@ -34,9 +35,12 @@ final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable 
     }
 
     private final Supplier<Connection> delegate;
+    private String initSql;
+    private String finalizeSql;
 
-    private GreyfishH2ConnectionManager(final String url) {
+    private GreyfishH2ConnectionManager(final String url, final String initSql, final String finalizeSql) {
         checkNotNull(url);
+        this.initSql = checkNotNull(initSql);
         delegate = Suppliers.memoize(new Supplier<Connection>() {
 
             @Override
@@ -62,6 +66,7 @@ final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable 
             }
 
         });
+        this.finalizeSql = finalizeSql;
     }
 
     static GreyfishH2ConnectionManager embedded(final String path) {
@@ -69,17 +74,17 @@ final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable 
         final File file = new File(absolutePath + ".h2.db");
         checkState(!file.exists(), "Database file exists: %s", file.getAbsolutePath());
 
-        return create("file:" + path);
+        return create("file:" + path, defaultInitSql(), defaultFinalizeSql());
     }
 
     static GreyfishH2ConnectionManager inMemory(final String name) {
         checkNotNull(name);
-        return create("mem:" + name);
+        return create("mem:" + name, defaultInitSql(), defaultFinalizeSql());
     }
 
-    static GreyfishH2ConnectionManager create(final String url) {
+    static GreyfishH2ConnectionManager create(final String url, final String initSql, final String finalizeSql) {
         checkNotNull(url);
-        return new GreyfishH2ConnectionManager(url);
+        return new GreyfishH2ConnectionManager(url, initSql, finalizeSql);
     }
 
     @Override
@@ -97,11 +102,8 @@ final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable 
     public void close() throws IOException {
         // TODO: Verify that the connection has been opened!
         try {
-            final StringBuilder stringBuilder = new StringBuilder();
-            Resources.asCharSource(getClass().getResource("/h2/h2_add_indices.sql"), Charsets.UTF_8)
-                    .copyTo(stringBuilder);
             try (Statement statement = get().createStatement()) {
-                statement.execute(stringBuilder.toString());
+                statement.execute(finalizeSql);
             }
         } catch (Throwable e) {
             throw Throwables.propagate(e);
@@ -115,15 +117,29 @@ final class GreyfishH2ConnectionManager implements ConnectionManager, Closeable 
     }
 
     private void initDatabase(final Connection newConnection) {
-        final StringBuilder stringBuilder = new StringBuilder();
         try {
-            Resources.asCharSource(getClass().getResource("/h2/h2_create_database.sql"), Charsets.UTF_8)
-                    .copyTo(stringBuilder);
-
             try (Statement statement = newConnection.createStatement()) {
-                statement.execute(stringBuilder.toString());
+                statement.execute(this.initSql);
             }
         } catch (Throwable e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    public static String defaultInitSql() {
+        final URL resource = GreyfishH2ConnectionManager.class.getResource("/h2/DefaultExperimentDatabase.init.sql");
+        try {
+            return Resources.asCharSource(resource, Charsets.UTF_8).read();
+        } catch (IOException e) {
+            throw Throwables.propagate(e);
+        }
+    }
+
+    public static String defaultFinalizeSql() {
+        final URL resource = GreyfishH2ConnectionManager.class.getResource("/h2/DefaultExperimentDatabase.finalize.sql");
+        try {
+            return Resources.asCharSource(resource, Charsets.UTF_8).read();
+        } catch (IOException e) {
             throw Throwables.propagate(e);
         }
     }

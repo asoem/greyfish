@@ -5,17 +5,17 @@ package org.asoem.greyfish.core.actions;
  */
 public enum ActionExecutionResult {
     /**
-     * Return if the action should be the last in the current execution chain. All following actions won't get executed
+     * Indicates that the action should be the last in the current execution chain. All following actions won't get executed
      * this step.
      */
     BREAK,
     /**
-     * Return if the action should be the last in the current execution chain and the next execution chain should
+     * Indicates that the action should be the last in the current execution chain and the next execution chain should
      * continue this this action.
      */
     CONTINUE,
     /**
-     * Try the next action in the execution chain.
+     * Indicates that the next action in the execution chain should be tried.
      */
     NEXT
 }

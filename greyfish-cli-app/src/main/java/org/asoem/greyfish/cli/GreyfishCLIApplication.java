@@ -128,11 +128,11 @@ public final class GreyfishCLIApplication {
                 }
 
                 try {
-                    final Class<?> modelClass = Class.forName(modelClassName, true, classLoader);
-                    if (!Experiment.class.isAssignableFrom(modelClass)) {
+                    final Class<?> experimentClass = Class.forName(modelClassName, true, classLoader);
+                    if (!Experiment.class.isAssignableFrom(experimentClass)) {
                         exitWithErrorMessage("Specified Class does not implement " + Experiment.class);
                     }
-                    bind(Experiment.class).to((Class<Experiment>) modelClass);
+                    bind(Experiment.class).to((Class<Experiment>) experimentClass);
                 } catch (ClassNotFoundException e) {
                     logger.error("Unable to load class {}", modelClassName, e);
                     exitWithErrorMessage("Could not find class " + modelClassName);
@@ -159,14 +159,17 @@ public final class GreyfishCLIApplication {
                 bind(Integer.class).annotatedWith(Names.named("parallelizationThreshold"))
                         .toInstance(optionSet.valueOf(parallelizationThresholdOptionSpec));
 
-                // TODO: One should be able to define the database url independent of the working directory
+
+                // TODO: Move logger definition to experiment
                 final String pathname = optionSet.valueOf(workingDirectoryOptionSpec) + "/"
                         + optionSet.valueOf(simulationNameOptionSpec);
                 final String path = Files.simplifyPath(pathname);
 
                 try {
                     final GreyfishH2ConnectionManager connectionSupplier =
-                            GreyfishH2ConnectionManager.create(path);
+                            GreyfishH2ConnectionManager.create(path,
+                                    GreyfishH2ConnectionManager.defaultInitSql(),
+                                    GreyfishH2ConnectionManager.defaultFinalizeSql());
                     final SimulationLogger jdbcLogger = SimulationLoggers.createJDBCLogger(
                             connectionSupplier, optionSet.valueOf(commitThresholdSpec));
 
