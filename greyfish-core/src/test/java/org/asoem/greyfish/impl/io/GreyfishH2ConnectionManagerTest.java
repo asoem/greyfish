@@ -1,4 +1,4 @@
-package org.asoem.greyfish.cli;
+package org.asoem.greyfish.impl.io;
 
 import org.junit.Rule;
 import org.junit.Test;

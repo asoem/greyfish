@@ -26,6 +26,7 @@ import org.asoem.greyfish.core.io.SimulationLoggers;
 import org.asoem.greyfish.core.model.Experiment;
 import org.asoem.greyfish.core.model.ModelParameterTypeListener;
 import org.asoem.greyfish.core.model.ModelParameters;
+import org.asoem.greyfish.impl.io.GreyfishH2ConnectionManager;
 import org.asoem.greyfish.utils.collect.Product2;
 import org.asoem.greyfish.utils.io.Resources;
 import org.asoem.greyfish.utils.math.RandomGenerators;

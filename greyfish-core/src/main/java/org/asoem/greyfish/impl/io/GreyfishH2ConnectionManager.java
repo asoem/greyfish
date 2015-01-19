@@ -1,4 +1,4 @@
-package org.asoem.greyfish.cli;
+package org.asoem.greyfish.impl.io;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Supplier;
@@ -69,7 +69,7 @@ public final class GreyfishH2ConnectionManager implements ConnectionManager, Clo
         this.finalizeSql = finalizeSql;
     }
 
-    static GreyfishH2ConnectionManager embedded(final String path) {
+    public static GreyfishH2ConnectionManager embedded(final String path) {
         final String absolutePath = path.replace("~", System.getProperty("user.home"));
         final File file = new File(absolutePath + ".h2.db");
         checkState(!file.exists(), "Database file exists: %s", file.getAbsolutePath());
@@ -77,12 +77,12 @@ public final class GreyfishH2ConnectionManager implements ConnectionManager, Clo
         return create("file:" + path, defaultInitSql(), defaultFinalizeSql());
     }
 
-    static GreyfishH2ConnectionManager inMemory(final String name) {
+    public static GreyfishH2ConnectionManager inMemory(final String name) {
         checkNotNull(name);
         return create("mem:" + name, defaultInitSql(), defaultFinalizeSql());
     }
 
-    static GreyfishH2ConnectionManager create(final String url, final String initSql, final String finalizeSql) {
+    public static GreyfishH2ConnectionManager create(final String url, final String initSql, final String finalizeSql) {
         checkNotNull(url);
         return new GreyfishH2ConnectionManager(url, initSql, finalizeSql);
     }
