@@ -214,7 +214,7 @@ final class JDBCLogger
         }
     }
 
-    private void addQuery(final BatchQuery query) {
+    public void addQuery(final BatchQuery query) {
         if (consumerException != null) {
             throw new IllegalStateException("Consumer thread had errors.", consumerException);
         }
@@ -292,7 +292,7 @@ final class JDBCLogger
         return id.shortValue();
     }
 
-    private interface BatchQuery {
+    public interface BatchQuery {
 
         /**
          * Set the values for the prepared {@code statement}.
