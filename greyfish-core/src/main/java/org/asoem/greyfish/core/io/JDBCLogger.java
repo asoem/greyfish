@@ -42,7 +42,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * handle the incoming events and therefore is threadsafe.
  */
 @ThreadSafe
-final class JDBCLogger
+public final class JDBCLogger
         implements SimulationLogger {
 
     private static final Logger logger = LoggerFactory.getLogger(JDBCLogger.class);
