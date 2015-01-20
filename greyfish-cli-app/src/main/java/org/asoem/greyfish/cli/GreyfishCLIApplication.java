@@ -183,7 +183,7 @@ public final class GreyfishCLIApplication {
 
                 bind(SimulationLogger.class)
                         .toProvider(loggerProvider)
-                        .asEagerSingleton();
+                        .in(Scopes.SINGLETON);
             }
 
         };
