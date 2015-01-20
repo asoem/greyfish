@@ -26,7 +26,7 @@ public class JDBCLoggerTest {
         final Connection connectionMock = mock(Connection.class);
         given(connectionMock.prepareStatement(any(String.class))).willReturn(mock(PreparedStatement.class));
         final ConnectionManager mock = when(mock(ConnectionManager.class).get()).thenReturn(connectionMock).getMock();
-        final JDBCLogger jdbcLogger = new JDBCLogger(mock, commitThreshold);
+        final BufferedJDBCLogger jdbcLogger = new BufferedJDBCLogger(mock, commitThreshold);
 
         // when
         jdbcLogger.logAgentCreation(0, "", 0, "", ImmutableSet.<Integer>of(), ImmutableMap.<String, Object>of()); // two commits

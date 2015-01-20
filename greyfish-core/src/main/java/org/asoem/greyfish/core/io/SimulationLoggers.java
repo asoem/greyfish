@@ -68,7 +68,7 @@ public final class SimulationLoggers {
      * @return a new JDBC logger
      */
     public static SimulationLogger createJDBCLogger(final ConnectionManager connectionManager, final int commitThreshold) {
-        return new JDBCLogger(connectionManager, commitThreshold);
+        return new BufferedJDBCLogger(connectionManager, commitThreshold);
     }
 
     private static final class SynchronizedLogger implements SimulationLogger {
