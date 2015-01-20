@@ -10,10 +10,7 @@ import com.google.common.io.Closer;
 import com.google.common.io.Files;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.Service;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Module;
+import com.google.inject.*;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
@@ -166,22 +163,27 @@ public final class GreyfishCLIApplication {
                         + optionSet.valueOf(simulationNameOptionSpec);
                 final String path = Files.simplifyPath(pathname);
 
-                try {
-                    final GreyfishH2ConnectionManager connectionSupplier =
-                            GreyfishH2ConnectionManager.create(path,
-                                    GreyfishH2ConnectionManager.defaultInitSql(),
-                                    GreyfishH2ConnectionManager.defaultFinalizeSql());
-                    final SimulationLogger jdbcLogger = SimulationLoggers.createJDBCLogger(
-                            connectionSupplier, optionSet.valueOf(commitThresholdSpec));
+                final Provider<SimulationLogger> loggerProvider = new Provider<SimulationLogger>() {
+                    @Override
+                    public SimulationLogger get() {
+                        final GreyfishH2ConnectionManager connectionSupplier =
+                                GreyfishH2ConnectionManager.create(path,
+                                        GreyfishH2ConnectionManager.defaultInitSql(),
+                                        GreyfishH2ConnectionManager.defaultFinalizeSql());
+                        final SimulationLogger jdbcLogger = SimulationLoggers.createJDBCLogger(
+                                connectionSupplier, optionSet.valueOf(commitThresholdSpec));
 
-                    closer.register(connectionSupplier);
-                    // Logger must be closed before the connection (put on stack after the connection)
-                    closer.register(jdbcLogger);
+                        closer.register(connectionSupplier);
+                        // Logger must be closed before the connection (put on stack after the connection)
+                        closer.register(jdbcLogger);
 
-                    bind(SimulationLogger.class).toInstance(jdbcLogger);
-                } catch (Exception e) {
-                    exitWithErrorMessage("Unable to create new database: ", e);
-                }
+                        return jdbcLogger;
+                    }
+                };
+
+                bind(SimulationLogger.class)
+                        .toProvider(loggerProvider)
+                        .asEagerSingleton();
             }
 
         };
