@@ -45,15 +45,12 @@ public final class GreyfishH2ConnectionManager implements ConnectionManager, Clo
 
             @Override
             public Connection get() {
-                final String fullURL = String.format(
-                        "jdbc:h2:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE",
-                        url);
-                logger.info("Connecting to database at {}", fullURL);
+                logger.info("Connecting to database at {}", url);
 
                 final Connection newConnection;
                 try {
-                    newConnection = DriverManager.getConnection(fullURL, "sa", "");
-                    logger.info("Connection opened to url {}", fullURL);
+                    newConnection = DriverManager.getConnection(url, "sa", "");
+                    logger.info("Connection opened to url {}", url);
 
                 } catch (SQLException e) {
                     throw Throwables.propagate(e);
@@ -74,17 +71,26 @@ public final class GreyfishH2ConnectionManager implements ConnectionManager, Clo
         final File file = new File(absolutePath + ".h2.db");
         checkState(!file.exists(), "Database file exists: %s", file.getAbsolutePath());
 
-        return create("file:" + path, defaultInitSql(), defaultFinalizeSql());
+        final String url = String.format(
+                "file:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE",
+                path);
+
+        return create(url, defaultInitSql(), defaultFinalizeSql());
     }
 
     public static GreyfishH2ConnectionManager inMemory(final String name) {
         checkNotNull(name);
-        return create("mem:" + name, defaultInitSql(), defaultFinalizeSql());
+
+        final String url = String.format(
+                "mem:%s;LOG=0;CACHE_SIZE=65536;LOCK_MODE=0;UNDO_LOG=0;DB_CLOSE_ON_EXIT=FALSE",
+                name);
+
+        return create(url, defaultInitSql(), defaultFinalizeSql());
     }
 
     public static GreyfishH2ConnectionManager create(final String url, final String initSql, final String finalizeSql) {
         checkNotNull(url);
-        return new GreyfishH2ConnectionManager(url, initSql, finalizeSql);
+        return new GreyfishH2ConnectionManager("jdbc:h2:" + url, initSql, finalizeSql);
     }
 
     @Override
