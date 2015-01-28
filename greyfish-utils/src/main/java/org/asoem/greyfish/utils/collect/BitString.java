@@ -533,7 +533,7 @@ public abstract class BitString extends AbstractList<Boolean> {
 
         @Override
         public int nextSetBit(final int from) {
-            final int nextSetBit = bitSet().nextSetBit(offset);
+            final int nextSetBit = BitString.this.nextSetBit(offset);
             return nextSetBit >= offset + length ? -1 : nextSetBit;
         }
 
@@ -876,6 +876,7 @@ public abstract class BitString extends AbstractList<Boolean> {
 
         @Override
         public int nextSetBit(final int from) {
+            // TODO: implement previousSetBit(from) and delegate to this method
             for (int i = from; i < size(); i++) {
                 if (get(i)) {
                     return i;
