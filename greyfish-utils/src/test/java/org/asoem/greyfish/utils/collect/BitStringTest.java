@@ -22,6 +22,19 @@ import static org.hamcrest.Matchers.*;
 public class BitStringTest {
 
     @Test
+    public void testHammingDistance() throws Exception {
+        // given
+        final BitString bitString1 = BitString.parse("00101001");
+        final BitString bitString2 = BitString.parse("11101101");
+
+        // when
+        final int hammingDistance = bitString1.hammingDistance(bitString2);
+
+        // then
+        assertThat(hammingDistance, is(equalTo(3)));
+    }
+
+    @Test
     public void testRandomP1() throws Exception {
         // given
         final int length = 100;
