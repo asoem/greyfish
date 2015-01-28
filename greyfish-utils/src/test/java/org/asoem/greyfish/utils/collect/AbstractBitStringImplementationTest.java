@@ -1,5 +1,6 @@
 package org.asoem.greyfish.utils.collect;
 
+import com.google.common.base.Optional;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.utils.base.LongArrays;
 import org.junit.Test;
@@ -234,10 +235,10 @@ public abstract class AbstractBitStringImplementationTest {
         final BitString sequence1 = createSequence(bitString);
 
         // when
-        final int index = sequence1.nextSetBit(2);
+        final Optional<Integer> index = sequence1.nextSetBit(2);
 
         // then
-        assertThat(index, is(equalTo(4)));
+        assertThat(index.get(), is(equalTo(4)));
     }
 
     @Test
@@ -247,9 +248,35 @@ public abstract class AbstractBitStringImplementationTest {
         final BitString sequence1 = createSequence(bitString);
 
         // when
-        final int index = sequence1.previousSetBit(7);
+        final Optional<Integer> index = sequence1.previousSetBit(7);
 
         // then
-        assertThat(index, is(equalTo(6)));
+        assertThat(index.get(), is(equalTo(6)));
+    }
+
+    @Test
+    public void testNextClearBit() throws Exception {
+        // given
+        final String bitString = "001010010";
+        final BitString sequence1 = createSequence(bitString);
+
+        // when
+        final Optional<Integer> index = sequence1.nextClearBit(2);
+
+        // then
+        assertThat(index.get(), is(equalTo(2)));
+    }
+
+    @Test
+    public void testPreviousClearBit() throws Exception {
+        // given
+        final String bitString = "001010010";
+        final BitString sequence1 = createSequence(bitString);
+
+        // when
+        final Optional<Integer> index = sequence1.previousClearBit(7);
+
+        // then
+        assertThat(index.get(), is(equalTo(7)));
     }
 }

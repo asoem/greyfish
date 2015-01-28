@@ -3,8 +3,8 @@ package org.asoem.greyfish.utils.collect;
 public class CombinedStringTest extends AbstractBitStringImplementationTest {
     @Override
     protected BitString createSequence(final String bitString) {
-        return new BitString.CombinedString(
-                BitString.parse(bitString.substring(bitString.length() / 2, bitString.length())),
-                BitString.parse(bitString.substring(0, bitString.length() / 2)));
+        final BitString lowString = BitString.parse(bitString.substring(bitString.length() / 2, bitString.length()));
+        final BitString highString = BitString.parse(bitString.substring(0, bitString.length() / 2));
+        return new BitString.CombinedString(lowString, highString);
     }
 }

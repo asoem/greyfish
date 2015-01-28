@@ -364,17 +364,33 @@ public abstract class BitString extends AbstractList<Boolean> {
      * Find the index of the next set bit starting at index {@code from}.
      *
      * @param from the index to start searching from
-     * @return the index of the next set bit, -1 if none could be found.
+     * @return the index of the next set bit, or {@link com.google.common.base.Optional#absent()}.
      */
-    public abstract int nextSetBit(final int from);
+    public abstract Optional<Integer> nextSetBit(final int from);
 
     /**
      * Find the index of the previous set bit starting at index {@code from}.
      *
      * @param from the index to start searching from
-     * @return the index of the previous set bit, -1 if none could be found.
+     * @return the index of the previous set bit, or {@link com.google.common.base.Optional#absent()}.
      */
-    public abstract int previousSetBit(final int from);
+    public abstract Optional<Integer> previousSetBit(final int from);
+
+    /**
+     * Find the index of the next clear bit starting at index {@code from}.
+     *
+     * @param from the index to start searching from
+     * @return the index of the next clear bit, or {@link com.google.common.base.Optional#absent()}.
+     */
+    public abstract Optional<Integer> nextClearBit(final int from);
+
+    /**
+     * Find the index of the previous clear bit starting at index {@code from}.
+     *
+     * @param from the index to start searching from
+     * @return the index of the previous clear bit, or {@link com.google.common.base.Optional#absent()}.
+     */
+    public abstract Optional<Integer> previousClearBit(final int from);
 
     @VisibleForTesting
     static final class BitSetString extends RandomAccessBitString {
@@ -430,13 +446,25 @@ public abstract class BitString extends AbstractList<Boolean> {
         }
 
         @Override
-        public int nextSetBit(final int from) {
-            return bitSet.nextSetBit(from);
+        public Optional<Integer> nextSetBit(final int from) {
+            return optionalFromIndex(bitSet.nextSetBit(from));
+        }
+
+        Optional<Integer> optionalFromIndex(final int index) {return index == -1 ? Optional.<Integer>absent() : Optional.of(index);}
+
+        @Override
+        public Optional<Integer> previousSetBit(final int from) {
+            return optionalFromIndex(bitSet.previousSetBit(from));
         }
 
         @Override
-        public int previousSetBit(final int from) {
-            return bitSet.previousSetBit(from);
+        public Optional<Integer> nextClearBit(final int from) {
+            return optionalFromIndex(bitSet.nextClearBit(from));
+        }
+
+        @Override
+        public Optional<Integer> previousClearBit(final int from) {
+            return optionalFromIndex(bitSet.previousClearBit(from));
         }
 
         @Override
@@ -542,21 +570,45 @@ public abstract class BitString extends AbstractList<Boolean> {
         }
 
         @Override
-        public int nextSetBit(final int from) {
+        public Optional<Integer> nextSetBit(final int from) {
             checkPositionIndex(from, size());
-            final int nextSetBit = BitString.this.nextSetBit(offset + from);
-            if (nextSetBit == -1) {
-                return -1;
+            final Optional<Integer> nextSetBit = BitString.this.nextSetBit(offset + from);
+            if (nextSetBit.isPresent()) {
+                return nextSetBit.get() >= offset + length
+                        ? Optional.<Integer>absent()
+                        : Optional.of(nextSetBit.get() - offset);
             } else {
-                return nextSetBit >= offset + length ? -1 : nextSetBit - offset;
+                return Optional.absent();
             }
         }
 
         @Override
-        public int previousSetBit(final int from) {
+        public Optional<Integer> previousSetBit(final int from) {
             checkPositionIndex(from, size());
-            final int previousSetBit = BitString.this.previousSetBit(offset + from);
-            return previousSetBit < offset ? -1 : previousSetBit - offset;
+            final Optional<Integer> previousSetBit = BitString.this.previousSetBit(offset + from);
+            return previousSetBit.get() < offset
+                    ? Optional.<Integer>absent()
+                    : Optional.of(previousSetBit.get() - offset);
+        }
+
+        @Override
+        public Optional<Integer> nextClearBit(final int from) {
+            checkPositionIndex(from, size());
+            final Optional<Integer> nextClearBit = BitString.this.nextClearBit(offset + from);
+            if (nextClearBit.isPresent()) {
+                return nextClearBit.get() >= offset + length
+                        ? Optional.<Integer>absent()
+                        : Optional.of(nextClearBit.get() - offset);
+            } else {
+                return Optional.absent();
+            }
+        }
+
+        @Override
+        public Optional<Integer> previousClearBit(final int from) {
+            checkPositionIndex(from, size());
+            final Optional<Integer> previousClearBit = BitString.this.previousClearBit(offset + from);
+            return previousClearBit.get() < offset ? Optional.<Integer>absent() : Optional.of(previousClearBit.get() - offset);
         }
 
 
@@ -616,35 +668,45 @@ public abstract class BitString extends AbstractList<Boolean> {
         }
 
         @Override
-        public int nextSetBit(final int from) {
-            return -1;
+        public Optional<Integer> nextSetBit(final int from) {
+            return Optional.absent();
         }
 
         @Override
-        public int previousSetBit(final int from) {
-            return -1;
+        public Optional<Integer> previousSetBit(final int from) {
+            return Optional.<Integer>absent();
+        }
+
+        @Override
+        public Optional<Integer> nextClearBit(final int from) {
+            return Optional.<Integer>absent();
+        }
+
+        @Override
+        public Optional<Integer> previousClearBit(final int from) {
+            return Optional.<Integer>absent();
         }
     }
 
     @VisibleForTesting
     static final class CombinedString extends BitString {
-        private final BitString bitString1;
-        private final BitString bitString2;
+        private final BitString lowString;
+        private final BitString highString;
 
-        public CombinedString(final BitString bitString1, final BitString bitString2) {
-            this.bitString1 = bitString1;
-            this.bitString2 = bitString2;
+        public CombinedString(final BitString lowString, final BitString highString) {
+            this.lowString = lowString;
+            this.highString = highString;
         }
 
         @Override
         public int cardinality() {
-            return bitString1.cardinality() + bitString2.cardinality();
+            return lowString.cardinality() + highString.cardinality();
         }
 
         @Override
         protected BitSet bitSet() {
-            final BitSet combinedBitSet = (BitSet) bitString1.bitSet().clone();
-            BitSets.set(combinedBitSet, bitString1.size(), bitString2);
+            final BitSet combinedBitSet = (BitSet) lowString.bitSet().clone();
+            BitSets.set(combinedBitSet, lowString.size(), highString);
             return combinedBitSet;
         }
 
@@ -656,16 +718,16 @@ public abstract class BitString extends AbstractList<Boolean> {
         @Override
         public Boolean get(final int index) {
             checkElementIndex(index, size());
-            if (index < bitString1.size()) {
-                return bitString1.get(index);
+            if (index < lowString.size()) {
+                return lowString.get(index);
             } else {
-                return bitString2.get((index - bitString1.size()));
+                return highString.get((index - lowString.size()));
             }
         }
 
         @Override
         public int size() {
-            return bitString1.size() + bitString2.size();
+            return lowString.size() + highString.size();
         }
 
         public BitString and(final BitString other) {
@@ -686,43 +748,81 @@ public abstract class BitString extends AbstractList<Boolean> {
 
         @Override
         public Iterable<Integer> asIndices() {
-            return Iterables.concat(bitString1.asIndices(), FluentIterable.from(bitString2.asIndices())
+            return Iterables.concat(lowString.asIndices(), FluentIterable.from(highString.asIndices())
                     .transform(new Function<Integer, Integer>() {
                         @Nullable
                         @Override
                         public Integer apply(final Integer input) {
-                            return input + bitString1.size();
+                            return input + lowString.size();
                         }
                     }));
         }
 
         @Override
-        public int nextSetBit(final int from) {
-            if (from < bitString1.size()) {
-                final int bs1next = bitString1.nextSetBit(from);
-                if (bs1next != -1) {
+        public Optional<Integer> nextSetBit(final int from) {
+            if (from < lowString.size()) {
+                final Optional<Integer> bs1next = lowString.nextSetBit(from);
+                if (bs1next.isPresent()) {
                     return bs1next;
                 } else {
-                    final int bs2next = bitString2.nextSetBit(0);
-                    return bs2next == -1 ? -1 : bitString1.size() + bs2next;
+                    final Optional<Integer> bs2next = highString.nextSetBit(0);
+                    return bs2next.isPresent()
+                            ? Optional.of(lowString.size() + bs2next.get())
+                            : Optional.<Integer>absent();
                 }
             } else {
-                final int index = bitString2.nextSetBit((from - bitString1.size()));
-                return index == -1 ? -1 : bitString1.size() + index;
+                final Optional<Integer> index = highString.nextSetBit((from - lowString.size()));
+                return index.isPresent() && index.get() < size()
+                        ? Optional.of(lowString.size() + index.get())
+                        : Optional.<Integer>absent();
             }
         }
 
         @Override
-        public int previousSetBit(final int from) {
-            if (from > bitString1.size()) {
-                final int bs2previous = bitString2.previousSetBit(from);
-                if (bs2previous != -1) {
-                    return bitString1.size() + bs2previous;
+        public Optional<Integer> previousSetBit(final int from) {
+            if (from >= lowString.size()) {
+                final Optional<Integer> bs2previous = highString.previousSetBit(from - lowString.size());
+                if (bs2previous.isPresent()) {
+                    return Optional.of(lowString.size() + bs2previous.get());
                 } else {
-                    return bitString1.previousSetBit(bitString1.size());
+                    return lowString.previousSetBit(lowString.size());
                 }
             } else {
-                return bitString1.previousSetBit(from);
+                return lowString.previousSetBit(from);
+            }
+        }
+
+        @Override
+        public Optional<Integer> nextClearBit(final int from) {
+            if (from < lowString.size()) {
+                final Optional<Integer> bs1next = lowString.nextClearBit(from);
+                if (bs1next.isPresent()) {
+                    return bs1next;
+                } else {
+                    final Optional<Integer> bs2next = highString.nextClearBit(0);
+                    return bs2next.isPresent()
+                            ? Optional.of(lowString.size() + bs2next.get())
+                            : Optional.<Integer>absent();
+                }
+            } else {
+                final Optional<Integer> index = highString.nextClearBit((from - lowString.size()));
+                return index.isPresent() && index.get() < size()
+                        ? Optional.of(lowString.size() + index.get())
+                        : Optional.<Integer>absent();
+            }
+        }
+
+        @Override
+        public Optional<Integer> previousClearBit(final int from) {
+            if (from >= lowString.size()) {
+                final Optional<Integer> bs2previous = highString.previousClearBit(from - lowString.size());
+                if (bs2previous.isPresent()) {
+                    return Optional.of(lowString.size() + bs2previous.get());
+                } else {
+                    return lowString.previousClearBit(lowString.size());
+                }
+            } else {
+                return lowString.previousClearBit(from);
             }
         }
     }
@@ -815,25 +915,91 @@ public abstract class BitString extends AbstractList<Boolean> {
         }
 
         @Override
-        public int nextSetBit(final int from) {
+        public Optional<Integer> nextSetBit(final int from) {
+            checkPositionIndex(from, size());
+            if (size() == 0) {
+                return Optional.absent();
+            }
+
             for (Integer index : indices) {
                 if (index >= from) {
-                    return index;
+                    return Optional.of(index);
                 }
             }
-            return -1;
+            return Optional.absent();
         }
 
         @Override
-        public int previousSetBit(final int from) {
+        public Optional<Integer> previousSetBit(final int from) {
+            checkPositionIndex(from, size());
+            if (size() == 0) {
+                return Optional.absent();
+            }
+
             final ImmutableSortedSet<Integer> reversed =
                     ImmutableSortedSet.<Integer>reverseOrder().addAll(indices).build();
             for (Integer index : reversed) {
                 if (index <= from) {
-                    return index;
+                    return Optional.of(index);
                 }
             }
-            return -1;
+            return Optional.absent();
+        }
+
+        @Override
+        public Optional<Integer> nextClearBit(final int from) {
+            checkPositionIndex(from, size());
+            if (size() == 0) {
+                return Optional.absent();
+            }
+
+            Optional<Integer> lastSet = Optional.absent();
+            for (Integer index : indices) {
+                if (index <= from || lastSet.isPresent() && lastSet.get() + 1 == index) {
+                    lastSet = Optional.of(index);
+                } else {
+                    break;
+                }
+            }
+
+            if (lastSet.isPresent()) {
+                if (lastSet.get() < size() - 1) {
+                    return Optional.of(lastSet.get() + 1);
+                } else {
+                    return Optional.absent();
+                }
+            } else {
+                return Optional.of(from);
+            }
+        }
+
+        @Override
+        public Optional<Integer> previousClearBit(final int from) {
+            checkPositionIndex(from, size());
+            if (size() == 0) {
+                return Optional.absent();
+            }
+
+            final ImmutableSortedSet<Integer> reversed =
+                    ImmutableSortedSet.<Integer>reverseOrder().addAll(indices).build();
+            Optional<Integer> previousSet = Optional.absent();
+            for (Integer index : reversed) {
+                if (index >= from || previousSet.isPresent() && index == previousSet.get() - 1) {
+                    previousSet = Optional.of(index);
+                } else {
+                    break;
+                }
+            }
+
+            if (previousSet.isPresent()) {
+                if (previousSet.get() > 0) {
+                    return Optional.of(previousSet.get() - 1);
+                } else {
+                    return Optional.absent();
+                }
+            } else {
+                return Optional.of(from);
+            }
         }
     }
 
@@ -911,10 +1077,10 @@ public abstract class BitString extends AbstractList<Boolean> {
 
                                 while (allBits.hasNext()) {
                                     final Integer next = allBits.next();
-                                    if (nextSetBit.get() == -1 || nextSetBit.get() > next) {
-                                        return next;
-                                    } else {
+                                    if (nextSetBit.isPresent() && nextSetBit.get() <= next) {
                                         setNextSetBit();
+                                    } else {
+                                        return next;
                                     }
                                 }
 
@@ -925,7 +1091,7 @@ public abstract class BitString extends AbstractList<Boolean> {
                                 if (setBits.hasNext()) {
                                     nextSetBit = Optional.of(setBits.next());
                                 } else {
-                                    nextSetBit = Optional.of(-1);
+                                    nextSetBit = Optional.absent();
                                 }
                             }
                         };
@@ -935,17 +1101,23 @@ public abstract class BitString extends AbstractList<Boolean> {
         }
 
         @Override
-        public int nextSetBit(final int from) {
-            checkPositionIndex(from, size());
-            // TODO: implement nextClearBit and delegate to it
-            return bitSet().nextSetBit(from);
+        public Optional<Integer> nextSetBit(final int from) {
+            return delegate.nextClearBit(from);
         }
 
         @Override
-        public int previousSetBit(final int from) {
-            checkPositionIndex(from, size());
-            // TODO: implement previousClearBit and delegate to it
-            return bitSet().previousSetBit(from);
+        public Optional<Integer> previousSetBit(final int from) {
+            return delegate.previousClearBit(from);
+        }
+
+        @Override
+        public Optional<Integer> nextClearBit(final int from) {
+            return delegate.nextSetBit(from);
+        }
+
+        @Override
+        public Optional<Integer> previousClearBit(final int from) {
+            return delegate.previousSetBit(from);
         }
 
         @Override
@@ -970,12 +1142,12 @@ public abstract class BitString extends AbstractList<Boolean> {
 
                         @Override
                         protected Integer computeNext() {
-                            final int nextSetIndex = nextSetBit(searchIndex);
-                            if (nextSetIndex == -1) {
+                            final Optional<Integer> nextSetIndex = nextSetBit(searchIndex);
+                            if (!nextSetIndex.isPresent()) {
                                 return endOfData();
                             }
-                            searchIndex = nextSetIndex + 1;
-                            return nextSetIndex;
+                            searchIndex = nextSetIndex.get() + 1;
+                            return nextSetIndex.get();
                         }
                     };
                 }
