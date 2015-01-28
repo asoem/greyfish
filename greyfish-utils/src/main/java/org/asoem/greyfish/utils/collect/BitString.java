@@ -363,6 +363,14 @@ public abstract class BitString extends AbstractList<Boolean> {
      */
     public abstract Iterable<Integer> asIndices();
 
+    /**
+     * Return the next set bit starting at index {@code from}.
+     *
+     * @param from the index to start searching from
+     * @return the index for the next set bit, -1 if none could be found.
+     */
+    public abstract int nextSetBit(final int from);
+
     @VisibleForTesting
     static final class BitSetString extends RandomAccessBitString {
         private final BitSet bitSet; // is mutable, so don't expose outside of class
@@ -522,6 +530,14 @@ public abstract class BitString extends AbstractList<Boolean> {
                         }
                     });
         }
+
+        @Override
+        public int nextSetBit(final int from) {
+            final int nextSetBit = bitSet().nextSetBit(offset);
+            return nextSetBit >= offset + length ? -1 : nextSetBit;
+        }
+
+
     }
 
     private static class EmptyString extends BitString {
@@ -575,6 +591,11 @@ public abstract class BitString extends AbstractList<Boolean> {
         @Override
         public Iterable<Integer> asIndices() {
             return ImmutableSet.of();
+        }
+
+        @Override
+        public int nextSetBit(final int from) {
+            return -1;
         }
     }
 
@@ -646,6 +667,15 @@ public abstract class BitString extends AbstractList<Boolean> {
                             return input + bitString1.size();
                         }
                     }));
+        }
+
+        @Override
+        public int nextSetBit(final int from) {
+            if (from < bitString1.size()) {
+                return bitString1.nextSetBit(from);
+            } else {
+                return bitString2.nextSetBit((from - bitString1.size()));
+            }
         }
     }
 
@@ -734,6 +764,16 @@ public abstract class BitString extends AbstractList<Boolean> {
         @Override
         public Iterable<Integer> asIndices() {
             return indices;
+        }
+
+        @Override
+        public int nextSetBit(final int from) {
+            for (Integer index : indices) {
+                if (index >= from) {
+                    return index;
+                }
+            }
+            return -1;
         }
     }
 
@@ -835,6 +875,16 @@ public abstract class BitString extends AbstractList<Boolean> {
         }
 
         @Override
+        public int nextSetBit(final int from) {
+            for (int i = from; i < size(); i++) {
+                if (get(i)) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        @Override
         public Boolean get(final int index) {
             return !delegate.get(index);
         }
@@ -867,7 +917,5 @@ public abstract class BitString extends AbstractList<Boolean> {
                 }
             };
         }
-
-        protected abstract int nextSetBit(final int from);
     }
 }
