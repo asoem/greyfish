@@ -33,7 +33,7 @@ public final class Resources {
         @Nullable
         final URL resource = clazz.getResource(className);
         if (resource == null) {
-            throw new IOException("Found no resource with name " + className);
+            throw new IOException("No such resource " + className);
         }
 
         final String classPath = resource.toString();
