@@ -226,4 +226,30 @@ public abstract class AbstractBitStringImplementationTest {
         // then
         assertThat(indexes, contains(1, 4, 6));
     }
+
+    @Test
+    public void testNextSetBit() throws Exception {
+        // given
+        final String bitString = "001010010";
+        final BitString sequence1 = createSequence(bitString);
+
+        // when
+        final int index = sequence1.nextSetBit(2);
+
+        // then
+        assertThat(index, is(equalTo(4)));
+    }
+
+    @Test
+    public void testPreviousSetBit() throws Exception {
+        // given
+        final String bitString = "001010010";
+        final BitString sequence1 = createSequence(bitString);
+
+        // when
+        final int index = sequence1.previousSetBit(7);
+
+        // then
+        assertThat(index, is(equalTo(6)));
+    }
 }

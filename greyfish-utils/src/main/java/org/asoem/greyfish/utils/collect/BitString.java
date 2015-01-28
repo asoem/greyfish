@@ -11,10 +11,7 @@ import org.asoem.greyfish.utils.math.statistics.Samplings;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
-import java.util.AbstractList;
-import java.util.BitSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -364,12 +361,20 @@ public abstract class BitString extends AbstractList<Boolean> {
     public abstract Iterable<Integer> asIndices();
 
     /**
-     * Return the next set bit starting at index {@code from}.
+     * Find the index of the next set bit starting at index {@code from}.
      *
      * @param from the index to start searching from
-     * @return the index for the next set bit, -1 if none could be found.
+     * @return the index of the next set bit, -1 if none could be found.
      */
     public abstract int nextSetBit(final int from);
+
+    /**
+     * Find the index of the previous set bit starting at index {@code from}.
+     *
+     * @param from the index to start searching from
+     * @return the index of the previous set bit, -1 if none could be found.
+     */
+    public abstract int previousSetBit(final int from);
 
     @VisibleForTesting
     static final class BitSetString extends RandomAccessBitString {
@@ -427,6 +432,11 @@ public abstract class BitString extends AbstractList<Boolean> {
         @Override
         public int nextSetBit(final int from) {
             return bitSet.nextSetBit(from);
+        }
+
+        @Override
+        public int previousSetBit(final int from) {
+            return bitSet.previousSetBit(from);
         }
 
         @Override
@@ -533,8 +543,20 @@ public abstract class BitString extends AbstractList<Boolean> {
 
         @Override
         public int nextSetBit(final int from) {
-            final int nextSetBit = BitString.this.nextSetBit(offset);
-            return nextSetBit >= offset + length ? -1 : nextSetBit;
+            checkPositionIndex(from, size());
+            final int nextSetBit = BitString.this.nextSetBit(offset + from);
+            if (nextSetBit == -1) {
+                return -1;
+            } else {
+                return nextSetBit >= offset + length ? -1 : nextSetBit - offset;
+            }
+        }
+
+        @Override
+        public int previousSetBit(final int from) {
+            checkPositionIndex(from, size());
+            final int previousSetBit = BitString.this.previousSetBit(offset + from);
+            return previousSetBit < offset ? -1 : previousSetBit - offset;
         }
 
 
@@ -595,6 +617,11 @@ public abstract class BitString extends AbstractList<Boolean> {
 
         @Override
         public int nextSetBit(final int from) {
+            return -1;
+        }
+
+        @Override
+        public int previousSetBit(final int from) {
             return -1;
         }
     }
@@ -672,9 +699,30 @@ public abstract class BitString extends AbstractList<Boolean> {
         @Override
         public int nextSetBit(final int from) {
             if (from < bitString1.size()) {
-                return bitString1.nextSetBit(from);
+                final int bs1next = bitString1.nextSetBit(from);
+                if (bs1next != -1) {
+                    return bs1next;
+                } else {
+                    final int bs2next = bitString2.nextSetBit(0);
+                    return bs2next == -1 ? -1 : bitString1.size() + bs2next;
+                }
             } else {
-                return bitString2.nextSetBit((from - bitString1.size()));
+                final int index = bitString2.nextSetBit((from - bitString1.size()));
+                return index == -1 ? -1 : bitString1.size() + index;
+            }
+        }
+
+        @Override
+        public int previousSetBit(final int from) {
+            if (from > bitString1.size()) {
+                final int bs2previous = bitString2.previousSetBit(from);
+                if (bs2previous != -1) {
+                    return bitString1.size() + bs2previous;
+                } else {
+                    return bitString1.previousSetBit(bitString1.size());
+                }
+            } else {
+                return bitString1.previousSetBit(from);
             }
         }
     }
@@ -682,7 +730,7 @@ public abstract class BitString extends AbstractList<Boolean> {
     @VisibleForTesting
     static final class IndexSetString extends BitString {
 
-        private final Set<Integer> indices;
+        private final SortedSet<Integer> indices;
         private final int length;
 
         @SuppressWarnings("unchecked")
@@ -770,6 +818,18 @@ public abstract class BitString extends AbstractList<Boolean> {
         public int nextSetBit(final int from) {
             for (Integer index : indices) {
                 if (index >= from) {
+                    return index;
+                }
+            }
+            return -1;
+        }
+
+        @Override
+        public int previousSetBit(final int from) {
+            final ImmutableSortedSet<Integer> reversed =
+                    ImmutableSortedSet.<Integer>reverseOrder().addAll(indices).build();
+            for (Integer index : reversed) {
+                if (index <= from) {
                     return index;
                 }
             }
@@ -876,13 +936,16 @@ public abstract class BitString extends AbstractList<Boolean> {
 
         @Override
         public int nextSetBit(final int from) {
-            // TODO: implement previousSetBit(from) and delegate to this method
-            for (int i = from; i < size(); i++) {
-                if (get(i)) {
-                    return i;
-                }
-            }
-            return -1;
+            checkPositionIndex(from, size());
+            // TODO: implement nextClearBit and delegate to it
+            return bitSet().nextSetBit(from);
+        }
+
+        @Override
+        public int previousSetBit(final int from) {
+            checkPositionIndex(from, size());
+            // TODO: implement previousClearBit and delegate to it
+            return bitSet().previousSetBit(from);
         }
 
         @Override
