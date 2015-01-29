@@ -6,8 +6,8 @@ import com.google.common.collect.BinaryTreeTraverser;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.TreeTraverser;
 import com.google.common.primitives.Doubles;
+import org.apache.commons.math3.util.MathArrays;
 import org.asoem.greyfish.utils.collect.AbstractTree;
-import org.asoem.greyfish.utils.space.DistanceMeasures;
 import org.asoem.greyfish.utils.space.DistantObject;
 import org.asoem.greyfish.utils.space.KDTree;
 import org.asoem.greyfish.utils.space.Point;
@@ -124,7 +124,7 @@ public final class ASKDTree<T> extends AbstractTree<ASKDTree.KDNodeWrapper<T>>
 
         @Override
         public double distance(final double... coordinates) {
-            return DistanceMeasures.euclidean().apply(coordinates(), coordinates);
+            return MathArrays.distance(coordinates(), coordinates);
         }
 
         @Override
