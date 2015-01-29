@@ -480,7 +480,7 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
 
         assert borderIntersection != null; // There must always be an intersection with one border
 
-        return Geometry2D.distance(origin, maxTransition(origin, borderIntersection));
+        return origin.distance(maxTransition(origin, borderIntersection));
     }
 
     @Override
@@ -494,16 +494,22 @@ public final class WalledPointSpace<O> implements TiledSpace<O, Point2D, WalledT
             @Override
             public Iterable<O> apply(final Tile tile) {
                 final Tile checkedTile = checkNotNull(tile);
-                return Iterables.filter(findObjects(checkedTile.getX() + 0.5, checkedTile.getY() + 0.5, 0.70710678118 /* sqrt(0.5^2) */), new Predicate<O>() {
-                    @Override
-                    public boolean apply(final O t) {
-                        assert t != null;
-                        final Point2D projection = getProjection(t);
-                        assert projection != null;
-                        final Point2D anchorPoint = projection.getCentroid();
-                        return Geometry2D.rectangleContains(checkedTile.getX(), checkedTile.getY(), 1, 1, anchorPoint.getX(), anchorPoint.getY());
-                    }
-                });
+                return Iterables.filter(
+                        findObjects(
+                                checkedTile.getX() + 0.5,
+                                checkedTile.getY() + 0.5,
+                                0.70710678118 /* sqrt(0.5^2) */),
+                        new Predicate<O>() {
+                            @Override
+                            public boolean apply(final O t) {
+                                assert t != null;
+                                final Point2D projection = getProjection(t);
+                                assert projection != null;
+                                final Point2D anchorPoint = projection.getCentroid();
+                                return Geometry2D.rectangleContains(checkedTile.getX(), checkedTile.getY(), 1, 1,
+                                        anchorPoint.getX(), anchorPoint.getY());
+                            }
+                        });
             }
         }));
     }

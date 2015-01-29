@@ -1,12 +1,15 @@
 package org.asoem.greyfish.utils.space;
 
 
-public class ImmutableObject2D implements Object2D {
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+public final class ImmutableObject2D implements Object2D {
 
     private final Point2D anchorPoint;
 
-    protected ImmutableObject2D(final Point2D anchorPoint) {
-        this.anchorPoint = ImmutablePoint2D.at(anchorPoint);
+    private ImmutableObject2D(final Point2D anchorPoint) {
+        this.anchorPoint = ImmutablePoint2D.copyOf(anchorPoint);
     }
 
     @Override

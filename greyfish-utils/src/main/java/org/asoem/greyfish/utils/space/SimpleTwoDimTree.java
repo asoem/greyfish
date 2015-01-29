@@ -71,8 +71,7 @@ public final class SimpleTwoDimTree<T> extends AbstractCollection<TwoDimTree.Nod
         final FluentIterable<TwoDimTree.Node<T>> nodes = treeTraverser.preOrderTraversal(rootNode().get());
         List<DistantObject<TwoDimTree.Node<T>>> distantObjects = Lists.newArrayList();
         for (final TwoDimTree.Node<T> node : nodes) {
-            final double distance = Geometry2D.distance(
-                    ImmutablePoint2D.at(x, y),
+            final double distance = ImmutablePoint2D.at(x, y).distance(
                     ImmutablePoint2D.at(node.xCoordinate(), node.yCoordinate()));
             if (distance <= range) {
                 distantObjects.add(new DistantObject<TwoDimTree.Node<T>>() {

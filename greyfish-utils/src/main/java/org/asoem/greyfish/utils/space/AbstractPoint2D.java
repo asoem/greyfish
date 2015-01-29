@@ -2,12 +2,9 @@ package org.asoem.greyfish.utils.space;
 
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkPositionIndex;
 
 public abstract class AbstractPoint2D implements Point2D {
-    @Override
-    public final double[] coordinates() {
-        return new double[]{getX(), getY()};
-    }
 
     @Override
     public final Double first() {
@@ -17,6 +14,19 @@ public abstract class AbstractPoint2D implements Point2D {
     @Override
     public final Double second() {
         return getY();
+    }
+
+    @Override
+    public final double get(final int index) {
+        checkPositionIndex(index, getDimension());
+        switch (index) {
+            case 0:
+                return getX();
+            case 1:
+                return getY();
+            default:
+                throw new AssertionError("unreachable");
+        }
     }
 
     @Override
@@ -30,10 +40,11 @@ public abstract class AbstractPoint2D implements Point2D {
     }
 
     @Override
-    public final double distance(final Point neighbor) {
-        checkArgument(neighbor.getDimension() == 2, "Dimension mismatch");
-        final double[] neighborCentroidCoordinate = neighbor.coordinates();
-        return Geometry2D.distance(this.getX(), this.getY(),
-                neighborCentroidCoordinate[0], neighborCentroidCoordinate[1]);
+    public final double distance(final Point other) {
+        checkArgument(other.getDimension() == this.getDimension(),
+                "Dimension mismatch: %s != %s", other.getDimension(), this.getDimension());
+        return Geometry2D.distance(
+                this.get(0), this.get(1),
+                other.get(0), other.get(1));
     }
 }

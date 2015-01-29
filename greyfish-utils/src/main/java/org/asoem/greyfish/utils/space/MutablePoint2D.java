@@ -1,14 +1,11 @@
 package org.asoem.greyfish.utils.space;
 
 
-public class MutablePoint2D extends AbstractPoint2D {
+public final class MutablePoint2D extends AbstractPoint2D {
 
     private double x;
 
     private double y;
-
-    public MutablePoint2D() {
-    }
 
     public MutablePoint2D(final double x, final double y) {
         this.x = x;
@@ -63,5 +60,10 @@ public class MutablePoint2D extends AbstractPoint2D {
         temp = y != +0.0d ? Double.doubleToLongBits(y) : 0L;
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
+    }
+
+    @Override
+    public double[] coordinates() {
+        return new double[]{getX(), getY()};
     }
 }

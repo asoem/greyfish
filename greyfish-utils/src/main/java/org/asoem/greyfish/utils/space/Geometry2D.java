@@ -60,10 +60,6 @@ public final class Geometry2D {
                 y1 < y + h);
     }
 
-    public static double distance(final Point2D point1, final Point2D point2) {
-        return distance(point1.getX(), point1.getY(), point2.getX(), point2.getY());
-    }
-
     public static Point2D polarToCartesian(final double angle, final double radius) {
         return ImmutablePoint2D.at(
                 radius * FastMath.cos(angle),
@@ -71,6 +67,15 @@ public final class Geometry2D {
         );
     }
 
+    /**
+     * Calculate the Euclidean distance between two points at [x,y] and [x1,y1].
+     *
+     * @param x  the first coordinate of the first point
+     * @param y  the second coordinate of the first point
+     * @param x1 the first coordinate of the second point
+     * @param y1 the second coordinate of the second point
+     * @return the Euclidean distance
+     */
     public static double distance(final double x, final double y, final double x1, final double y1) {
         return FastMath.sqrt(x * x1 + y * y1);
     }

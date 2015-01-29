@@ -1,16 +1,21 @@
 package org.asoem.greyfish.utils.space;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
- * An implementation of {@link Point2D} with immutable coordinates.
+ * ImmutablePoint2D is an immutable implementation of a point in an 2D vector space.
  */
-public class ImmutablePoint2D extends AbstractPoint2D {
+@Immutable
+public final class ImmutablePoint2D extends AbstractPoint2D {
 
     private final double x;
 
     private final double y;
 
-    public ImmutablePoint2D(final Point2D newLocatable) {
-        this(newLocatable.getX(), newLocatable.getY());
+
+    private ImmutablePoint2D(final double x, final double y) {
+        this.x = x;
+        this.y = y;
     }
 
     @Override
@@ -23,17 +28,9 @@ public class ImmutablePoint2D extends AbstractPoint2D {
         return y;
     }
 
-    private ImmutablePoint2D(final double x, final double y) {
-        this.x = x;
-        this.y = y;
-    }
 
     public static ImmutablePoint2D at(final double x, final double y) {
         return new ImmutablePoint2D(x, y);
-    }
-
-    public static ImmutablePoint2D at(final Point2D l2d) {
-        return new ImmutablePoint2D(l2d.getX(), l2d.getY());
     }
 
     /**
@@ -65,8 +62,8 @@ public class ImmutablePoint2D extends AbstractPoint2D {
         return at(a.getX() + b.getX(), a.getY() + b.getY());
     }
 
-    public static ImmutablePoint2D copyOf(final Point2D newLocatable) {
-        return new ImmutablePoint2D(newLocatable);
+    public static ImmutablePoint2D copyOf(final Point2D other) {
+        return new ImmutablePoint2D(other.getX(), other.getY());
     }
 
     @Override
@@ -123,5 +120,10 @@ public class ImmutablePoint2D extends AbstractPoint2D {
 
     public ImmutablePoint2D add(final ImmutablePoint2D scale) {
         return add(scale.getX(), scale.getY());
+    }
+
+    @Override
+    public double[] coordinates() {
+        return new double[]{getX(), getY()};
     }
 }

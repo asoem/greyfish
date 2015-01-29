@@ -5,8 +5,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import org.asoem.greyfish.utils.space.DistanceMeasure;
+import org.asoem.greyfish.utils.space.Point;
+import org.asoem.greyfish.utils.space.Points;
 import org.asoem.greyfish.utils.space.SpatialData;
-import org.asoem.greyfish.utils.space.SpatialObject;
 
 import java.util.*;
 
@@ -44,13 +45,8 @@ public final class DBSCAN<T> implements ClusterAlgorithm<T, DBSCANResult<T>> {
         this.neighborSearch = neighborSearch;
     }
 
-    public static <T extends SpatialObject> DBSCAN<T> create(final double epsilon, final int minPts) {
-        return create(epsilon, minPts, new DistanceMeasure<T>() {
-            @Override
-            public double apply(final T a, final T b) {
-                return a.getCentroid().distance(b.getCentroid());
-            }
-        });
+    public static <T extends Point> DBSCAN<T> create(final double epsilon, final int minPts) {
+        return create(epsilon, minPts, Points.euclideanDistance());
     }
 
     public static <T> DBSCAN<T> create(final double epsilon, final int minPts,

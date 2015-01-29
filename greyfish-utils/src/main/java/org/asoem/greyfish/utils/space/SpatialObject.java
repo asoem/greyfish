@@ -1,6 +1,8 @@
 package org.asoem.greyfish.utils.space;
 
-
+/**
+ * Interface for objects in a vector space.
+ */
 public interface SpatialObject {
 
     /**
@@ -11,11 +13,10 @@ public interface SpatialObject {
     int getDimension();
 
     /**
-     * Get the centroid for this shape.
+     * Get the centroid for this shape. <p/> <p>A centroid is defined as the mean position of all the points in all of
+     * the coordinate directions.</p>
      *
-     * <p>A centroid is defined as the mean position of all the points in all of the coordinate directions.</p>
-     *
-     * @return the centroid for this shape
+     * @return the centroid of this object
      */
     Point getCentroid();
 
