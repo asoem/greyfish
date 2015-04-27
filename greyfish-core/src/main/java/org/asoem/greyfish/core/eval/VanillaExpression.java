@@ -2,9 +2,10 @@ package org.asoem.greyfish.core.eval;
 
 /**
  * User: christoph Date: 22.02.12 Time: 14:22
- * <p/>
+ * <p>
  * This {@code Expression} implementation will evaluate a given {@code Expression} without any modifications using a
  * given {@code Evaluator}
+ * </p>
  */
 public class VanillaExpression extends AbstractExpression {
 

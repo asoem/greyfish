@@ -18,7 +18,7 @@
 package org.asoem.greyfish.utils.space.cluster;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
 import org.apache.commons.csv.CSVFormat;
@@ -51,7 +51,7 @@ public class DBSCANTest {
     @Test
     public void testCluster() throws Exception {
         // given
-        final ImmutableSet<ImmutablePoint1D> objects = ImmutableSet.copyOf(
+        final ImmutableList<ImmutablePoint1D> objects = ImmutableList.copyOf(
                 Iterables.transform(csvRecords, new Function<CSVRecord, ImmutablePoint1D>() {
                     @Nullable
                     @Override
@@ -75,7 +75,7 @@ public class DBSCANTest {
     @Test
     public void testAlternativeNeighborSearchAlgorithm() throws Exception {
         // given
-        final ImmutableSet<ImmutablePoint1D> objects = ImmutableSet.copyOf(
+        final ImmutableList<ImmutablePoint1D> objects = ImmutableList.copyOf(
                 Iterables.transform(csvRecords, new Function<CSVRecord, ImmutablePoint1D>() {
                     @Nullable
                     @Override

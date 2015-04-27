@@ -20,11 +20,14 @@ sourceCompatibility = 1.7
 
 apply plugin: 'maven-publish'
 group = "org.asoem.greyfish"
-version = "1.2.0"
+version = "1.2.1"
 
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        url "https://jitpack.io"
+    }
 }
 
 configurations {
@@ -41,7 +44,7 @@ dependencies {
             'org.apache.commons:commons-jexl:2.1.1',
             'com.lmax:disruptor:3.2.0',
             'org.scala-lang:scala-library:2.10.4',
-            'org.asoem:kdtree:1.2.7'
+            'com.github.hoesler:kdtree:v1.2.7'
 
     compile project(':greyfish-utils')
 

@@ -33,12 +33,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Density-Based Spatial Clustering of Applications with Noise.
- * <p/>
+ * <p>
  * The algorithm clusters a set of objects by their density, which is defined by a the reachability distance parameter
  * {@code epsilon}. A second parameter, the minimal neighbourhood size ({@code minPts}), controls whether an object is a
  * core object or just 'density reachable' by others. Objects which are not density reachable get characterized as
  * noise.
- * <p/>
+ * </p>
  * <i>The algorithm is deterministic for the number of clusters and their core objects, but not for the cluster
  * assignment of only 'density reachable' objects.</i>
  *
