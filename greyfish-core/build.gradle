@@ -20,7 +20,7 @@ sourceCompatibility = 1.7
 
 apply plugin: 'maven-publish'
 group = "org.asoem.greyfish"
-version = "1.2.1"
+version = "1.2.2-SNAPSHOT"
 
 repositories {
     mavenLocal()
@@ -28,10 +28,6 @@ repositories {
     maven {
         url "https://jitpack.io"
     }
-}
-
-configurations {
-    scalaKDTree
 }
 
 dependencies {
@@ -42,9 +38,7 @@ dependencies {
             'com.google.code.findbugs:jsr305:2.0.1',
             'com.google.inject:guice:3.0',
             'org.apache.commons:commons-jexl:2.1.1',
-            'com.lmax:disruptor:3.2.0',
-            'org.scala-lang:scala-library:2.10.4',
-            'com.github.hoesler:kdtree:v1.2.7'
+            'com.lmax:disruptor:3.2.0'
 
     compile project(':greyfish-utils')
 

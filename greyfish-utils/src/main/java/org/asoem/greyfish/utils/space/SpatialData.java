@@ -26,7 +26,7 @@ import java.util.Collection;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public class SpatialData {
+public final class SpatialData {
     private SpatialData() {}
 
     /**
