@@ -32,15 +32,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Density-Based Spatial Clustering of Applications with Noise.
- * <p/>
- * The algorithm clusters a set of objects by their density, which is defined by a the reachability distance parameter
- * {@code epsilon}. A second parameter, the minimal neighbourhood size ({@code minPts}), controls whether an object is a
- * core object or just 'density reachable' by others. Objects which are not density reachable get characterized as
- * noise.
- * <p/>
- * <i>The algorithm is deterministic for the number of clusters and their core objects, but not for the cluster
- * assignment of only 'density reachable' objects.</i>
+ * Density-Based Spatial Clustering of Applications with Noise. <p> The algorithm clusters a set of objects by their
+ * density, which is defined by a the reachability distance parameter {@code epsilon}. A second parameter, the minimal
+ * neighbourhood size ({@code minPts}), controls whether an object is a core object or just 'density reachable' by
+ * others. Objects which are not density reachable get characterized as noise. </p> <i>The algorithm is deterministic
+ * for the number of clusters and their core objects, but not for the cluster assignment of only 'density reachable'
+ * objects.</i>
  *
  * @param <T> The type of the spatial objects to cluster
  */
@@ -85,7 +82,7 @@ public final class DBSCAN<T> implements ClusterAlgorithm<T, DBSCANResult<T>> {
 
         final List<DBSCANCluster<T>> clusters = Lists.newArrayList();
         final List<T> noise = Lists.newArrayList();
-        final Map<T, PointStatus> objectStatusMap = Maps.newIdentityHashMap();
+        final Map<T, PointStatus> objectStatusMap = Maps.newHashMap();
 
         for (T object : objects) {
             objectStatusMap.put(object, PointStatus.UNKNOWN);
@@ -95,7 +92,7 @@ public final class DBSCAN<T> implements ClusterAlgorithm<T, DBSCANResult<T>> {
             if (entry.getValue().equals(PointStatus.UNKNOWN)) {
 
                 final Optional<DBSCANCluster<T>> clusterOptional =
-                        tryCluster(entry.getKey(), objectStatusMap);
+                        tryCluster(entry.getKey(), objects, objectStatusMap);
 
                 if (clusterOptional.isPresent()) {
                     clusters.add(clusterOptional.get());
@@ -110,28 +107,30 @@ public final class DBSCAN<T> implements ClusterAlgorithm<T, DBSCANResult<T>> {
     }
 
     private Optional<DBSCANCluster<T>> tryCluster(
-            final T origin, final Map<T, PointStatus> objectStatusMap) {
+            final T origin, final Collection<T> objects, final Map<T, PointStatus> objectStatusMap) {
         final List<T> clusterObjects = new ArrayList<>();
         final Queue<T> seeds = Queues.newArrayDeque();
 
-        assert objectStatusMap.get(origin).equals(PointStatus.UNKNOWN);
+        final PointStatus originStatus = objectStatusMap.get(origin);
+        assert originStatus != null;
+        assert originStatus.equals(PointStatus.UNKNOWN);
         objectStatusMap.put(origin, PointStatus.SEED);
         seeds.offer(origin);
-
-        final Set<T> candidates = objectStatusMap.keySet();
 
         while (!seeds.isEmpty()) {
             final T seed = seeds.poll();
             assert seed != null;
 
             final Collection<T> currentNeighbors =
-                    neighborSearch.filterNeighbors(candidates, seed, epsilon);
+                    neighborSearch.filterNeighbors(objects, seed, epsilon);
             if (currentNeighbors.size() >= minPts) {
                 for (T neighbor : currentNeighbors) {
-                    if (objectStatusMap.get(neighbor).equals(PointStatus.NOISE)) {
+                    final PointStatus neighborStatus = objectStatusMap.get(neighbor);
+                    assert neighborStatus != null;
+                    if (neighborStatus.equals(PointStatus.NOISE)) {
                         clusterObjects.add(neighbor);
                         objectStatusMap.put(neighbor, PointStatus.DENSITY_REACHABLE);
-                    } else if (objectStatusMap.get(neighbor).equals(PointStatus.UNKNOWN)) {
+                    } else if (neighborStatus.equals(PointStatus.UNKNOWN)) {
                         seeds.offer(neighbor);
                         objectStatusMap.put(neighbor, PointStatus.SEED);
                     }

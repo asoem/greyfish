@@ -31,7 +31,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -55,7 +54,7 @@ public class BitStringTest {
     public void testRandomP1() throws Exception {
         // given
         final int length = 100;
-        final RandomGenerator rng = RandomGenerators.rng();
+        final RandomGenerator rng = RandomGenerators.rng(0);
         final int p = 1;
 
         // when
@@ -69,7 +68,7 @@ public class BitStringTest {
     public void testRandomP0() throws Exception {
         // given
         final int length = 100;
-        final RandomGenerator rng = RandomGenerators.rng();
+        final RandomGenerator rng = RandomGenerators.rng(0);
         final int p = 0;
 
         // when
@@ -80,29 +79,15 @@ public class BitStringTest {
     }
 
     @Test
-    public void testSampleRange() throws Exception {
-        // given
-        Set<Integer> cardinalitySet = Sets.newHashSet();
-
-        // when
-        for (int i = 0; i < 100000; i++) {
-            final BitString bitString = BitString.random(10, RandomGenerators.rng(), 1e-5);
-            cardinalitySet.add(bitString.cardinality());
-        }
-
-        // then
-        assertThat(cardinalitySet, hasSize(greaterThan(1)));
-    }
-
-    @Test
     public void testRandomSmallP() throws Exception {
         // given
         final int length = 10;
         final double p = 1e-5;
+        final RandomGenerator rng = RandomGenerators.rng(0);
 
         // when
-        Map<Integer, Integer> observedCardinalities = observedFrequencies(length, p, 100000); // cardinality of BitString.random()
-        Map<Integer, Integer> observedBinomialSamples = expectedFrequencies(length, p, 100000); // sample of binomial dist.
+        final Map<Integer, Integer> observedCardinalities = observedFrequencies(length, p, 100000, rng); // cardinality of BitString.random()
+        final Map<Integer, Integer> observedBinomialSamples = expectedFrequencies(length, p, 100000, rng); // sample of binomial dist.
 
         // then
         assertThat(chiSquareTest(observedCardinalities, observedBinomialSamples),
@@ -114,10 +99,11 @@ public class BitStringTest {
         // given
         final int length = 1000;
         final double p = 0.5;
+        final RandomGenerator rng = RandomGenerators.rng(0);
 
         // when
-        Map<Integer, Integer> observedCardinalities = observedFrequencies(length, p, 1000); // cardinality of BitString.random()
-        Map<Integer, Integer> observedBinomialSamples = expectedFrequencies(length, p, 1000); // sample of binomial dist.
+        final Map<Integer, Integer> observedCardinalities = observedFrequencies(length, p, 1000, rng); // cardinality of BitString.random()
+        final Map<Integer, Integer> observedBinomialSamples = expectedFrequencies(length, p, 1000, rng); // sample of binomial dist.
 
         // then
         assertThat(chiSquareTest(observedCardinalities, observedBinomialSamples),
@@ -138,9 +124,10 @@ public class BitStringTest {
         return new ChiSquareTest().chiSquareTestDataSetsComparison(Longs.toArray(observed1), Longs.toArray(observed2));
     }
 
-    public static Map<Integer, Integer> expectedFrequencies(final int length, final double p, final int sampleSize) {
+    public static Map<Integer, Integer> expectedFrequencies(final int length, final double p, final int sampleSize,
+                                                            final RandomGenerator rng) {
         final Map<Integer, Integer> frequencies = Maps.newHashMap();
-        final BinomialDistribution binomialDistribution = new BinomialDistribution(length, p);
+        final BinomialDistribution binomialDistribution = new BinomialDistribution(rng, length, p);
         for (int i = 0; i < sampleSize; i++) {
             final int sample = binomialDistribution.sample();
             Integer integer = frequencies.get(sample);
@@ -153,10 +140,11 @@ public class BitStringTest {
         return frequencies;
     }
 
-    public static Map<Integer, Integer> observedFrequencies(final int length, final double p, final int sampleSize) {
+    public static Map<Integer, Integer> observedFrequencies(final int length, final double p, final int sampleSize,
+                                                            final RandomGenerator rng) {
         final Map<Integer, Integer> frequencies = Maps.newHashMap();
         for (int i = 0; i < sampleSize; i++) {
-            final int cardinality = BitString.random(length, RandomGenerators.rng(), p).cardinality();
+            final int cardinality = BitString.random(length, rng, p).cardinality();
             Integer integer = frequencies.get(cardinality);
             if (integer == null) {
                 frequencies.put(cardinality, 0);

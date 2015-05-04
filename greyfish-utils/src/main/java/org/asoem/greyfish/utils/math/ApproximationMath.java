@@ -76,7 +76,7 @@ public final class ApproximationMath {
     /**
      * An exp approximation based on the article
      * "A Fast, Compact Approximation of the Exponential Function", Nicol N. Schraudolph, Neural Computation (1999)
-     * It has a max relative error of about 3e-2 for |value| < 700.0 or so, and no accuracy at all outside this range.
+     * It has a max relative error of about 3e-2 for |value| &lt; 700.0 or so, and no accuracy at all outside this range.
      *
      * @param x the exponent
      * @return an approximated value for e^x

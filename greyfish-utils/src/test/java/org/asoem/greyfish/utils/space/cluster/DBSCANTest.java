@@ -18,7 +18,7 @@
 package org.asoem.greyfish.utils.space.cluster;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.io.Resources;
 import org.apache.commons.csv.CSVFormat;
@@ -36,6 +36,9 @@ import java.util.Collection;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class DBSCANTest {
 
@@ -51,7 +54,7 @@ public class DBSCANTest {
     @Test
     public void testCluster() throws Exception {
         // given
-        final ImmutableSet<ImmutablePoint1D> objects = ImmutableSet.copyOf(
+        final ImmutableList<ImmutablePoint1D> objects = ImmutableList.copyOf(
                 Iterables.transform(csvRecords, new Function<CSVRecord, ImmutablePoint1D>() {
                     @Nullable
                     @Override
@@ -75,7 +78,7 @@ public class DBSCANTest {
     @Test
     public void testAlternativeNeighborSearchAlgorithm() throws Exception {
         // given
-        final ImmutableSet<ImmutablePoint1D> objects = ImmutableSet.copyOf(
+        final ImmutableList<ImmutablePoint1D> objects = ImmutableList.copyOf(
                 Iterables.transform(csvRecords, new Function<CSVRecord, ImmutablePoint1D>() {
                     @Nullable
                     @Override
@@ -87,12 +90,13 @@ public class DBSCANTest {
         assert objects.size() == 150;
         final double eps = 0.2;
         final int minPts = 5;
-        final DBSCAN<ImmutablePoint1D> dbscan = DBSCAN.create(eps, minPts, Points.euclideanDistance());
+        final NeighborSearch<ImmutablePoint1D> mock = mock(NeighborSearch.class);
+        final DBSCAN<ImmutablePoint1D> dbscan = DBSCAN.create(eps, minPts, mock);
 
         // when
-        final DBSCANResult result = dbscan.apply(objects);
+        dbscan.apply(objects);
 
         // then
-        assertThat((Collection<Object>) result.cluster(), hasSize(2));
+        verify(mock, atLeastOnce()).filterNeighbors(eq(objects), any(ImmutablePoint1D.class), eq(eps));
     }
 }

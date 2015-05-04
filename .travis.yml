@@ -1,0 +1,9 @@
+language: java
+jdk:
+- oraclejdk7
+- oraclejdk8
+env:
+  global:
+    secure: lbM/m7UpZAgo33XbNelluwdvmSPjqeXEL/+FTxeeeghJErEvckWcNCuxqGFj2RMIYMX0uwu/hkmbv41GzJ9zVhasqMuy6alE8HenkFZ6EOTmfJU7AUBZOafuLCyOFV2D2j/9vQUH/T710V/aKpuUqi66bsTjFUhQJNHyOvePgks=
+after_success:
+  - .travis/publish-javadoc-gh_pages.sh

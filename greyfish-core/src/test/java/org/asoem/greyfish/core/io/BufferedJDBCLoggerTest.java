@@ -27,28 +27,58 @@ import org.asoem.greyfish.core.environment.SpatialEnvironment2D;
 import org.asoem.greyfish.core.space.Space2D;
 import org.asoem.greyfish.utils.space.Object2D;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-public class JDBCLoggerTest {
+public class BufferedJDBCLoggerTest {
     @Test
     public void testCommitThreshold1() throws Exception {
         // given
         final int commitThreshold = 1;
+
+        // then
+        testCommitInvocations(commitThreshold);
+    }
+
+    @Test
+    public void testCommitThreshold3() throws Exception {
+        // given
+        final int commitThreshold = 3;
+
+        // then
+        testCommitInvocations(commitThreshold);
+    }
+
+    void testCommitInvocations(final int commitThreshold) throws SQLException, InterruptedException, java.util.concurrent.ExecutionException, java.util.concurrent.TimeoutException {
+        // given
+        final int expectedCommits = (int) Math.round(3.0 / commitThreshold);
+        final AtomicInteger commitInvocations = new AtomicInteger(0);
         final Connection connectionMock = mock(Connection.class);
         given(connectionMock.prepareStatement(any(String.class))).willReturn(mock(PreparedStatement.class));
-        final ConnectionManager mock = when(mock(ConnectionManager.class).get()).thenReturn(connectionMock).getMock();
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(final InvocationOnMock invocationOnMock) throws Throwable {
+                commitInvocations.incrementAndGet();
+                return null;
+            }
+        }).when(connectionMock).commit();
+        final ConnectionManager mock = mock(ConnectionManager.class);
+        when(mock.get()).thenReturn(connectionMock);
         final BufferedJDBCLogger jdbcLogger = new BufferedJDBCLogger(mock, commitThreshold);
 
         // when
         jdbcLogger.logAgentCreation(0, "", 0, "", ImmutableSet.<Integer>of(), ImmutableMap.<String, Object>of()); // two commits
         jdbcLogger.logAgentCreation(0, "", 0, "", ImmutableSet.<Integer>of(), ImmutableMap.<String, Object>of()); // one commit
-        MoreExecutors.sameThreadExecutor().submit(new Runnable() {
+        MoreExecutors.newDirectExecutorService().submit(new Runnable() {
             @Override
             public void run() {
                 do {
@@ -57,31 +87,12 @@ public class JDBCLoggerTest {
                     } catch (InterruptedException e) {
                         throw new AssertionError(e);
                     }
-                } while (!jdbcLogger.queries.isEmpty());
+                } while (commitInvocations.get() < expectedCommits);
             }
         }).get(1, TimeUnit.SECONDS);
 
-
         // then
-        verify(connectionMock, times(3)).commit();
-    }
-
-    @Test
-    public void testCommitThreshold3() throws Exception {
-        // given
-        final int commitThreshold = 3;
-        final Connection connectionMock = mock(Connection.class);
-        given(connectionMock.prepareStatement(any(String.class))).willReturn(mock(PreparedStatement.class));
-        final ConnectionManager mock = when(mock(ConnectionManager.class).get()).thenReturn(connectionMock).getMock();
-        SimulationLogger jdbcLogger = SimulationLoggers.createJDBCLogger(mock, commitThreshold);
-
-        // when
-        jdbcLogger.logAgentCreation(0, "", 0, "", ImmutableSet.<Integer>of(), ImmutableMap.<String, Object>of()); // two commits
-        jdbcLogger.logAgentCreation(0, "", 0, "", ImmutableSet.<Integer>of(), ImmutableMap.<String, Object>of()); // one commit
-        Thread.sleep(10);
-
-        // then
-        verify(connectionMock, times(1)).commit();
+        //   success!
     }
 
     private interface TestEnvironment extends SpatialEnvironment2D<TestAgent, Space2D<TestAgent, Object2D>> {

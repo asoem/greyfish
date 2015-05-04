@@ -19,6 +19,7 @@ package org.asoem.greyfish.utils.collect;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.*;
+import com.google.common.base.Optional;
 import com.google.common.collect.AbstractIterator;
 import com.google.common.collect.*;
 import com.google.common.primitives.Longs;

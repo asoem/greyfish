@@ -30,8 +30,8 @@ public interface SpatialObject {
     int getDimension();
 
     /**
-     * Get the centroid for this shape. <p/> <p>A centroid is defined as the mean position of all the points in all of
-     * the coordinate directions.</p>
+     * Get the centroid for this shape. <p>A centroid is defined as the mean position of all the points in all of the
+     * coordinate directions.</p>
      *
      * @return the centroid of this object
      */

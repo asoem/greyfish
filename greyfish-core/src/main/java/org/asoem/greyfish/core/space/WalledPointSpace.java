@@ -18,6 +18,7 @@
 package org.asoem.greyfish.core.space;
 
 import com.google.common.base.*;
+import com.google.common.base.Optional;
 import com.google.common.collect.BinaryTreeTraverser;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
