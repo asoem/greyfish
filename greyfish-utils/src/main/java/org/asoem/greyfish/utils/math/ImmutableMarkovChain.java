@@ -33,6 +33,12 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * The default implementation of {@code MarkovChain}. <p>For convenience, this chain adds implicit identity transitions
+ * (A -> A) for states, which are defined, but their transition probabilities do not sum up to 1.0.</p>
+ *
+ * @param <S>
+ */
 public final class ImmutableMarkovChain<S> implements MarkovChain<S> {
 
     private final Table<S, S, Double> transitionTable;
@@ -43,6 +49,16 @@ public final class ImmutableMarkovChain<S> implements MarkovChain<S> {
         this.rng = rng;
     }
 
+    /**
+     * Get the next state for given {@code state}. <p>If the transition probabilities for the state do not sum up to 1.0
+     * (or rule with state as origin is given at all), an implicit identity transition (A -> A) for the remaining
+     * fraction is assumed. If the given state was neither used as a origin or destination in the transition table, an
+     * {@code IllegalArgumentException} will be thrown.</p>
+     *
+     * @param state the current state
+     * @return the next state
+     * @throws IllegalArgumentException if the given state is not defined in the chains transition table
+     */
     @Override
     public S apply(final S state) {
         checkNotNull(state, "State must not be null");
@@ -86,13 +102,38 @@ public final class ImmutableMarkovChain<S> implements MarkovChain<S> {
         return new ChainBuilder<S>();
     }
 
+    /**
+     * Parse a {@code rule} into a new {@code ImmutableMarkovChain<String>}. <p/> <p>The grammar is a follows:
+     * <pre>
+     * Chain: Transition (Separator Transition)*
+     * Transition: State '->' State ':' Probability
+     * Separator: [\r\n;]+
+     * State: \w+
+     * Probability: 0 | 0?\.\d+ | 1(\.0)?
+     * </pre>
+     * Example:
+     * <pre>
+     * A -> B : 1.0; B -> C : 1.0
+     * </pre>
+     * </p>
+     *
+     * @param rule A chain rule
+     * @return A new ImmutableMarkovChain with {@code String} states
+     */
     public static ImmutableMarkovChain<String> parse(final String rule) {
         final ChainBuilder<String> builder = builder();
 
-        final Splitter splitter = Splitter.onPattern("\r?\n|;").trimResults();
+        final Splitter splitter = Splitter.onPattern("[\r\n;]+").trimResults();
         final Iterable<String> lines = splitter.split(rule);
 
-        final Pattern pattern = Pattern.compile("^(.+)->(.+):(.+)$");
+        final Pattern pattern = Pattern.compile(
+                "^"
+                        + "(\\w+)"
+                        + "\\s*->\\s*"
+                        + "(\\w+)"
+                        + "\\s*:\\s*"
+                        + "(0|0?\\.\\d+|1(?:\\.0)?)"
+                        + "$");
         for (final String line : lines) {
             if (line.isEmpty()) {
                 continue;

@@ -42,13 +42,13 @@ public class ImmutableMarkovChainTest {
     @Test
     public void testParse() throws Exception {
         // given
-        final String rule = "A -> B : 1.0; B -> C : 1.0";
+        final String rule = "A -> B : 1.0;\n\r\n;B -> C : 1";
 
         // when
         final ImmutableMarkovChain<String> chain = ImmutableMarkovChain.parse(rule);
 
         // then
-        final String endState = chain.apply(chain.apply("A"));
+        final String endState = chain.apply(chain.apply(chain.apply("A")));
         assertThat(endState, is("C"));
     }
 }
