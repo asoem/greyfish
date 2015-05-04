@@ -19,16 +19,14 @@
 package org.asoem.greyfish.utils.math.statistics;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.utils.math.RandomGenerators;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.Collection;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -78,8 +76,6 @@ public class RandomSelectionWithoutReplacementTest {
         final Iterable<Integer> sample = sampling.sample(elements, sampleSize);
 
         // then
-        assertThat(sample, is(Matchers.<Integer>iterableWithSize(sampleSize)));
-        assertThat("Sampled elements are not unique",
-                Sets.newHashSet(sample), is(Matchers.<Integer>iterableWithSize(sampleSize)));
+        assertThat(sample, contains(3, 1, 8, 7, 2)); // unique samples
     }
 }
