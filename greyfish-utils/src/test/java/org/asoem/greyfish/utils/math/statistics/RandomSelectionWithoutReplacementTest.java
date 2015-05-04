@@ -20,8 +20,8 @@ package org.asoem.greyfish.utils.math.statistics;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
@@ -68,8 +68,7 @@ public class RandomSelectionWithoutReplacementTest {
     @Test
     public void testSample() throws Exception {
         // given
-        final RandomGenerator rng = new JDKRandomGenerator();
-        rng.setSeed(0);
+        final RandomGenerator rng = RandomGenerators.rng(0);
         final Collection<Integer> elements = ImmutableList.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
         final int sampleSize = 5;
         final Sampling<Object> sampling =

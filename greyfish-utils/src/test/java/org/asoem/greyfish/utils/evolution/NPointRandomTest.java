@@ -18,6 +18,7 @@
 package org.asoem.greyfish.utils.evolution;
 
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.utils.collect.BitString;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.junit.Test;
@@ -32,7 +33,8 @@ public class NPointRandomTest {
     public void testCreateMutationMap() throws Exception {
         // given
         final int n = 2;
-        final Mutations.NPointRandom nPointRandom = new Mutations.NPointRandom(RandomGenerators.rng(), n);
+        final RandomGenerator rng = RandomGenerators.rng(0);
+        final Mutations.NPointRandom nPointRandom = new Mutations.NPointRandom(rng, n);
 
         // when
         final ImmutableMap<Integer, Boolean> mutationMap = nPointRandom.createMutationMap(10);

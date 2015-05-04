@@ -19,6 +19,7 @@ package org.asoem.greyfish.utils.evolution;
 
 import com.google.common.io.CharSink;
 import com.google.common.io.Files;
+import org.apache.commons.math3.random.RandomGenerator;
 import org.asoem.greyfish.utils.collect.BitString;
 import org.asoem.greyfish.utils.math.RandomGenerators;
 import org.junit.Ignore;
@@ -50,9 +51,10 @@ public class BitFlipMutationTest {
     @Test
     public void testMutationFlow() throws Exception {
         // given
-        final BitString startString = BitString.random(10000, RandomGenerators.rng(), 0.4);
+        final RandomGenerator rng = RandomGenerators.rng(0);
+        final BitString startString = BitString.random(10000, rng, 0.4);
         final Mutations.BitFlipMutation mutation =
-                new Mutations.BitFlipMutation(RandomGenerators.rng(), 1.0 / startString.size());
+                new Mutations.BitFlipMutation(rng, 1.0 / startString.size());
         final File file = new File("mutation_test.csv");
         final CharSink charSink = Files.asCharSink(file, Charset.defaultCharset());
 
