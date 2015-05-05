@@ -20,14 +20,21 @@ package org.asoem.greyfish.utils.space;
 import com.google.common.base.Optional;
 import com.google.common.collect.BinaryTreeTraverser;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+/**
+ * A traverser implementation for a {@link TwoDimTree}.
+ *
+ * @param <T>
+ */
 public final class TwoDimTreeTraverser<T> extends BinaryTreeTraverser<TwoDimTree.Node<T>> {
     @Override
-    public Optional<TwoDimTree.Node<T>> leftChild(final TwoDimTree.Node<T> root) {
-        return root.leftChild();
+    public Optional<TwoDimTree.Node<T>> leftChild(final TwoDimTree.Node<T> node) {
+        return checkNotNull(node, "node").leftChild();
     }
 
     @Override
-    public Optional<TwoDimTree.Node<T>> rightChild(final TwoDimTree.Node<T> root) {
-        return root.rightChild();
+    public Optional<TwoDimTree.Node<T>> rightChild(final TwoDimTree.Node<T> node) {
+        return checkNotNull(node, "node").rightChild();
     }
 }

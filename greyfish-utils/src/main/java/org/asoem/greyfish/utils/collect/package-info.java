@@ -15,22 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.asoem.greyfish.utils.collect;
-
-import java.util.concurrent.ExecutionException;
-
 /**
- * An object pool
- *
- * @param <T> the type of the objects
+ * This package contains generic collection interfaces and implementations, and other utilities for working with
+ * collections.
  */
-public interface LoadingObjectPool<T> extends ObjectPool<T> {
+@ParametersAreNonnullByDefault package org.asoem.greyfish.utils.collect;
 
-    /**
-     * Borrow an element from this pool. Waits infinitely.
-     *
-     * @return an element
-     */
-    T borrow() throws ExecutionException;
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

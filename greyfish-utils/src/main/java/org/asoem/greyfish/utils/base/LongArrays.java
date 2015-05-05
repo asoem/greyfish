@@ -17,12 +17,24 @@
 
 package org.asoem.greyfish.utils.base;
 
+import java.util.Arrays;
+
+/**
+ * Utility methods for arrays of type {@code long[]} that are not already found in {@link
+ * com.google.common.primitives.Longs}, {@link Long} or {@link Arrays}.
+ */
 public final class LongArrays {
     private LongArrays() {}
 
-    public static long bitCount(final long[] longs) {
+    /**
+     * Calculate the sum of the bit count for each long in {@code array}.
+     *
+     * @param array the longs to count the bits for
+     * @return the sum of the bit count for each long
+     */
+    public static long bitCount(final long... array) {
         long bc = 0;
-        for (long aLong : longs) {
+        for (long aLong : array) {
             bc += Long.bitCount(aLong);
         }
         return bc;

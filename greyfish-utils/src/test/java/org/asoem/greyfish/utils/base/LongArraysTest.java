@@ -15,22 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.asoem.greyfish.utils.collect;
+package org.asoem.greyfish.utils.base;
 
-import java.util.concurrent.ExecutionException;
+import org.junit.Test;
 
-/**
- * An object pool
- *
- * @param <T> the type of the objects
- */
-public interface LoadingObjectPool<T> extends ObjectPool<T> {
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-    /**
-     * Borrow an element from this pool. Waits infinitely.
-     *
-     * @return an element
-     */
-    T borrow() throws ExecutionException;
+public class LongArraysTest {
 
+    @Test
+    public void testBitCount() throws Exception {
+        // given
+        final long[] longs = new long[]{3L, 1L};
+
+        // when
+        final long bitCount = LongArrays.bitCount(longs);
+
+        // then
+        assertThat(bitCount, is(equalTo(3L)));
+    }
 }

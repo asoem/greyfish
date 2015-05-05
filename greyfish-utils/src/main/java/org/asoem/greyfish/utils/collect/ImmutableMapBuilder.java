@@ -22,28 +22,57 @@ import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 
-public class ImmutableMapBuilder<K, V> extends ImmutableMap.Builder<K, V> {
 
+/**
+ * @deprecated
+ */
+@Deprecated
+public final class ImmutableMapBuilder<K, V> extends ImmutableMap.Builder<K, V> {
+
+    /**
+     * @deprecated
+     */
+    @Deprecated
     public static <K, V> ImmutableMapBuilder<K, V> newInstance() {
         return new ImmutableMapBuilder<K, V>();
     }
 
-    public <E> ImmutableMapBuilder<K, V> putAll(final Iterable<? extends E> iterable, final Function<? super E, K> keyFunction, final Function<? super E, V> valueFunction) {
+    /**
+     * @deprecated
+     */
+    @Deprecated
+    public <E> ImmutableMapBuilder<K, V> putAll(final Iterable<? extends E> iterable,
+                                                final Function<? super E, K> keyFunction,
+                                                final Function<? super E, V> valueFunction) {
+        checkNotNull(iterable);
+        checkNotNull(keyFunction);
+        checkNotNull(valueFunction);
 
         for (final E e : iterable) {
-            put(keyFunction.apply(e), valueFunction.apply(e));
+            final K key = checkNotNull(keyFunction.apply(e));
+            final V value = checkNotNull(valueFunction.apply(e));
+            put(key, value);
         }
 
         return this;
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     @Override
     public ImmutableMapBuilder<K, V> put(final K key, final V value) {
         super.put(key, value);
         return this;
     }
 
+    /**
+     * @deprecated
+     */
+    @Deprecated
     @Override
     public ImmutableMapBuilder<K, V> putAll(final Map<? extends K, ? extends V> map) {
         super.putAll(map);

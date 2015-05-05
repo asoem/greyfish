@@ -17,48 +17,74 @@
 
 package org.asoem.greyfish.utils.collect;
 
+import com.google.common.base.Throwables;
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ExecutionError;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * An object pool implementation backed by a {@link ConcurrentLinkedQueue}. Therefore, this class does not permit the
+ * use of {@code null} elements.
+ *
+ * @param <T> The type of the objects the pool provides
+ */
 public class ConcurrentObjectPool<T> implements ObjectPool<T> {
 
     private final ConcurrentLinkedQueue<T> deque = Queues.newConcurrentLinkedQueue();
+    private final ExecutorService executorService;
 
-    private ConcurrentObjectPool() {
+    private ConcurrentObjectPool(final ExecutorService executorService) {
+        this.executorService = executorService;
     }
 
     public static <T> ConcurrentObjectPool<T> create() {
-        return new ConcurrentObjectPool<T>();
+        final ListeningExecutorService executorService = MoreExecutors.newDirectExecutorService();
+        return create(executorService);
+    }
+
+    public static <T> ConcurrentObjectPool<T> create(final ExecutorService executorService) {
+        return new ConcurrentObjectPool<>(checkNotNull(executorService));
     }
 
     public static <T> ConcurrentLoadingObjectPool<T> create(final Callable<T> valueLoader) {
-        return new ConcurrentLoadingObjectPool<T>(checkNotNull(valueLoader));
+        return create(valueLoader, MoreExecutors.newDirectExecutorService());
+    }
+
+    public static <T> ConcurrentLoadingObjectPool<T> create(final Callable<T> valueLoader,
+                                                            final ExecutorService executorService) {
+        return new ConcurrentLoadingObjectPool<>(checkNotNull(valueLoader), checkNotNull(executorService));
     }
 
     @Override
-    public T borrow(final Callable<T> objectFactory) throws ExecutionException {
-        checkNotNull(objectFactory);
+    public T borrow(final Callable<T> valueLoader) throws ExecutionException {
+        checkNotNull(valueLoader);
 
         @Nullable
         T poll = deque.poll();
 
-        if (poll == null) {
+        if (poll == null) { // deque was empty
             try {
-                poll = objectFactory.call();
-            } catch (Exception e) {
-                throw new ExecutionException(e);
-            } catch (Error e) {
-                throw new ExecutionError(e);
-            } catch (Throwable e) {
-                throw new UncheckedExecutionException(e);
+                poll = executorService.submit(valueLoader).get();
+            } catch (ExecutionException ee) {
+                Throwable cause = ee.getCause();
+                if (cause instanceof Error) {
+                    throw new ExecutionError((Error) cause);
+                } else if (cause instanceof RuntimeException) {
+                    throw new UncheckedExecutionException(cause);
+                }
+                throw ee;
+            } catch (InterruptedException e) {
+                throw Throwables.propagate(e);
             }
         }
 
@@ -67,20 +93,27 @@ public class ConcurrentObjectPool<T> implements ObjectPool<T> {
 
     @Override
     public void release(final T object) {
-        deque.offer(object);
+        deque.offer(checkNotNull(object));
     }
 
+    /**
+     * A loading object pool implementation backed by a {@link ConcurrentLinkedQueue}.
+     *
+     * @param <T> The type of the objects the pool provides
+     */
     public static class ConcurrentLoadingObjectPool<T> extends ConcurrentObjectPool<T> implements LoadingObjectPool<T> {
 
-        private final Callable<T> objectFactory;
+        private final Callable<T> valueLoader;
 
-        private ConcurrentLoadingObjectPool(final Callable<T> objectFactory) {
-            this.objectFactory = objectFactory;
+        private ConcurrentLoadingObjectPool(final Callable<T> valueLoader, final ExecutorService executorService) {
+            super(executorService);
+            this.valueLoader = valueLoader;
         }
 
         @Override
         public T borrow() throws ExecutionException {
-            return borrow(objectFactory);
+            return borrow(valueLoader);
         }
+
     }
 }

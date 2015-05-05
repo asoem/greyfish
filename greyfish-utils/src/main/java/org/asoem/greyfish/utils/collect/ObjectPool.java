@@ -20,6 +20,11 @@ package org.asoem.greyfish.utils.collect;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * A interface for implementing object pools (http://en.wikipedia.org/wiki/Object_pool_pattern).
+ *
+ * @param <T> The type of the objects the pool provides
+ */
 public interface ObjectPool<T> {
     /**
      * Borrow an object from this pool. If the pool is empty a new object is created using the {@code valueLoader}.

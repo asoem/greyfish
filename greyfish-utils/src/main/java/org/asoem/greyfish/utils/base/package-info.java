@@ -15,15 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.asoem.greyfish.utils.collect;
+/**
+ * This package contains basic utility methods and classes.
+ */
+@ParametersAreNonnullByDefault package org.asoem.greyfish.utils.base;
 
-import com.google.common.collect.Range;
-
-public interface RangeElement<E extends Number & Comparable<E>> {
-
-    /**
-     *
-     * @return the {@code Range} that contains this element's value
-     */
-    Range<E> getRange();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

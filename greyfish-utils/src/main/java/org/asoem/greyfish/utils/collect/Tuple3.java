@@ -18,7 +18,7 @@
 package org.asoem.greyfish.utils.collect;
 
 
-public class Tuple3<E1, E2, E3> implements Product3<E1, E2, E3> {
+public final class Tuple3<E1, E2, E3> implements Product3<E1, E2, E3> {
 
     private final E1 e1;
     private final E2 e2;

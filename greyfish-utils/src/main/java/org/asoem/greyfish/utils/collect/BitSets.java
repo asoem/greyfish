@@ -26,6 +26,9 @@ import java.util.BitSet;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * Utility methods for objects of type {@link BitSet}.
+ */
 public final class BitSets {
 
     private BitSets() {

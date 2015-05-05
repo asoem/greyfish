@@ -23,32 +23,53 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimaps;
 import com.google.common.util.concurrent.ExecutionError;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class SynchronizedKeyedObjectPool<K, V> implements KeyedObjectPool<K, V> {
-    private final ListMultimap<K, V> multimap = Multimaps.synchronizedListMultimap(Multimaps.newListMultimap(Maps.<K, Collection<V>>newHashMap(), new Supplier<List<V>>() {
-        @Override
-        public List<V> get() {
-            return Lists.newArrayList();
-        }
-    }));
+    private final ListMultimap<K, V> multimap = Multimaps.synchronizedListMultimap(
+            Multimaps.newListMultimap(
+                    Maps.<K, Collection<V>>newHashMap(),
+                    new Supplier<List<V>>() {
+                        @Override
+                        public List<V> get() {
+                            return Lists.newArrayList();
+                        }
+                    }));
+    private ExecutorService executorService;
 
-    private SynchronizedKeyedObjectPool() {
+    private SynchronizedKeyedObjectPool(final ExecutorService executorService) {
+        this.executorService = executorService;
     }
 
     public static <K, V> SynchronizedKeyedObjectPool<K, V> create() {
-        return new SynchronizedKeyedObjectPool<>();
+        final ListeningExecutorService executorService = MoreExecutors.newDirectExecutorService();
+        return create(executorService);
     }
 
-    public static <K, V> LoadingSynchronizedKeyedObjectPool<K, V> create(final LoadingKeyedObjectPool.PoolLoader<K, V> valueLoader) {
-        return new LoadingSynchronizedKeyedObjectPool<>(valueLoader);
+    static <K, V> SynchronizedKeyedObjectPool<K, V> create(final ListeningExecutorService executorService) {
+        return new SynchronizedKeyedObjectPool<>(executorService);
+    }
+
+    public static <K, V> LoadingSynchronizedKeyedObjectPool<K, V> create(
+            final LoadingKeyedObjectPool.PoolLoader<K, V> valueLoader) {
+        final ListeningExecutorService executorService = MoreExecutors.newDirectExecutorService();
+        return create(valueLoader, executorService);
+    }
+
+    static <K, V> LoadingSynchronizedKeyedObjectPool<K, V> create(
+            final LoadingKeyedObjectPool.PoolLoader<K, V> valueLoader,
+            final ListeningExecutorService executorService) {
+        return new LoadingSynchronizedKeyedObjectPool<>(valueLoader, executorService);
     }
 
     @Override
@@ -60,7 +81,7 @@ public class SynchronizedKeyedObjectPool<K, V> implements KeyedObjectPool<K, V> 
         synchronized (multimap) {
             if (collection.isEmpty()) {
                 try {
-                    return valueLoader.call();
+                    return executorService.submit(valueLoader).get();
                 } catch (Exception e) {
                     throw new ExecutionException(e);
                 } catch (Error e) {
@@ -85,10 +106,14 @@ public class SynchronizedKeyedObjectPool<K, V> implements KeyedObjectPool<K, V> 
         }
     }
 
-    private static class LoadingSynchronizedKeyedObjectPool<K, V> extends SynchronizedKeyedObjectPool<K, V> implements LoadingKeyedObjectPool<K, V> {
+    private static class LoadingSynchronizedKeyedObjectPool<K, V>
+            extends SynchronizedKeyedObjectPool<K, V>
+            implements LoadingKeyedObjectPool<K, V> {
         private final PoolLoader<K, V> valueLoader;
 
-        public LoadingSynchronizedKeyedObjectPool(final PoolLoader<K, V> valueLoader) {
+        private LoadingSynchronizedKeyedObjectPool(final PoolLoader<K, V> valueLoader,
+                                                   final ListeningExecutorService executorService) {
+            super(executorService);
             this.valueLoader = valueLoader;
         }
 

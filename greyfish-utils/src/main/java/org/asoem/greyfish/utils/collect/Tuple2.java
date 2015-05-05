@@ -24,14 +24,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * Tuple2 is an immutable implementation of {@code Product2} which does not allow {@code null} values.
  */
-public class Tuple2<E1, E2> implements Product2<E1, E2> {
+public final class Tuple2<E1, E2> implements Product2<E1, E2> {
 
     private final E1 e1;
     private final E2 e2;
 
     private Tuple2(final E1 e1, final E2 e2) {
-        assert e1 != null;
-        assert e2 != null;
         this.e1 = e1;
         this.e2 = e2;
     }

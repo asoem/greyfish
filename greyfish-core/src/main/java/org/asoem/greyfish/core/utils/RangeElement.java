@@ -15,26 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.asoem.greyfish.core.properties;
+package org.asoem.greyfish.core.utils;
 
-import com.google.common.base.Optional;
-import org.asoem.greyfish.core.agent.Agent;
-import org.asoem.greyfish.core.utils.RangeElement;
+import com.google.common.collect.Range;
 
-import javax.annotation.Nullable;
-
-public interface RangeElementProperty<A extends Agent<?>, T extends Number & Comparable<T>, C> extends AgentProperty<C, T>, RangeElement<T> {
-    /**
-     * Sets the connected agent. This method should only be called by an Agent implementation in an addXXX method.
-     *
-     * @param agent the new agent
-     */
-    void setAgent(@Nullable A agent);
+public interface RangeElement<E extends Number & Comparable<E>> {
 
     /**
-     * Get the agent this component was added to.
      *
-     * @return the agent for this component
+     * @return the {@code Range} that contains this element's value
      */
-    Optional<A> agent();
+    Range<E> getRange();
 }
