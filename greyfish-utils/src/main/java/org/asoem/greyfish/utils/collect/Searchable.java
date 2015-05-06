@@ -24,7 +24,9 @@ import com.google.common.base.Predicate;
  * An interface for collections which want to support search operations directly,
  * without the need to use the possibly less efficient static methods in {@link com.google.common.collect.Iterators},
  * {@link com.google.common.collect.Iterables}, {@link com.google.common.collect.Collections2} or {@code Lists}.
+ * @deprecated All method definitions will be moved to {@link FunctionalIterable}.
  */
+@Deprecated
 public interface Searchable<E> extends Iterable<E> {
     /**
      * Find the first element which satisfies {@code predicate}.

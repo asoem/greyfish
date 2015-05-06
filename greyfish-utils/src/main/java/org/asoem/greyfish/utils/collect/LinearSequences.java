@@ -18,6 +18,7 @@
 package org.asoem.greyfish.utils.collect;
 
 import com.google.common.base.Function;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
@@ -94,16 +95,15 @@ public class LinearSequences {
      * @return the number of positions where the elements in both lists are not {@link Object#equals equal}
      * @throws java.lang.IllegalArgumentException is the lists are not of the same length
      */
-    public static int hammingDistance(final List<?> first, final List<?> second) {
+    public static <T> int hammingDistance(final List<T> first, final List<T> second) {
         checkArgument(checkNotNull(first).size() == checkNotNull(second.size()));
-        final Iterable<Product2<Object, Object>> zipped = Products.zip(first, second);
+        final Iterable<Product2<T, T>> zipped = Products.zip(first, second);
         int sum = 0;
-        for (final Product2<?, ?> el : zipped) {
-            if (!el.first().equals(el.second())) {
+        for (final Product2<T, T> el : zipped) {
+            if (!Objects.equal(el.first(), el.second())) {
                 ++sum;
             }
         }
         return sum;
     }
-
 }

@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *
  * @param <E> the element type
  */
-final class UnrolledList2<E> extends DelegatingImmutableFunctionalList<E> implements Serializable {
+final class UnrolledList2<E> extends ForwardingImmutableFunctionalList<E> implements Serializable {
 
     private final List<E> delegate;
 

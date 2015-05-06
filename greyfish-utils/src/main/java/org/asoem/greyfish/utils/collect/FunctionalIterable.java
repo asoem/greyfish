@@ -17,19 +17,19 @@
 
 package org.asoem.greyfish.utils.collect;
 
-import java.util.List;
+import com.google.common.base.Predicate;
 
-abstract class DelegatingImmutableFunctionalList<E> extends ImmutableFunctionalList<E> {
-
-    protected abstract List<E> delegate();
-
-    @Override
-    public final E get(final int index) {
-        return delegate().get(index);
-    }
-
-    @Override
-    public final int size() {
-        return delegate().size();
-    }
+/**
+ * A {@link Iterable} which supports functional style operations.
+ *
+ * @param <E> the type of the elements
+ */
+public interface FunctionalIterable<E> extends Searchable<E> {
+    /**
+     * Check if at least one of the elements satisfies the given {@code predicate}.
+     *
+     * @param predicate the {@code Predicate} to check against
+     * @return {@code true} if at least one element satisfies {@code predicate}, {@code false} otherwise
+     */
+    boolean any(Predicate<E> predicate);
 }

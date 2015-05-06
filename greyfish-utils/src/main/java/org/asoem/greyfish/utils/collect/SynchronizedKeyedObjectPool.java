@@ -27,7 +27,9 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 
+import javax.annotation.concurrent.ThreadSafe;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -35,6 +37,13 @@ import java.util.concurrent.ExecutorService;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * A thread safe implementation of a {@code KeyedObjectPool}.
+ *
+ * @param <K> the type of the keys
+ * @param <V> the type of the pooled objects
+ */
+@ThreadSafe
 public class SynchronizedKeyedObjectPool<K, V> implements KeyedObjectPool<K, V> {
     private final ListMultimap<K, V> multimap = Multimaps.synchronizedListMultimap(
             Multimaps.newListMultimap(
@@ -42,7 +51,7 @@ public class SynchronizedKeyedObjectPool<K, V> implements KeyedObjectPool<K, V> 
                     new Supplier<List<V>>() {
                         @Override
                         public List<V> get() {
-                            return Lists.newArrayList();
+                            return Collections.synchronizedList(Lists.<V>newArrayList());
                         }
                     }));
     private ExecutorService executorService;
@@ -78,20 +87,22 @@ public class SynchronizedKeyedObjectPool<K, V> implements KeyedObjectPool<K, V> 
         checkNotNull(valueLoader);
 
         final List<V> collection = multimap.get(key);
-        synchronized (multimap) {
-            if (collection.isEmpty()) {
-                try {
-                    return executorService.submit(valueLoader).get();
-                } catch (Exception e) {
-                    throw new ExecutionException(e);
-                } catch (Error e) {
-                    throw new ExecutionError(e);
-                } catch (Throwable e) {
-                    throw new UncheckedExecutionException(e);
-                }
-            } else {
-                return collection.remove(collection.size());
-            }
+        if (collection.isEmpty()) {
+            return createObject(valueLoader);
+        } else {
+            return collection.remove(collection.size());
+        }
+    }
+
+    V createObject(final Callable<? extends V> valueLoader) throws ExecutionException {
+        try {
+            return executorService.submit(valueLoader).get();
+        } catch (Exception e) {
+            throw new ExecutionException(e);
+        } catch (Error e) {
+            throw new ExecutionError(e);
+        } catch (Throwable e) {
+            throw new UncheckedExecutionException(e);
         }
     }
 
@@ -101,9 +112,7 @@ public class SynchronizedKeyedObjectPool<K, V> implements KeyedObjectPool<K, V> 
         checkNotNull(object);
 
         final List<V> collection = multimap.get(key);
-        synchronized (multimap) {
-            collection.add(object);
-        }
+        collection.add(object);
     }
 
     private static class LoadingSynchronizedKeyedObjectPool<K, V>

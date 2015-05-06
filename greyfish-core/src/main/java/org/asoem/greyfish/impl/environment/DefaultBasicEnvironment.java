@@ -31,7 +31,6 @@ import org.asoem.greyfish.core.agent.DefaultContextFactory;
 import org.asoem.greyfish.core.environment.AbstractEnvironment;
 import org.asoem.greyfish.core.scheduler.Event;
 import org.asoem.greyfish.impl.agent.BasicAgent;
-import org.asoem.greyfish.utils.concurrent.Runnables;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -47,6 +46,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.google.common.base.Preconditions.*;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
+import static com.google.common.util.concurrent.Runnables.doNothing;
 
 /**
  * The default thread safe implementation of BasicSimulation.
@@ -136,7 +137,7 @@ public final class DefaultBasicEnvironment
 
     @Override
     public void enqueueRemoval(final BasicAgent agent) {
-        enqueueRemoval(agent, Runnables.emptyRunnable(), MoreExecutors.sameThreadExecutor());
+        enqueueRemoval(agent, doNothing(), directExecutor());
     }
 
     @Override

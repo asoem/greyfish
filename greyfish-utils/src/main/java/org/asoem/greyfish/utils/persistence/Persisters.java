@@ -48,9 +48,7 @@ public final class Persisters {
         checkNotNull(o);
         checkNotNull(persister);
 
-        final Closer closer = Closer.create();
-
-        try {
+        try (Closer closer = Closer.create()) {
             final PipedOutputStream pipedOutputStream = closer.register(new PipedOutputStream());
             final PipedInputStream pipedInputStream = closer.register(new PipedInputStream(pipedOutputStream));
 
@@ -79,8 +77,6 @@ public final class Persisters {
                 }
             }
             return deserializeFuture.get(3, TimeUnit.SECONDS);
-        } finally {
-            closer.close();
         }
     }
 
@@ -95,20 +91,21 @@ public final class Persisters {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static <T> T copy(final T o, final Persister persister, final Class<T> clazz) throws IOException, ClassNotFoundException {
-        final Closer closer = Closer.create();
+    public static <T> T copy(final T o, final Persister persister, final Class<T> clazz)
+            throws IOException, ClassNotFoundException {
 
-        try {
+        try (Closer closer = Closer.create()) {
             final ByteArrayOutputStream outputStream = closer.register(new ByteArrayOutputStream());
             persister.serialize(o, outputStream);
-            final ByteArrayInputStream inputStream = closer.register(new ByteArrayInputStream(outputStream.toByteArray()));
+            final ByteArrayInputStream inputStream = closer.register(
+                    new ByteArrayInputStream(outputStream.toByteArray()));
             return persister.deserialize(inputStream, clazz);
-        } finally {
-            closer.close();
         }
     }
 
-    public static <T> T deserialize(final Persister persister, final InputSupplier<? extends InputStream> inputSupplier, final Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException {
+    public static <T> T deserialize(final Persister persister,
+                                    final InputSupplier<? extends InputStream> inputSupplier,
+                                    final Class<T> clazz) throws IOException, ClassNotFoundException {
         final InputStream input = inputSupplier.getInput();
         boolean threw = true;
         try {
@@ -120,7 +117,8 @@ public final class Persisters {
         }
     }
 
-    public static void serialize(final Persister persister, final Object object, final OutputSupplier<? extends OutputStream> outputSupplier) throws IOException {
+    public static void serialize(final Persister persister, final Object object,
+                                 final OutputSupplier<? extends OutputStream> outputSupplier) throws IOException {
         final OutputStream output = outputSupplier.getOutput();
         boolean threw = true;
         try {

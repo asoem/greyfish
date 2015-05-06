@@ -22,13 +22,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-
+/**
+ * Interface for serialization engines. <p>An implementations using Java-Serialization can be found in utility class
+ * {@link Persisters}</p>
+ */
 public interface Persister {
-    public <T> T deserialize(File file, Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException;
+    <T> T deserialize(File file, Class<T> clazz) throws IOException, ClassNotFoundException;
 
-    public <T> T deserialize(InputStream inputStream, Class<T> clazz) throws IOException, ClassCastException, ClassNotFoundException;
+    <T> T deserialize(InputStream inputStream, Class<T> clazz) throws IOException, ClassNotFoundException;
 
-    public void serialize(Object object, File file) throws IOException;
+    void serialize(Object object, File file) throws IOException;
 
-    public void serialize(Object object, OutputStream outputStream) throws IOException;
+    void serialize(Object object, OutputStream outputStream) throws IOException;
 }

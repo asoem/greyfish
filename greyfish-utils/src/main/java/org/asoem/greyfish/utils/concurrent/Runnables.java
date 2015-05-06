@@ -23,11 +23,15 @@ public final class Runnables {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * @deprecated Use {@link com.google.common.util.concurrent.Runnables#doNothing()}
+     */
+    @Deprecated
     public static Runnable emptyRunnable() {
         return EmptyRunnable.INSTANCE;
     }
 
-    private static enum EmptyRunnable implements Runnable {
+    private enum EmptyRunnable implements Runnable {
         INSTANCE;
 
         @Override

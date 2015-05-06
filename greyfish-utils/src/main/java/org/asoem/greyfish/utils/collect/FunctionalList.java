@@ -21,6 +21,8 @@ import java.util.List;
 
 /**
  * A {@code List} which supports functional style operations.
+ *
+ * @param <E> the type of the elements
  */
 public interface FunctionalList<E> extends List<E>, FunctionalCollection<E> {
 }

@@ -85,12 +85,17 @@ public final class SimpleTwoDimTree<T> extends AbstractCollection<TwoDimTree.Nod
 
     @Override
     public Iterable<DistantObject<TwoDimTree.Node<T>>> findNodes(final double x, final double y, final double range) {
+        return rangeSearch(x, y, range);
+    }
+
+    @Override
+    public Iterable<DistantObject<TwoDimTree.Node<T>>> rangeSearch(final double x, final double y, final double radius) {
         final FluentIterable<TwoDimTree.Node<T>> nodes = treeTraverser.preOrderTraversal(rootNode().get());
         List<DistantObject<TwoDimTree.Node<T>>> distantObjects = Lists.newArrayList();
         for (final TwoDimTree.Node<T> node : nodes) {
             final double distance = ImmutablePoint2D.at(x, y).distance(
                     ImmutablePoint2D.at(node.xCoordinate(), node.yCoordinate()));
-            if (distance <= range) {
+            if (distance <= radius) {
                 distantObjects.add(new DistantObject<TwoDimTree.Node<T>>() {
                     @Override
                     public TwoDimTree.Node<T> object() {

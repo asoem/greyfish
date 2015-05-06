@@ -92,7 +92,7 @@ public abstract class ImmutableFunctionalList<E> extends AbstractFunctionalList<
         return new UnrolledList6<>(ImmutableList.of(e0, e1, e2, e3, e4, e5, e6));
     }
 
-    private static class ImmutableFunctionalListN<E> extends DelegatingImmutableFunctionalList<E> {
+    private static class ImmutableFunctionalListN<E> extends ForwardingImmutableFunctionalList<E> {
         private List<E> delegate;
 
         public ImmutableFunctionalListN(final Iterable<? extends E> elements) {
