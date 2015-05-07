@@ -19,3 +19,12 @@ Links
 -----
 - [GitHub project](http://github.com/asoem/greyfish)
 - [Website](http://asoem.org/greyfish)
+
+History
+-------
+The first version of the software originated in 2007 out of an extracurricular project by Christoph Hösler,
+Thomas Schmidt and Wolfgang Siewert, and was funded by the MFG Baden-Württemberg (centre of excellence for IT,
+media and film of the federal state Baden-Württemberg)
+[For more information visit their homepage at [asoem.org](http://asoem.org)].
+Since 2010, [Christoph Hösler](http://github.com/hoesler) reworked it to implement simulation models
+for his PhD project in evolutionary biology at the University of Tübingen (Germany).
