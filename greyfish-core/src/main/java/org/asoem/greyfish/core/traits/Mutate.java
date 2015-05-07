@@ -19,7 +19,7 @@ package org.asoem.greyfish.core.traits;
 
 import org.asoem.greyfish.core.agent.ComponentMessage;
 
-public class Mutate implements ComponentMessage {
+public final class Mutate implements ComponentMessage {
     private final Object value;
     private final String componentName;
 

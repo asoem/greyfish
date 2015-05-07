@@ -17,6 +17,15 @@
 
 package org.asoem.greyfish.core.agent;
 
+/**
+ * Interface for {@link Agent#ask(Object, Class) messages} that will be handled by an {@link AgentComponent}.
+ */
 public interface ComponentMessage {
+
+    /**
+     * Get the name of the target component that will handle this message.
+     *
+     * @return the name of the component
+     */
     String componentName();
 }
