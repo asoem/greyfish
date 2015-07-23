@@ -184,9 +184,7 @@ public final class GreyfishCLIApplication {
                     @Override
                     public SimulationLogger get() {
                         final GreyfishH2ConnectionManager connectionSupplier =
-                                GreyfishH2ConnectionManager.create(path,
-                                        GreyfishH2ConnectionManager.defaultInitSql(),
-                                        GreyfishH2ConnectionManager.defaultFinalizeSql());
+                                GreyfishH2ConnectionManager.embedded(path);
                         final SimulationLogger jdbcLogger = SimulationLoggers.createJDBCLogger(
                                 connectionSupplier, optionSet.valueOf(commitThresholdSpec));
 
